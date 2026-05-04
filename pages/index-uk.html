@@ -265,28 +265,23 @@
       color: var(--white); text-align: center;
       max-width: 1000px; padding: 0 60px; line-height: 1.08;
     }
+    /* Line-by-line apparition — simple opacity fade.
+       Per-word delay is set in JS based on its Y position → all words on the
+       same line fade together, and each line enters after the previous one. */
     .mfst-body .word-inner,
     .outils-body .word-inner {
       display: inline-block;
       opacity: 0;
-      transform: translateY(28px);
-      filter: blur(6px);
-      transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-                  filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.6s ease-out;
     }
     .mfst-body.is-in .word-inner,
     .outils-body.is-in .word-inner {
       opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
     }
     .mfst-body.is-out .word-inner,
     .outils-body.is-out .word-inner {
       opacity: 0;
-      transform: translateY(-12px);
-      filter: blur(4px);
-      transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+      transition: opacity 0.25s ease;
     }
 
     .svc-display {
@@ -966,14 +961,43 @@
       });
     };
     walk(el);
-    el.querySelectorAll('.word-inner').forEach((w, i) => {
-      w.style.transitionDelay = (i * 0.045) + 's';
+  }
+  /* Group .word-inner by line (offsetTop) and set the same transition-delay
+     for all words on the same line → line-by-line fade-in. */
+  function applyLineDelays(el, perLine = 0.16) {
+    if (!el) return;
+    const words = el.querySelectorAll('.word-inner');
+    if (!words.length) return;
+    let lastTop = null;
+    let lineIdx = -1;
+    words.forEach(w => {
+      w.style.transitionDelay = '0s';
+      const top = Math.round(w.getBoundingClientRect().top);
+      if (lastTop === null || Math.abs(top - lastTop) > 4) {
+        lineIdx++;
+        lastTop = top;
+      }
+      w.style.transitionDelay = (lineIdx * perLine) + 's';
     });
   }
   const _mfstBody = document.getElementById('mfstBody');
   const _outilsBody = document.getElementById('outilsBody');
-  if (_mfstBody) splitWords(_mfstBody);
+  if (_mfstBody)   splitWords(_mfstBody);
   if (_outilsBody) splitWords(_outilsBody);
+  function refreshLineDelays() {
+    applyLineDelays(_mfstBody);
+    applyLineDelays(_outilsBody);
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(refreshLineDelays);
+  } else {
+    window.addEventListener('load', refreshLineDelays);
+  }
+  let _lineDelaysTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(_lineDelaysTimer);
+    _lineDelaysTimer = setTimeout(refreshLineDelays, 150);
+  });
 
   /* ─── ENTER / EXIT ─── */
   function enterEl(el) {
