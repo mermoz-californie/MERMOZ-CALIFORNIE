@@ -614,7 +614,31 @@
 
       .panel:not(#hero) { display: none; }
       .section-nav, .outro-meta { display: none; }
-      .js-tagline { display: none; }
+
+      /* Tagline: hidden by default, revealed on tap of the title. */
+      .js-tagline {
+        display: flex !important;
+        opacity: 0 !important;
+        max-height: 0;
+        margin-top: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: opacity 0.45s ease,
+                    max-height 0.45s ease,
+                    margin-top 0.45s ease;
+      }
+      .js-tagline.is-tap-shown {
+        opacity: 1 !important;
+        max-height: 30px;
+        margin-top: 22px;
+        pointer-events: auto;
+      }
+
+      /* Hero title: smaller so "CALIFORNIE" fits on one line, and clickable. */
+      #heroTitle {
+        font-size: clamp(38px, 11vw, 64px) !important;
+        cursor: pointer;
+      }
 
       body.bg-open .panel-inner { inset: 0; border-radius: 0; }
 
@@ -864,6 +888,13 @@
   }
 
   const heroTitle    = document.getElementById('heroTitle');
+
+  /* Mobile: tap on MERMOZ CALIFORNIE → toggle the tagline. */
+  heroTitle.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      document.querySelector('.js-tagline')?.classList.toggle('is-tap-shown');
+    }
+  });
   const svcDisplay   = document.getElementById('svcDisplay');
   const outilsDisplay = document.getElementById('outilsDisplay');
   const outilsDrawer  = document.getElementById('outilsDrawer');
