@@ -258,30 +258,20 @@
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
-    /* 002 — Paragraphe (texte manifeste) — apparition mot par mot en cascade. */
+    /* 002 — Paragraphe (texte manifeste) — slide-up + fade du bloc entier. */
     .mfst-body {
       font-family: 'Editorial New', Georgia, serif;
       font-size: clamp(20px, 2.6vw, 44px);
       color: var(--white); text-align: center;
       max-width: 1000px; padding: 0 60px; line-height: 1.08;
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.85s ease 0.15s,
+                  transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
     }
-    /* Apparition ligne par ligne — simple fade (opacité uniquement).
-       Le delay de chaque mot est posé en JS selon sa position Y → tous les mots
-       d'une même ligne fadent ensemble, et chaque ligne entre après la précédente. */
-    .mfst-body .word-inner,
-    .outils-body .word-inner {
-      display: inline-block;
-      opacity: 0;
-      transition: opacity 0.38s ease-out;
-    }
-    .mfst-body.is-in .word-inner,
-    .outils-body.is-in .word-inner {
-      opacity: 1;
-    }
-    .mfst-body.is-out .word-inner,
-    .outils-body.is-out .word-inner {
-      opacity: 0;
-      transition: opacity 0.25s ease;
+    .mfst-body.is-in  { opacity: 1; transform: translateY(0); }
+    .mfst-body.is-out {
+      opacity: 0; transform: translateY(-18px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     .svc-display {
@@ -407,7 +397,7 @@
     }
     .outils-tool-line { width: 40px; height: 1px; background: #bbb; flex-shrink: 0; }
 
-    /* 002 — Corps visible sous Outils — apparition mot par mot. */
+    /* 002 — Corps visible sous Outils — slide-up + fade du bloc entier. */
     .outils-body {
       font-family: 'Editorial New', Georgia, serif;
       font-size: clamp(18px, 2.3vw, 36px);
@@ -415,8 +405,15 @@
       line-height: 1.08;
       max-width: 850px; padding: 0 40px;
       margin-top: 18px;
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.85s ease 0.25s,
+                  transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
     }
-    /* Les transitions in/out se font sur les .word-inner (voir bloc plus haut). */
+    .outils-body.is-in  { opacity: 1; transform: translateY(0); }
+    .outils-body.is-out {
+      opacity: 0; transform: translateY(-16px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
 
     /* ─── OUTRO PANEL ─── */
     #outro { z-index: 1; }
@@ -939,76 +936,6 @@
   splitChars(outilsDisplay, '.outils-word');
   splitChars(outroTitle,    '.js-outro-hl');
 
-  /* Split chaque mot des paragraphes 002 dans <span.word><span.word-inner>mot</span></span>
-     pour permettre l'apparition staggered. Préserve les <br>. */
-  function splitWords(el) {
-    const walk = (node) => {
-      Array.from(node.childNodes).forEach(child => {
-        if (child.nodeType === Node.TEXT_NODE) {
-          const parts = child.textContent.split(/(\s+)/);
-          const frag = document.createDocumentFragment();
-          parts.forEach(p => {
-            if (!p) return;
-            if (/^\s+$/.test(p)) {
-              frag.appendChild(document.createTextNode(p));
-            } else {
-              const w = document.createElement('span');
-              w.className = 'word';
-              const inner = document.createElement('span');
-              inner.className = 'word-inner';
-              inner.textContent = p;
-              w.appendChild(inner);
-              frag.appendChild(w);
-            }
-          });
-          node.replaceChild(frag, child);
-        } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== 'BR') {
-          walk(child);
-        }
-      });
-    };
-    walk(el);
-  }
-  /* Regroupe les .word-inner par ligne (offsetTop) et pose un transition-delay
-     identique pour tous les mots d'une même ligne → fade ligne par ligne. */
-  function applyLineDelays(el, perLine = 0.09) {
-    if (!el) return;
-    const words = el.querySelectorAll('.word-inner');
-    if (!words.length) return;
-    let lastTop = null;
-    let lineIdx = -1;
-    words.forEach(w => {
-      // Reset pour pouvoir mesurer correctement avant de poser le nouveau delay
-      w.style.transitionDelay = '0s';
-      const top = Math.round(w.getBoundingClientRect().top);
-      if (lastTop === null || Math.abs(top - lastTop) > 4) {
-        lineIdx++;
-        lastTop = top;
-      }
-      w.style.transitionDelay = (lineIdx * perLine) + 's';
-    });
-  }
-  const _mfstBody = document.getElementById('mfstBody');
-  const _outilsBody = document.getElementById('outilsBody');
-  if (_mfstBody)   splitWords(_mfstBody);
-  if (_outilsBody) splitWords(_outilsBody);
-  // Calcul initial des delays par ligne (après que les fontes soient prêtes
-  // pour mesurer correctement les retours à la ligne).
-  function refreshLineDelays() {
-    applyLineDelays(_mfstBody);
-    applyLineDelays(_outilsBody);
-  }
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(refreshLineDelays);
-  } else {
-    window.addEventListener('load', refreshLineDelays);
-  }
-  // Au resize, les retours à la ligne changent : on recalcule.
-  let _lineDelaysTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(_lineDelaysTimer);
-    _lineDelaysTimer = setTimeout(refreshLineDelays, 150);
-  });
 
   /* ─── ENTER / EXIT ─── */
   function enterEl(el) {
