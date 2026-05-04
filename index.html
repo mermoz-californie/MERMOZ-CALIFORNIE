@@ -177,7 +177,23 @@
     }
     body.bg-open .panel-inner {
       border-radius: 16px;
-      inset: 28px;
+      inset: 67px;
+    }
+
+    /* Scale des éléments À L'INTÉRIEUR de la zone (sauf le titre outro
+       et les éléments centrés en absolu qui ont déjà un translate). */
+    .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm) {
+      transform: scale(1);
+      transform-origin: center center;
+      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
+    }
+    body.bg-open .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm) {
+      transform: scale(0.88);
+    }
+    /* outro-form et outro-form-confirm : composer le scale avec leur translate. */
+    body.bg-open .outro-form,
+    body.bg-open .outro-form-confirm {
+      transform: translate(-50%, -50%) scale(0.88);
     }
 
     /* Dot animé quand actif */
@@ -245,9 +261,9 @@
     /* 002 — Paragraphe (texte manifeste) */
     .mfst-body {
       font-family: 'Editorial New', Georgia, serif;
-      font-size: clamp(22px, 3vw, 52px);
+      font-size: clamp(20px, 2.6vw, 44px);
       color: var(--white); text-align: center;
-      max-width: 1300px; padding: 0 60px; line-height: 1.18;
+      max-width: 1000px; padding: 0 60px; line-height: 1.08;
       opacity: 0; transform: translateY(32px);
       transition: opacity 0.95s ease 0.15s,
                   transform 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
@@ -384,10 +400,10 @@
     /* 002 — Corps visible sous Outils */
     .outils-body {
       font-family: 'Editorial New', Georgia, serif;
-      font-size: clamp(20px, 2.6vw, 42px);
+      font-size: clamp(18px, 2.3vw, 36px);
       color: var(--black); text-align: center;
-      line-height: 1.18;
-      max-width: 1100px; padding: 0 40px;
+      line-height: 1.08;
+      max-width: 850px; padding: 0 40px;
       margin-top: 18px;
       opacity: 0; transform: translateY(28px);
       transition: opacity 0.9s ease 0.35s,
@@ -408,7 +424,13 @@
     #outro .dark-brand-title {
       font-size: 8.8vw; /* fallback / valeur initiale, écrasée par JS */
       white-space: nowrap;
-      transform: translateX(-5px); /* léger décalage vers la gauche */
+      transform: translateX(-5px) scale(1);
+      transform-origin: center bottom;
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    /* En dézoom, le titre rétrécit via scale et descend de 10px (--dezoom-scale calculé en JS). */
+    body.bg-open #outro .dark-brand-title {
+      transform: translate(-5px, 10px) scale(var(--dezoom-scale, 0.93));
     }
     #outro .hl-wrap { white-space: nowrap; }
 
@@ -432,22 +454,27 @@
     .outro-meta.is-in  { opacity: 1; }
     .outro-meta.is-out { opacity: 0; transition: opacity 0.2s ease; }
 
-    /* ─── OUTRO FORM — formulaire centré "EN DEUX MOTS" ─── */
+    /* ─── OUTRO FORM — formulaire centré (3 lignes : nom, email, demande) ─── */
     .outro-form {
       position: absolute; top: 42%; left: 50%;
       transform: translate(-50%, -50%);
-      display: flex; align-items: center;
+      display: flex; flex-direction: column;
       width: min(560px, 70vw);
-      border-bottom: 1px solid rgba(239, 237, 234, 0.35);
-      padding: 14px 0;
+      gap: 4px;
       opacity: 0;
       transition: opacity 0.6s ease 0.4s,
-                  border-color 0.3s ease,
-                  transform 0.6s ease;
+                  transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
     }
     .outro-form.is-in  { opacity: 1; }
     .outro-form.is-out { opacity: 0; transition: opacity 0.2s ease; }
-    .outro-form:focus-within { border-color: var(--white); }
+
+    .outro-form-row {
+      display: flex; align-items: center;
+      border-bottom: 1px solid rgba(239, 237, 234, 0.35);
+      padding: 14px 0;
+      transition: border-color 0.3s ease;
+    }
+    .outro-form-row:focus-within { border-color: var(--white); }
 
     .outro-form-input {
       flex: 1;
@@ -462,6 +489,16 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
+    /* Textarea du message — auto-grow géré en JS, max 3 lignes (cap via JS). */
+    .outro-form-textarea {
+      resize: none;
+      overflow: hidden;
+      line-height: 1.4;
+      min-height: calc(1.4em + 8px);
+      display: block;
+    }
+    /* État invalide (champ requis vide à la soumission) */
+    .outro-form-row.is-invalid { border-color: rgba(255, 90, 90, 0.6); }
     .outro-form-send {
       background: none; border: none; cursor: pointer;
       color: var(--white);
@@ -484,7 +521,8 @@
       font-family: var(--body); font-size: 11px; font-weight: 400;
       letter-spacing: 0.06em; text-transform: uppercase;
       opacity: 0; pointer-events: none;
-      transition: opacity 0.5s ease 0.25s;
+      transition: opacity 0.5s ease 0.25s,
+                  transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
     }
     .outro-form-confirm.is-shown { opacity: 1; }
 
@@ -552,6 +590,63 @@
     .section-nav-tick.is-active .bar {
       width: 36px;
       opacity: 1;
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       RESPONSIVE — TABLETTE & MOBILE
+       Breakpoints :
+         ≤1024px : tablette (ajustements modérés)
+         ≤768px  : mobile / tablette portrait (refonte du layout)
+         ≤480px  : très petit mobile (compactage maximal)
+       ───────────────────────────────────────────────────────────────────── */
+
+    /* Tablette : on réduit la marge de dézoom et la taille des outils. */
+    @media (max-width: 1024px) {
+      body.bg-open .panel-inner { inset: 36px; }
+      .outils-tools { font-size: 11px; }
+    }
+
+    /* Mobile / tablette portrait : adaptations majeures. */
+    @media (max-width: 768px) {
+      /* Nav : on enlève l'email (trop long), on réduit les paddings. */
+      nav { padding: 12px 14px; }
+      .nav-link { display: none; }
+
+      /* Marge dézoom plus discrète. */
+      body.bg-open .panel-inner { inset: 16px; border-radius: 12px; }
+      .panel-inner { padding: 10px; }
+
+      /* Pavés textes : on resserre les marges latérales. */
+      .mfst-body  { padding: 0 22px; line-height: 1.1; }
+      .outils-body { padding: 0 22px; }
+
+      /* Liste outils en colonne (les séparateurs disparaissent). */
+      .outils-tools { flex-direction: column; gap: 8px; font-size: 10px; }
+      .outils-tool-line { display: none; }
+
+      /* On masque la graduation latérale (sectionNav) sur mobile. */
+      .section-nav { display: none; }
+
+      /* Form contact adapté au mobile. */
+      .outro-form { width: 88vw; }
+      .outro-form-input { font-size: 13px; }
+
+      /* Meta outro plus petite et plus collée aux bords. */
+      .outro-meta { font-size: 8px; left: 14px; right: 14px; bottom: 14px; }
+
+      /* Outro title : on réduit le décalage Y au dezoom (proportions plus serrées). */
+      body.bg-open #outro .dark-brand-title {
+        transform: translate(-3px, 6px) scale(var(--dezoom-scale, 0.93));
+      }
+    }
+
+    /* Très petit mobile : compactage maximal. */
+    @media (max-width: 480px) {
+      body.bg-open .panel-inner { inset: 10px; border-radius: 10px; }
+      .panel-inner { padding: 8px; }
+      .outro-form { width: 92vw; }
+      .outro-form-input { font-size: 12px; }
+      .outro-form-row { padding: 11px 0; }
     }
 
   </style>
@@ -683,13 +778,24 @@
 <div id="outro" class="panel">
   <div class="panel-inner">
     <form class="outro-form" id="outroForm" novalidate>
-      <input type="text" name="message" id="outroFormInput" class="outro-form-input"
-             placeholder="Votre demande en deux mots" autocomplete="off" maxlength="240" />
-      <button type="submit" class="outro-form-send" aria-label="Envoyer">
-        <svg width="26" height="14" viewBox="0 0 26 14" fill="none" aria-hidden="true">
-          <path d="M0 7H24M24 7L18 1M24 7L18 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/>
-        </svg>
-      </button>
+      <div class="outro-form-row">
+        <input type="text" name="name" id="outroFormName" class="outro-form-input"
+               placeholder="Prénom / Nom" autocomplete="name" maxlength="120" required />
+      </div>
+      <div class="outro-form-row">
+        <input type="email" name="email" id="outroFormEmail" class="outro-form-input"
+               placeholder="Adresse email" autocomplete="email" maxlength="120" required />
+      </div>
+      <div class="outro-form-row">
+        <textarea name="message" id="outroFormInput" class="outro-form-input outro-form-textarea"
+                  placeholder="Votre demande en deux mots" autocomplete="off" maxlength="500"
+                  rows="1" required></textarea>
+        <button type="submit" class="outro-form-send" aria-label="Envoyer">
+          <svg width="26" height="14" viewBox="0 0 26 14" fill="none" aria-hidden="true">
+            <path d="M0 7H24M24 7L18 1M24 7L18 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/>
+          </svg>
+        </button>
+      </div>
     </form>
     <div class="outro-form-confirm" id="outroFormConfirm">Merci, message envoyé.</div>
     <div class="dark-brand-title" id="outroTitle">
@@ -796,6 +902,8 @@
   const mfstLabel    = document.getElementById('mfstLabel');
   const outroMeta        = document.getElementById('outroMeta');
   const outroForm        = document.getElementById('outroForm');
+  const outroFormName    = document.getElementById('outroFormName');
+  const outroFormEmail   = document.getElementById('outroFormEmail');
   const outroFormInput   = document.getElementById('outroFormInput');
   const outroFormConfirm = document.getElementById('outroFormConfirm');
 
@@ -805,10 +913,53 @@
   // → copier l'ID (ex: xkgwjqyz) et le coller ci-dessous
   const FORMSPREE_ENDPOINT = 'https://formspree.io/f/meenarzo';
 
+  /* Auto-resize du textarea du message (cap à 3 lignes). */
+  function autoResizeMessage() {
+    const ta = outroFormInput;
+    const cs = getComputedStyle(ta);
+    const lh = parseFloat(cs.lineHeight) || 19;
+    const padTop = parseFloat(cs.paddingTop) || 0;
+    const padBot = parseFloat(cs.paddingBottom) || 0;
+    const maxH = lh * 3 + padTop + padBot;
+    ta.style.height = 'auto';
+    const newH = Math.min(ta.scrollHeight, maxH);
+    ta.style.height = newH + 'px';
+    ta.style.overflowY = (ta.scrollHeight > maxH) ? 'auto' : 'hidden';
+  }
+  outroFormInput.addEventListener('input', autoResizeMessage);
+
+  /* Validation : tous les champs requis doivent être remplis (et email valide). */
+  function validateOutroForm() {
+    const fields = [
+      { el: outroFormName,  ok: outroFormName.value.trim().length > 0 },
+      { el: outroFormEmail, ok: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(outroFormEmail.value.trim()) },
+      { el: outroFormInput, ok: outroFormInput.value.trim().length > 0 },
+    ];
+    let allOk = true;
+    fields.forEach(f => {
+      const row = f.el.closest('.outro-form-row');
+      if (!f.ok) {
+        row?.classList.add('is-invalid');
+        allOk = false;
+      } else {
+        row?.classList.remove('is-invalid');
+      }
+    });
+    return allOk;
+  }
+  // Retire l'état d'erreur dès que l'utilisateur recommence à taper
+  [outroFormName, outroFormEmail, outroFormInput].forEach(el => {
+    el.addEventListener('input', () => {
+      el.closest('.outro-form-row')?.classList.remove('is-invalid');
+    });
+  });
+
   outroForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const msg = outroFormInput.value.trim();
-    if (!msg) return;
+    if (!validateOutroForm()) return;
+    const name  = outroFormName.value.trim();
+    const email = outroFormEmail.value.trim();
+    const msg   = outroFormInput.value.trim();
 
     // Affiche la confirmation immédiatement (UX optimiste)
     outroForm.classList.add('is-sent');
@@ -820,6 +971,8 @@
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: name,
+          email: email,
           message: msg,
           _subject: 'Demande Mermoz Californie'
         })
@@ -835,7 +988,10 @@
 
     // Reset après quelques secondes pour permettre un nouvel envoi
     setTimeout(() => {
+      outroFormName.value = '';
+      outroFormEmail.value = '';
       outroFormInput.value = '';
+      autoResizeMessage();
       outroForm.classList.remove('is-sent');
       outroFormConfirm.classList.remove('is-shown');
       // Restaure le texte par défaut après le fade-out
@@ -1010,14 +1166,19 @@
   }, { threshold: [0, 0.25, 0.5, 0.6, 0.75, 0.9, 1] });
   panels.forEach(p => panelObserver.observe(p));
 
-  /* ─── FIT OUTRO TITLE — remplit largeur viewport - 50px (25px chaque côté) ─── */
-  /* Le scale 0.84 du panel-inner s'occupe du dézoom (comme le hero) */
+  /* ─── FIT OUTRO TITLE — calibre la font-size pour la taille pleine page,
+     puis pose --dezoom-scale (utilisé par CSS pour le shrink en dezoom).
+     On ne touche plus à la font-size pendant le toggle : c'est le scale CSS qui
+     anime la transition, ce qui évite les bugs de mesure dûs à la transition. ─── */
   function fitOutroTitle() {
-    const availW = window.innerWidth - 50; // 25px de marge de chaque côté
+    const availW = window.innerWidth - 50;
     outroTitle.style.fontSize = '300px';
     let textW = 0;
     outroTitle.querySelectorAll('.char-wrap').forEach(c => textW += c.offsetWidth);
     if (textW > 0) outroTitle.style.fontSize = (300 * availW / textW + 0).toFixed(2) + 'px';
+    // Ratio d'échelle pour le dézoom : viser une largeur visuelle de viewport - 170px
+    const scale = (window.innerWidth - 170) / (window.innerWidth - 50);
+    outroTitle.style.setProperty('--dezoom-scale', scale.toFixed(3));
   }
   // attendre que Kumbh Sans soit vraiment chargée avant de mesurer
   if (document.fonts && document.fonts.ready) {
