@@ -592,12 +592,13 @@
       opacity: 1;
     }
 
+    /* Mobile contact block: hidden by default (desktop), shown via media query. */
+    .mobile-contact { display: none; }
+
     /* ─────────────────────────────────────────────────────────────────────
        RESPONSIVE — TABLET & MOBILE
-       Breakpoints :
-         ≤1024px : tablet (moderate adjustments)
-         ≤768px  : mobile / tablet portrait (layout overhaul)
-         ≤480px  : tiny mobile (max compaction)
+         ≤1024px : tablet (light tweaks)
+         ≤768px  : mobile — single screen: hero + line + email. Nothing else.
        ───────────────────────────────────────────────────────────────────── */
 
     @media (max-width: 1024px) {
@@ -606,36 +607,52 @@
     }
 
     @media (max-width: 768px) {
-      nav { padding: 12px 14px; }
-      .nav-link { display: none; }
+      html, body { overflow: hidden; height: 100vh; height: 100dvh; }
 
-      body.bg-open .panel-inner { inset: 16px; border-radius: 12px; }
-      .panel-inner { padding: 10px; }
+      nav { padding: 14px 16px; }
+      .nav-link, .nav-menu-btn { display: none; }
 
-      .mfst-body  { padding: 0 22px; line-height: 1.1; }
-      .outils-body { padding: 0 22px; }
+      .panel:not(#hero) { display: none; }
+      .section-nav, .outro-meta { display: none; }
+      .js-tagline { display: none; }
 
-      .outils-tools { flex-direction: column; gap: 8px; font-size: 10px; }
-      .outils-tool-line { display: none; }
+      body.bg-open .panel-inner { inset: 0; border-radius: 0; }
 
-      .section-nav { display: none; }
-
-      .outro-form { width: 88vw; }
-      .outro-form-input { font-size: 13px; }
-
-      .outro-meta { font-size: 8px; left: 14px; right: 14px; bottom: 14px; }
-
-      body.bg-open #outro .dark-brand-title {
-        transform: translate(-3px, 6px) scale(var(--dezoom-scale, 0.93));
+      #hero .panel-inner {
+        background: var(--black);
+        padding: 24px;
+        justify-content: center;
+        gap: 26px;
       }
-    }
 
-    @media (max-width: 480px) {
-      body.bg-open .panel-inner { inset: 10px; border-radius: 10px; }
-      .panel-inner { padding: 8px; }
-      .outro-form { width: 92vw; }
-      .outro-form-input { font-size: 12px; }
-      .outro-form-row { padding: 11px 0; }
+      .mobile-contact {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+      .mobile-contact-line {
+        width: 60px;
+        height: 1px;
+        background: rgba(239, 237, 234, 0.45);
+      }
+      .mobile-contact-email {
+        color: var(--white);
+        font-family: var(--body);
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding-bottom: 2px;
+        border-bottom: 1px solid rgba(239, 237, 234, 0.35);
+        transition: opacity 0.3s ease, border-color 0.3s ease;
+      }
+      .mobile-contact-email:hover,
+      .mobile-contact-email:active {
+        opacity: 0.75;
+        border-color: var(--white);
+      }
     }
 
   </style>
@@ -668,6 +685,11 @@
       <span>Crafted</span>
       <div class="dark-meta-line"></div>
       <span>Bespoke</span>
+    </div>
+    <!-- Mobile-only block (≤768px) : line + clickable email -->
+    <div class="mobile-contact">
+      <div class="mobile-contact-line"></div>
+      <a href="mailto:creation@mermoz-californie.com" class="mobile-contact-email">creation@mermoz-californie.com</a>
     </div>
   </div>
 </div>

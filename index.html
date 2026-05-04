@@ -592,12 +592,13 @@
       opacity: 1;
     }
 
+    /* Bloc contact mobile : invisible par défaut (desktop), visible via media query. */
+    .mobile-contact { display: none; }
+
     /* ─────────────────────────────────────────────────────────────────────
        RESPONSIVE — TABLETTE & MOBILE
-       Breakpoints :
-         ≤1024px : tablette (ajustements modérés)
-         ≤768px  : mobile / tablette portrait (refonte du layout)
-         ≤480px  : très petit mobile (compactage maximal)
+         ≤1024px : tablette (ajustements légers)
+         ≤768px  : mobile — page unique : hero + ligne + email. Rien d'autre.
        ───────────────────────────────────────────────────────────────────── */
 
     /* Tablette : on réduit la marge de dézoom et la taille des outils. */
@@ -606,47 +607,64 @@
       .outils-tools { font-size: 11px; }
     }
 
-    /* Mobile / tablette portrait : adaptations majeures. */
+    /* Mobile : layout radicalement simplifié — un seul écran avec hero + email. */
     @media (max-width: 768px) {
-      /* Nav : on enlève l'email (trop long), on réduit les paddings. */
-      nav { padding: 12px 14px; }
-      .nav-link { display: none; }
+      /* Plus de scroll, un seul écran fixe. */
+      html, body { overflow: hidden; height: 100vh; height: 100dvh; }
 
-      /* Marge dézoom plus discrète. */
-      body.bg-open .panel-inner { inset: 16px; border-radius: 12px; }
-      .panel-inner { padding: 10px; }
+      /* Nav : on retire tout sauf le logo. */
+      nav { padding: 14px 16px; }
+      .nav-link, .nav-menu-btn { display: none; }
 
-      /* Pavés textes : on resserre les marges latérales. */
-      .mfst-body  { padding: 0 22px; line-height: 1.1; }
-      .outils-body { padding: 0 22px; }
+      /* Cacher tous les panels sauf le hero. */
+      .panel:not(#hero) { display: none; }
 
-      /* Liste outils en colonne (les séparateurs disparaissent). */
-      .outils-tools { flex-direction: column; gap: 8px; font-size: 10px; }
-      .outils-tool-line { display: none; }
+      /* Cacher tous les éléments fixes liés aux autres sections. */
+      .section-nav, .outro-meta { display: none; }
 
-      /* On masque la graduation latérale (sectionNav) sur mobile. */
-      .section-nav { display: none; }
+      /* Cacher la tagline desktop (Studio Paris · Création · Sur mesure). */
+      .js-tagline { display: none; }
 
-      /* Form contact adapté au mobile. */
-      .outro-form { width: 88vw; }
-      .outro-form-input { font-size: 13px; }
+      /* Pas de dezoom sur mobile (pas de bouton menu). */
+      body.bg-open .panel-inner { inset: 0; border-radius: 0; }
 
-      /* Meta outro plus petite et plus collée aux bords. */
-      .outro-meta { font-size: 8px; left: 14px; right: 14px; bottom: 14px; }
-
-      /* Outro title : on réduit le décalage Y au dezoom (proportions plus serrées). */
-      body.bg-open #outro .dark-brand-title {
-        transform: translate(-3px, 6px) scale(var(--dezoom-scale, 0.93));
+      /* Hero centré, fond noir plein écran. */
+      #hero .panel-inner {
+        background: var(--black);
+        padding: 24px;
+        justify-content: center;
+        gap: 26px;
       }
-    }
 
-    /* Très petit mobile : compactage maximal. */
-    @media (max-width: 480px) {
-      body.bg-open .panel-inner { inset: 10px; border-radius: 10px; }
-      .panel-inner { padding: 8px; }
-      .outro-form { width: 92vw; }
-      .outro-form-input { font-size: 12px; }
-      .outro-form-row { padding: 11px 0; }
+      /* Bloc contact mobile : ligne + email. */
+      .mobile-contact {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+      .mobile-contact-line {
+        width: 60px;
+        height: 1px;
+        background: rgba(239, 237, 234, 0.45);
+      }
+      .mobile-contact-email {
+        color: var(--white);
+        font-family: var(--body);
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding-bottom: 2px;
+        border-bottom: 1px solid rgba(239, 237, 234, 0.35);
+        transition: opacity 0.3s ease, border-color 0.3s ease;
+      }
+      .mobile-contact-email:hover,
+      .mobile-contact-email:active {
+        opacity: 0.75;
+        border-color: var(--white);
+      }
     }
 
   </style>
@@ -679,6 +697,11 @@
       <span>Création</span>
       <div class="dark-meta-line"></div>
       <span>Sur mesure</span>
+    </div>
+    <!-- Bloc visible UNIQUEMENT en mobile (≤768px) : ligne + email cliquable -->
+    <div class="mobile-contact">
+      <div class="mobile-contact-line"></div>
+      <a href="mailto:creation@mermoz-californie.com" class="mobile-contact-email">creation@mermoz-californie.com</a>
     </div>
   </div>
 </div>
