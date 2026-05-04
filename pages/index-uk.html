@@ -665,6 +665,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        transition: transform 0.58s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .mobile-contact-line { display: none; }
       .mobile-contact-email {
@@ -684,9 +685,18 @@
         opacity: 0.75;
         border-color: var(--white);
       }
-      /* No translate on title or email: the tagline pushes the email down
-         naturally via flex layout (same behaviour as .svc-sub which pushes the
-         services below). The whole group stays centred in #hero. */
+      /* Explicit spread motion: title moves up, email moves down. Synced with
+         the tagline reveal (same 0.58s duration, same curve). Guarantees real
+         visible motion without depending on layout reflow. */
+      .js-tagline.is-tap-shown + .mobile-contact {
+        transform: translateY(20px);
+      }
+      #heroTitle {
+        transition: transform 0.58s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      body.tagline-shown #heroTitle {
+        transform: translateY(-20px);
+      }
     }
 
   </style>

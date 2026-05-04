@@ -674,6 +674,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        /* Motion explicite : descend visiblement quand la tagline est révélée. */
+        transition: transform 0.58s cubic-bezier(0.16, 1, 0.3, 1);
       }
       /* On retire le filet blanc au-dessus de l'email. */
       .mobile-contact-line { display: none; }
@@ -694,9 +696,18 @@
         opacity: 0.75;
         border-color: var(--white);
       }
-      /* Pas de translate sur le titre ni l'email : la tagline pousse naturellement
-         l'email vers le bas via le layout flex (même comportement que les .svc-sub
-         qui poussent les services suivants). Le groupe reste centré dans #hero. */
+      /* Motion explicite d'écartement : titre monte, email descend. Sync avec
+         l'ouverture de la tagline (même durée 0.58s, même courbe). Garantit une
+         vraie motion visible, sans dépendre du recalcul de layout. */
+      .js-tagline.is-tap-shown + .mobile-contact {
+        transform: translateY(20px);
+      }
+      #heroTitle {
+        transition: transform 0.58s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      body.tagline-shown #heroTitle {
+        transform: translateY(-20px);
+      }
     }
 
   </style>
