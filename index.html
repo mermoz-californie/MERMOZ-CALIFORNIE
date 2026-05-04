@@ -622,29 +622,44 @@
       /* Cacher tous les éléments fixes liés aux autres sections. */
       .section-nav, .outro-meta { display: none; }
 
-      /* Tagline : cachée par défaut, révélée au tap sur le titre. */
+      /* Tagline : cachée par défaut, révélée au tap sur le titre.
+         Le conteneur s'ouvre (max-height) et chaque enfant entre avec un slide-up
+         décalé pour un effet de cascade. */
       .js-tagline {
         display: flex !important;
-        opacity: 0 !important;
+        opacity: 1 !important;
         max-height: 0;
         margin-top: 0;
         overflow: hidden;
         pointer-events: none;
-        transition: opacity 0.45s ease,
-                    max-height 0.45s ease,
-                    margin-top 0.45s ease;
+        transition: max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                    margin-top  0.55s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .js-tagline > * {
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity   0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .js-tagline.is-tap-shown {
-        opacity: 1 !important;
-        max-height: 30px;
-        margin-top: 22px;
+        max-height: 60px;
+        margin-top: 24px;
         pointer-events: auto;
       }
+      .js-tagline.is-tap-shown > * {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      /* Stagger : chaque enfant entre légèrement après le précédent. */
+      .js-tagline.is-tap-shown > *:nth-child(1) { transition-delay: 0.12s; }
+      .js-tagline.is-tap-shown > *:nth-child(2) { transition-delay: 0.18s; }
+      .js-tagline.is-tap-shown > *:nth-child(3) { transition-delay: 0.24s; }
+      .js-tagline.is-tap-shown > *:nth-child(4) { transition-delay: 0.30s; }
+      .js-tagline.is-tap-shown > *:nth-child(5) { transition-delay: 0.36s; }
 
-      /* Hero title : on réduit pour que "CALIFORNIE" tienne sur une ligne,
-         et on le rend cliquable pour révéler la tagline. */
+      /* Hero title : plus grand mais "CALIFORNIE" tient sur une ligne. */
       #heroTitle {
-        font-size: clamp(38px, 11vw, 64px) !important;
+        font-size: clamp(50px, 15vw, 80px) !important;
         cursor: pointer;
       }
 
