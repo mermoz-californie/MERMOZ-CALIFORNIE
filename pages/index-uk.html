@@ -667,13 +667,9 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 18px;
+        transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      .mobile-contact-line {
-        width: 60px;
-        height: 1px;
-        background: rgba(239, 237, 234, 0.45);
-      }
+      .mobile-contact-line { display: none; }
       .mobile-contact-email {
         color: var(--white);
         font-family: var(--body);
@@ -690,6 +686,15 @@
       .mobile-contact-email:active {
         opacity: 0.75;
         border-color: var(--white);
+      }
+      .js-tagline.is-tap-shown + .mobile-contact {
+        transform: translateY(8px);
+      }
+      #heroTitle {
+        transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      body.tagline-shown #heroTitle {
+        transform: translateY(-8px);
       }
     }
 
@@ -906,7 +911,9 @@
   /* Mobile: tap on MERMOZ CALIFORNIE → toggle the tagline. */
   heroTitle.addEventListener('click', () => {
     if (window.innerWidth <= 768) {
-      document.querySelector('.js-tagline')?.classList.toggle('is-tap-shown');
+      const tag = document.querySelector('.js-tagline');
+      tag?.classList.toggle('is-tap-shown');
+      document.body.classList.toggle('tagline-shown', tag?.classList.contains('is-tap-shown'));
     }
   });
   const svcDisplay   = document.getElementById('svcDisplay');
