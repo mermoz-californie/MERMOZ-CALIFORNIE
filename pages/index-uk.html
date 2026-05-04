@@ -610,7 +610,7 @@
       html, body { overflow: hidden; height: 100vh; height: 100dvh; }
 
       nav { padding: 14px 16px; }
-      .nav-link, .nav-menu-btn { display: none; }
+      .nav-logo, .nav-link, .nav-menu-btn { display: none; }
 
       .panel:not(#hero) { display: none; }
       .section-nav, .outro-meta { display: none; }
@@ -687,14 +687,16 @@
         opacity: 0.75;
         border-color: var(--white);
       }
+      /* Opening effect on tap: title moves up firmly, email moves down firmly,
+         tagline slides between — like a curtain spreading vertically. */
       .js-tagline.is-tap-shown + .mobile-contact {
-        transform: translateY(8px);
+        transform: translateY(28px);
       }
       #heroTitle {
-        transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
       }
       body.tagline-shown #heroTitle {
-        transform: translateY(-8px);
+        transform: translateY(-28px);
       }
     }
 

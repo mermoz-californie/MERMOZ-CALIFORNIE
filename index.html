@@ -612,9 +612,9 @@
       /* Plus de scroll, un seul écran fixe. */
       html, body { overflow: hidden; height: 100vh; height: 100dvh; }
 
-      /* Nav : on retire tout sauf le logo. */
+      /* Nav : on retire tout (logo, email, dot menu) sur mobile. */
       nav { padding: 14px 16px; }
-      .nav-link, .nav-menu-btn { display: none; }
+      .nav-logo, .nav-link, .nav-menu-btn { display: none; }
 
       /* Cacher tous les panels sauf le hero. */
       .panel:not(#hero) { display: none; }
@@ -701,16 +701,16 @@
         opacity: 0.75;
         border-color: var(--white);
       }
-      /* Quand la tagline est révélée, l'email descend un peu plus pour souligner l'écartement. */
+      /* Effet d'OUVERTURE au tap : le titre monte franchement, l'email descend franchement,
+         la tagline glisse au milieu — comme un rideau qui s'écarte verticalement. */
       .js-tagline.is-tap-shown + .mobile-contact {
-        transform: translateY(8px);
+        transform: translateY(28px);
       }
-      /* Le titre, lui, remonte légèrement pour accentuer l'effet d'écartement vertical. */
       #heroTitle {
-        transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
       }
       body.tagline-shown #heroTitle {
-        transform: translateY(-8px);
+        transform: translateY(-28px);
       }
     }
 
