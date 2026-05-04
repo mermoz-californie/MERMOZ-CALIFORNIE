@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "Bash(bun --version)",
+      "Bash(gh api *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(claude mcp *)",
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:www.pinterest.com)",
+      "WebFetch(domain:adcker.com)",
+      "Bash(curl -sL https://adcker.com)",
+      "Bash(curl -sL https://adcker.com/wp-content/cache/autoptimize/css/autoptimize_264680bec9a1201605b2c9b23256b85e.css)",
+      "Bash(grep -oE '\\(font-family|font-size|color|background|padding|margin|grid|flex\\)[^;]{0,80}')",
+      "WebFetch(domain:aino.agency)",
+      "Bash(grep -n \"Panel 4 — Outils\\\\|\\\\/div>$\" /Users/maxco/MERMOZ-CALIFORNIE/index.html)"
+    ]
+  }
+}
