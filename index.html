@@ -161,25 +161,23 @@
       overflow: hidden;
     }
 
-    /* ─── PANEL INNER — c'est lui qui porte le fond visible, le border-radius
-       et c'est lui qu'on scale au dézoom (sans toucher la box snap 100vh) ─── */
+    /* ─── PANEL INNER — fond visible + border-radius. Au dézoom, on rétrécit
+       avec inset (marges égales en pixels sur les 4 côtés, peu importe le format). ─── */
     .panel-inner {
-      position: relative; /* contexte pour les éléments absolus (ex. outro-form) */
+      position: absolute;
+      inset: 0;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      width: 100%; height: 100%;
       text-align: center;
       padding: 15px;
       border-radius: 0;
       overflow: hidden;
-      transform-origin: center center;
       transition: border-radius 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform     0.65s cubic-bezier(0.16, 1, 0.3, 1);
-      will-change: transform;
+                  inset         0.65s cubic-bezier(0.16, 1, 0.3, 1);
     }
     body.bg-open .panel-inner {
       border-radius: 16px;
-      transform: scale(0.86);
+      inset: 28px;
     }
 
     /* Dot animé quand actif */
@@ -420,10 +418,7 @@
       padding-bottom: 38px; /* remonte légèrement le titre */
       /* transform-origin: center center (hérité) → card centrée comme les autres */
     }
-    /* Dézoom outro : même logique que les autres panels — scale depuis le centre */
-    body.bg-open #outro .panel-inner {
-      transform: scale(0.86);
-    }
+    /* Dézoom outro : hérite de la règle générale (inset 28px), pas de surcharge */
 
     /* meta fixée sur le viewport — indépendante du dézoom */
     .outro-meta {
