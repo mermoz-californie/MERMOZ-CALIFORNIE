@@ -272,7 +272,7 @@
     .outils-body .word-inner {
       display: inline-block;
       opacity: 0;
-      transition: opacity 0.6s ease-out;
+      transition: opacity 0.38s ease-out;
     }
     .mfst-body.is-in .word-inner,
     .outils-body.is-in .word-inner {
@@ -437,10 +437,10 @@
     }
     #outro .hl-wrap { white-space: nowrap; }
 
-    /* Titre ancré en bas du card — padding réduit pour le pousser plus bas */
+    /* Titre ancré en bas du card — padding intermédiaire */
     #outro .panel-inner {
       justify-content: flex-end;
-      padding-bottom: 14px;
+      padding-bottom: 24px;
     }
     /* Dézoom outro : hérite de la règle générale (inset 28px), pas de surcharge */
 
@@ -978,7 +978,7 @@
   }
   /* Regroupe les .word-inner par ligne (offsetTop) et pose un transition-delay
      identique pour tous les mots d'une même ligne → fade ligne par ligne. */
-  function applyLineDelays(el, perLine = 0.16) {
+  function applyLineDelays(el, perLine = 0.09) {
     if (!el) return;
     const words = el.querySelectorAll('.word-inner');
     if (!words.length) return;
