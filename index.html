@@ -626,41 +626,31 @@
       .section-nav, .outro-meta { display: none; }
 
       /* Tagline : cachée par défaut, révélée au tap sur le titre.
-         Le conteneur s'ouvre (max-height) et chaque enfant entre avec un slide-up
-         décalé pour un effet de cascade. */
+         Même motion que les sous-titres des services (.svc-sub) : simple
+         expansion en hauteur + fade. Aucun stagger par enfant. */
       .js-tagline {
         display: flex !important;
-        opacity: 1 !important;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
         max-height: 0;
+        opacity: 0 !important;
         margin-top: 0;
+        margin-bottom: 0;
         overflow: hidden;
         pointer-events: none;
-        transition: max-height 0.85s cubic-bezier(0.22, 1, 0.36, 1),
-                    margin-top  0.85s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-      .js-tagline > * {
-        opacity: 0;
-        transform: translateY(16px);
-        transition: opacity   0.7s cubic-bezier(0.22, 1, 0.36, 1),
-                    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: max-height 0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity    0.42s ease,
+                    margin-top    0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                    margin-bottom 0.58s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .js-tagline.is-tap-shown {
-        max-height: 80px;
-        margin-top: 26px;
+        max-height: 60px;
+        opacity: 1 !important;
+        margin-top: 18px;
+        margin-bottom: 20px;
         pointer-events: auto;
       }
-      .js-tagline.is-tap-shown > * {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      /* Stagger : chaque enfant entre légèrement après le précédent. */
-      .js-tagline.is-tap-shown > *:nth-child(1) { transition-delay: 0.14s; }
-      .js-tagline.is-tap-shown > *:nth-child(2) { transition-delay: 0.20s; }
-      .js-tagline.is-tap-shown > *:nth-child(3) { transition-delay: 0.26s; }
-      .js-tagline.is-tap-shown > *:nth-child(4) { transition-delay: 0.32s; }
-      .js-tagline.is-tap-shown > *:nth-child(5) { transition-delay: 0.38s; }
-      .js-tagline.is-tap-shown > *:nth-child(6) { transition-delay: 0.44s; }
-      .js-tagline.is-tap-shown > *:nth-child(7) { transition-delay: 0.50s; }
 
       /* Hero title : plus grand mais "CALIFORNIE" tient sur une ligne. */
       #heroTitle {
@@ -684,8 +674,6 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        /* Motion souple sur le bloc email : glisse vers le bas quand la tagline apparaît */
-        transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
       }
       /* On retire le filet blanc au-dessus de l'email. */
       .mobile-contact-line { display: none; }
@@ -706,17 +694,9 @@
         opacity: 0.75;
         border-color: var(--white);
       }
-      /* Effet d'OUVERTURE au tap : motion souple — le titre monte, l'email descend,
-         la tagline glisse au milieu en cascade. */
-      .js-tagline.is-tap-shown + .mobile-contact {
-        transform: translateY(34px);
-      }
-      #heroTitle {
-        transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-      body.tagline-shown #heroTitle {
-        transform: translateY(-34px);
-      }
+      /* Pas de translate sur le titre ni l'email : la tagline pousse naturellement
+         l'email vers le bas via le layout flex (même comportement que les .svc-sub
+         qui poussent les services suivants). Le groupe reste centré dans #hero. */
     }
 
   </style>
@@ -744,13 +724,11 @@
       <span class="hl-wrap"><span class="hl js-hl">Californie</span></span>
     </div>
     <div class="dark-brand-meta js-tagline">
-      <span>Studio Paris</span>
-      <div class="dark-meta-line"></div>
-      <span>Design</span>
+      <span>Création</span>
       <div class="dark-meta-line"></div>
       <span>Publicité</span>
       <div class="dark-meta-line"></div>
-      <span>Sur mesure</span>
+      <span>Design</span>
     </div>
     <!-- Bloc visible UNIQUEMENT en mobile (≤768px) : ligne + email cliquable -->
     <div class="mobile-contact">

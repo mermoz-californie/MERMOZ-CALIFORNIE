@@ -620,38 +620,31 @@
 
       /* Tagline: hidden by default, revealed on tap of the title.
          Container opens (max-height) and each child enters with a staggered slide-up. */
+      /* Tagline: hidden by default, revealed on tap of the title.
+         Same motion as service sub-titles (.svc-sub): simple height + fade. */
       .js-tagline {
         display: flex !important;
-        opacity: 1 !important;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
         max-height: 0;
+        opacity: 0 !important;
         margin-top: 0;
+        margin-bottom: 0;
         overflow: hidden;
         pointer-events: none;
-        transition: max-height 0.85s cubic-bezier(0.22, 1, 0.36, 1),
-                    margin-top  0.85s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-      .js-tagline > * {
-        opacity: 0;
-        transform: translateY(16px);
-        transition: opacity   0.7s cubic-bezier(0.22, 1, 0.36, 1),
-                    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: max-height 0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity    0.42s ease,
+                    margin-top    0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                    margin-bottom 0.58s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .js-tagline.is-tap-shown {
-        max-height: 80px;
-        margin-top: 26px;
+        max-height: 60px;
+        opacity: 1 !important;
+        margin-top: 18px;
+        margin-bottom: 20px;
         pointer-events: auto;
       }
-      .js-tagline.is-tap-shown > * {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      .js-tagline.is-tap-shown > *:nth-child(1) { transition-delay: 0.14s; }
-      .js-tagline.is-tap-shown > *:nth-child(2) { transition-delay: 0.20s; }
-      .js-tagline.is-tap-shown > *:nth-child(3) { transition-delay: 0.26s; }
-      .js-tagline.is-tap-shown > *:nth-child(4) { transition-delay: 0.32s; }
-      .js-tagline.is-tap-shown > *:nth-child(5) { transition-delay: 0.38s; }
-      .js-tagline.is-tap-shown > *:nth-child(6) { transition-delay: 0.44s; }
-      .js-tagline.is-tap-shown > *:nth-child(7) { transition-delay: 0.50s; }
 
       /* Hero title: bigger but "CALIFORNIE" still fits on one line. */
       #heroTitle {
@@ -672,7 +665,6 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
       }
       .mobile-contact-line { display: none; }
       .mobile-contact-email {
@@ -692,17 +684,9 @@
         opacity: 0.75;
         border-color: var(--white);
       }
-      /* Opening effect on tap: smooth motion — title moves up, email moves down,
-         tagline slides between in cascade. */
-      .js-tagline.is-tap-shown + .mobile-contact {
-        transform: translateY(34px);
-      }
-      #heroTitle {
-        transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-      body.tagline-shown #heroTitle {
-        transform: translateY(-34px);
-      }
+      /* No translate on title or email: the tagline pushes the email down
+         naturally via flex layout (same behaviour as .svc-sub which pushes the
+         services below). The whole group stays centred in #hero. */
     }
 
   </style>
@@ -730,13 +714,11 @@
       <span class="hl-wrap"><span class="hl js-hl">Californie</span></span>
     </div>
     <div class="dark-brand-meta js-tagline">
-      <span>Paris Studio</span>
-      <div class="dark-meta-line"></div>
-      <span>Design</span>
+      <span>Creation</span>
       <div class="dark-meta-line"></div>
       <span>Advertising</span>
       <div class="dark-meta-line"></div>
-      <span>Bespoke</span>
+      <span>Design</span>
     </div>
     <!-- Mobile-only block (≤768px) : line + clickable email -->
     <div class="mobile-contact">
