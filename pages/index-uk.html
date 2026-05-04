@@ -627,29 +627,31 @@
         margin-top: 0;
         overflow: hidden;
         pointer-events: none;
-        transition: max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-                    margin-top  0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: max-height 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                    margin-top  0.85s cubic-bezier(0.22, 1, 0.36, 1);
       }
       .js-tagline > * {
         opacity: 0;
-        transform: translateY(14px);
-        transition: opacity   0.55s cubic-bezier(0.16, 1, 0.3, 1),
-                    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateY(16px);
+        transition: opacity   0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
       }
       .js-tagline.is-tap-shown {
-        max-height: 60px;
-        margin-top: 24px;
+        max-height: 80px;
+        margin-top: 26px;
         pointer-events: auto;
       }
       .js-tagline.is-tap-shown > * {
         opacity: 1;
         transform: translateY(0);
       }
-      .js-tagline.is-tap-shown > *:nth-child(1) { transition-delay: 0.12s; }
-      .js-tagline.is-tap-shown > *:nth-child(2) { transition-delay: 0.18s; }
-      .js-tagline.is-tap-shown > *:nth-child(3) { transition-delay: 0.24s; }
-      .js-tagline.is-tap-shown > *:nth-child(4) { transition-delay: 0.30s; }
-      .js-tagline.is-tap-shown > *:nth-child(5) { transition-delay: 0.36s; }
+      .js-tagline.is-tap-shown > *:nth-child(1) { transition-delay: 0.14s; }
+      .js-tagline.is-tap-shown > *:nth-child(2) { transition-delay: 0.20s; }
+      .js-tagline.is-tap-shown > *:nth-child(3) { transition-delay: 0.26s; }
+      .js-tagline.is-tap-shown > *:nth-child(4) { transition-delay: 0.32s; }
+      .js-tagline.is-tap-shown > *:nth-child(5) { transition-delay: 0.38s; }
+      .js-tagline.is-tap-shown > *:nth-child(6) { transition-delay: 0.44s; }
+      .js-tagline.is-tap-shown > *:nth-child(7) { transition-delay: 0.50s; }
 
       /* Hero title: bigger but "CALIFORNIE" still fits on one line. */
       #heroTitle {
@@ -670,7 +672,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
       }
       .mobile-contact-line { display: none; }
       .mobile-contact-email {
@@ -690,16 +692,16 @@
         opacity: 0.75;
         border-color: var(--white);
       }
-      /* Opening effect on tap: title moves up firmly, email moves down firmly,
-         tagline slides between — like a curtain spreading vertically. */
+      /* Opening effect on tap: smooth motion — title moves up, email moves down,
+         tagline slides between in cascade. */
       .js-tagline.is-tap-shown + .mobile-contact {
-        transform: translateY(28px);
+        transform: translateY(34px);
       }
       #heroTitle {
-        transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
       }
       body.tagline-shown #heroTitle {
-        transform: translateY(-28px);
+        transform: translateY(-34px);
       }
     }
 
@@ -730,7 +732,9 @@
     <div class="dark-brand-meta js-tagline">
       <span>Paris Studio</span>
       <div class="dark-meta-line"></div>
-      <span>Crafted</span>
+      <span>Design</span>
+      <div class="dark-meta-line"></div>
+      <span>Advertising</span>
       <div class="dark-meta-line"></div>
       <span>Bespoke</span>
     </div>
