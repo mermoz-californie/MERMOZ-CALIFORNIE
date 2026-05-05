@@ -1192,9 +1192,14 @@
   // Double-clic n'importe où sur le panel → tout fermer
   document.getElementById('services').addEventListener('dblclick', () => closeAllSubs(false));
 
-  // Outils — clic sur OUTILS ouvre/ferme le tiroir 001
+  // Outils — clic sur OUTILS ouvre/ferme le tiroir 001 + re-anime le mot
   document.querySelector('.outils-word').addEventListener('click', () => {
     outilsDrawer.classList.toggle('is-open');
+    // Re-anime les chars d'OUTILS comme les mots de services
+    outilsDisplay.querySelectorAll('.char').forEach((ch, i) => {
+      ch.style.setProperty('--char-delay', (i * 0.03 + Math.random() * 0.02) + 's');
+    });
+    enterEl(outilsDisplay);
   });
 
 
