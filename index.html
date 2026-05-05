@@ -384,7 +384,7 @@
     }
     .outils-word:hover { opacity: 0.65; }
 
-    /* Tiroir 001 — même motion que .svc-sub (Création / Publicité / Design). */
+    /* Tiroir 001 — calé sur .svc-sub */
     .outils-drawer {
       max-height: 0; overflow: hidden; opacity: 0;
       margin-top: 0; margin-bottom: 0;
@@ -395,16 +395,32 @@
     }
     .outils-drawer.is-open {
       max-height: 60px; opacity: 1;
-      margin-top: 18px; margin-bottom: 20px;
+      margin-top: 10px; margin-bottom: 8px;
     }
 
-    /* 001 — Liste outils (horizontale avec filets) */
+    /* Seul OUTILS monte au clic — le corps ne descend pas (évite l'écart) */
+    #outils .outils-display {
+      transition: transform 0.58s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    #outils .outils-display.drawer-open              { transform: scale(1)    translateY(-12px) !important; }
+    body.bg-open #outils .outils-display.drawer-open { transform: scale(0.88) translateY(-12px) !important; }
+
+    /* 001 — Liste outils : items fade-in en cascade */
     .outils-tools {
       display: flex; align-items: center; justify-content: center; gap: 20px;
       font-family: var(--body); font-size: 9px; font-weight: 500;
       letter-spacing: 0.2em; text-transform: uppercase; color: #999;
     }
     .outils-tool-line { width: 40px; height: 1px; background: #bbb; flex-shrink: 0; }
+    .outils-tools > span {
+      opacity: 0;
+      transition: opacity 0.38s ease;
+    }
+    .outils-drawer.is-open .outils-tools > span:nth-child(1) { opacity: 1; transition-delay: 0.18s; }
+    .outils-drawer.is-open .outils-tools > span:nth-child(2) { opacity: 1; transition-delay: 0.24s; }
+    .outils-drawer.is-open .outils-tools > span:nth-child(3) { opacity: 1; transition-delay: 0.30s; }
+    .outils-drawer.is-open .outils-tools > span:nth-child(4) { opacity: 1; transition-delay: 0.24s; }
+    .outils-drawer.is-open .outils-tools > span:nth-child(5) { opacity: 1; transition-delay: 0.18s; }
 
     /* 002 — Corps visible sous Outils — apparition ligne par ligne. */
     .outils-body {
@@ -1192,14 +1208,11 @@
   // Double-clic n'importe où sur le panel → tout fermer
   document.getElementById('services').addEventListener('dblclick', () => closeAllSubs(false));
 
-  // Outils — clic sur OUTILS ouvre/ferme le tiroir 001 + re-anime le mot
+  // Outils — clic : mot monte, liste grise s'ouvre, corps 002 descend
   document.querySelector('.outils-word').addEventListener('click', () => {
-    outilsDrawer.classList.toggle('is-open');
-    // Re-anime les chars d'OUTILS comme les mots de services
-    outilsDisplay.querySelectorAll('.char').forEach((ch, i) => {
-      ch.style.setProperty('--char-delay', (i * 0.03 + Math.random() * 0.02) + 's');
-    });
-    enterEl(outilsDisplay);
+    const isOpen = outilsDrawer.classList.toggle('is-open');
+    outilsDisplay.classList.toggle('drawer-open', isOpen);
+    outilsBody.classList.toggle('drawer-open', isOpen);
   });
 
 
@@ -1220,6 +1233,8 @@
     } else if (id === 'outils') {
       exitEl(outilsDisplay);
       outilsDrawer.classList.remove('is-open');
+      outilsDisplay.classList.remove('drawer-open');
+      outilsBody.classList.remove('drawer-open');
       outilsBody.classList.remove('is-in');
       outilsBody.classList.add('is-out');
     } else if (id === 'outro') {
