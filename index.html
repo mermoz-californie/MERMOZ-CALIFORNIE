@@ -247,17 +247,33 @@
       font-family: var(--body); font-size: 11px; font-weight: 500;
       letter-spacing: 0.2em; text-transform: uppercase; color: #888;
       margin-top: 22px;
-      opacity: 0;
-      transition: opacity 0.75s ease 0.2s;
     }
-    .hero-services.is-visible { opacity: 1; }
+    /* Chaque ligne séparatrice : s'étend de 0 → 40px */
+    .hero-services .svc-sub-line {
+      width: 0;
+      transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hero-services.is-visible .svc-sub-line:nth-of-type(2) { width: 40px; transition-delay: 0.22s; }
+    .hero-services.is-visible .svc-sub-line:nth-of-type(4) { width: 40px; transition-delay: 0.62s; }
+
+    /* Lettres des items : fade + translateY, stagger par --char-delay */
+    .hero-services .char-wrap { display: inline-block; vertical-align: bottom; }
+    .hero-services .char {
+      display: inline-block;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.4s ease var(--char-delay, 0s),
+                  transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) var(--char-delay, 0s);
+    }
+    .hero-services.is-visible .char {
+      opacity: 1; transform: translateY(0);
+    }
 
     /* Baseline hero — typo 002 italique grise + mask-reveal mot par mot */
     .hero-baseline {
       font-family: 'Editorial New', Georgia, serif;
       font-style: italic; font-weight: 400;
       font-size: clamp(28px, 3.5vw, 52px);
-      color: #888;
+      color: #FB4D3D;
       text-align: center; line-height: 1.2;
       margin-top: 16px;
     }
@@ -918,9 +934,9 @@
     </div>
     <div class="hero-baseline js-baseline">Picture it.</div>
     <div class="hero-services">
-      <span class="svc-sub-item">Logotype &amp; Identité visuelle</span>
+      <span class="svc-sub-item">Logotype</span>
       <span class="svc-sub-line"></span>
-      <span class="svc-sub-item">Guidelines graphiques</span>
+      <span class="svc-sub-item">Branding</span>
       <span class="svc-sub-line"></span>
       <span class="svc-sub-item">Conception rédaction</span>
     </div>
@@ -1174,6 +1190,29 @@
   splitChars(svcDisplay,   '.svc-word');
   splitChars(outilsDisplay, '.outils-word');
   splitChars(outroTitle,    '.js-outro-hl');
+
+  /* Split lettre par lettre les items hero-services */
+  (function splitHeroServices() {
+    let globalIdx = 0;
+    document.querySelectorAll('.hero-services .svc-sub-item').forEach((item, wordIdx) => {
+      const text = item.textContent;
+      const frag = document.createDocumentFragment();
+      Array.from(text).forEach(ch => {
+        const wrap  = document.createElement('span');
+        wrap.className = 'char-wrap';
+        const inner = document.createElement('span');
+        inner.className = 'char';
+        inner.textContent = ch === ' ' ? ' ' : ch;
+        const delay = wordIdx * 0.22 + globalIdx * 0.028;
+        inner.style.setProperty('--char-delay', delay + 's');
+        globalIdx++;
+        wrap.appendChild(inner);
+        frag.appendChild(wrap);
+      });
+      item.textContent = '';
+      item.appendChild(frag);
+    });
+  })();
 
   /* Wrap chaque mot des paragraphes 002 (éditoriaux) dans <span.word><span.word-inner>mot</span></span>
      pour permettre l'apparition ligne par ligne. Préserve les <br>. */
@@ -1761,7 +1800,7 @@
       enterEl(heroTitle);
       setTimeout(() => document.querySelector('.js-baseline')?.classList.add('is-visible'), 350);
       setTimeout(() => document.querySelector('.js-tagline')?.classList.add('is-visible'), 600);
-      setTimeout(() => document.querySelector('.hero-services')?.classList.add('is-visible'), 600);
+      setTimeout(() => document.querySelector('.hero-services')?.classList.add('is-visible'), 800);
     }, 30);
   }
   if (document.fonts && document.fonts.ready) {
