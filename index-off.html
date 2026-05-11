@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mermoz-Californie — Studio Créatif</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'Editorial New';
+      src: url('assets/fonts/PPEditorialNew/PPEditorialNew-Ultralight.woff') format('woff');
+      font-weight: 200; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Editorial New';
+      src: url('assets/fonts/PPEditorialNew/PPEditorialNew-UltralightItalic.woff') format('woff');
+      font-weight: 200; font-style: italic; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Editorial New';
+      src: url('assets/fonts/PPEditorialNew/PPEditorialNew-Thin.woff') format('woff');
+      font-weight: 300; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Editorial New';
+      src: url('assets/fonts/PPEditorialNew/PPEditorialNew-Regular.woff') format('woff');
+      font-weight: 400; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Editorial New';
+      src: url('assets/fonts/PPEditorialNew/PPEditorialNew-Italic.woff') format('woff');
+      font-weight: 400; font-style: italic; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Editorial New';
+      src: url('assets/fonts/PPEditorialNew/PPEditorialNew-Bold.woff') format('woff');
+      font-weight: 700; font-style: normal; font-display: swap;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --bg:   #EFEDEA;
+      --black:#191919;
+      --white:#EFEDEA;
+      --mid:  #888;
+      --disp: 'Kumbh Sans', 'Helvetica Neue', Arial, sans-serif;
+      --body: 'Helvetica Neue', HelveticaNeue, Helvetica, Arial, sans-serif;
+      --ease: cubic-bezier(.9,0,.1,1);
+    }
+
+    /* Scroll natif vertical avec snap mandatory + déceleration douce */
+    html, body { height: 100%; }
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      scrollbar-width: none; /* Firefox */
+    }
+    html::-webkit-scrollbar { display: none; } /* WebKit */
+    body { overflow: visible; }
+
+    /* html porte le fond noir, body reste transparent pour laisser apparaître
+       l'image floutée derrière les panels quand ils scale-down (dézoom) */
+    html { background: var(--black); }
+    body {
+      background: transparent;
+      color: var(--white);
+      font-family: var(--body);
+      cursor: none;
+    }
+
+    /* ─── CURSOR ─── */
+    #cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--white); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      mix-blend-mode: difference;
+    }
+    #cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid var(--white); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: all 0.1s linear;
+      mix-blend-mode: difference;
+    }
+    @media (max-width: 768px) { #cursor,#cursor-ring{display:none} body{cursor:auto} }
+
+    /* ─── TOPNAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 500; display: flex;
+      align-items: center; justify-content: space-between;
+      padding: 15px; mix-blend-mode: difference;
+      transition: mix-blend-mode 0s;
+    }
+    body.bg-open nav {
+      mix-blend-mode: normal;
+    }
+    .nav-logo {
+      font-family: var(--body); font-size: 13px; font-weight: 700;
+      letter-spacing: normal; text-transform: uppercase;
+      color: var(--white); text-decoration: none;
+      margin-left: 10px;
+    }
+    .nav-right { display: flex; align-items: center; gap: 28px; }
+    .nav-link {
+      font-size: 10px; font-weight: 400; letter-spacing: normal;
+      text-transform: uppercase; color: var(--white);
+      text-decoration: none; opacity: 1; transition: opacity 0.15s;
+    }
+    .nav-link:hover { opacity: 0.55; }
+    .nav-menu-btn {
+      background: none; border: none; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      padding: 4px; width: 28px; height: 28px;
+    }
+    .nav-menu-btn::after {
+      content: ''; display: block; width: 7px; height: 7px;
+      background: var(--white); border-radius: 50%;
+      transition: transform 0.3s var(--ease);
+    }
+    .nav-menu-btn:hover::after { transform: scale(1.4); }
+
+    /* ─── BACKGROUND REVEAL ─── */
+    #bg-reveal {
+      position: fixed; inset: 0; z-index: 0;
+      /* Remplace 'bg.jpg' par ton image */
+      background: url('assets/images/bg.jpg') center/cover no-repeat #111;
+      filter: blur(7px) brightness(0.72);
+      transform: scale(1.04); /* compense le flou sur les bords */
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.75s ease;
+    }
+    /* Grain par-dessus — couche séparée pour ne PAS être floutée par le filter du #bg-reveal */
+    #bg-grain {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 220px 220px;
+      mix-blend-mode: overlay;
+      opacity: 0;
+      transition: opacity 0.75s ease;
+    }
+    body.bg-open #bg-reveal { opacity: 1; }
+    /* Sur la section références : bg.jpg masqué, fond noir, ref-images remplissent la zone */
+    body.on-references #bg-reveal { opacity: 0 !important; }
+    body.bg-open #bg-grain  { opacity: 0.85; }
+
+    /* ─── PANELS — dans le flux du document, scroll natif + snap ─── */
+    .panel {
+      position: relative;
+      z-index: 1; /* au-dessus de bg-reveal/bg-grain */
+      width: 100%;
+      height: 100vh;
+      padding: 0;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      overflow: hidden;
+    }
+
+    /* ─── PANEL INNER — fond visible + border-radius. Au dézoom, on rétrécit
+       avec inset (marges égales en pixels sur les 4 côtés, peu importe le format). ─── */
+    .panel-inner {
+      position: absolute;
+      inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 15px;
+      border-radius: 0;
+      overflow: hidden;
+      transition: border-radius 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  inset         0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body.bg-open .panel-inner {
+      border-radius: 16px;
+      inset: 67px;
+    }
+
+    /* Scale des éléments À L'INTÉRIEUR de la zone (sauf le titre outro
+       et les éléments centrés en absolu qui ont déjà un translate). */
+    .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm):not(.ref-scroll):not(.ref-card) {
+      transform: scale(1);
+      transform-origin: center center;
+      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
+    }
+    body.bg-open .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm):not(.ref-scroll):not(.ref-card) {
+      transform: scale(0.88);
+    }
+    /* Track de scroll des fonds : pas de scale, remplit la zone arrondie */
+    body.bg-open #references .ref-scroll { transform: none; }
+    /* Carte blanche : garde son centrage, ne scale pas */
+    body.bg-open #references .ref-card  { transform: translate(-50%, -50%); }
+    /* outro-form et outro-form-confirm : composer le scale avec leur translate. */
+    body.bg-open .outro-form,
+    body.bg-open .outro-form-confirm {
+      transform: translate(-50%, -50%) scale(0.88);
+    }
+
+    /* Dot animé quand actif */
+    .nav-menu-btn.is-open::after {
+      transform: scale(1.6);
+      opacity: 0.5;
+    }
+
+    /* ─── HERO ─── */
+    #hero { z-index: 2; }
+    #hero .panel-inner { background: var(--black); }
+
+    /* 001 — Grands titres display (MERMOZ CALIFORNIE, CREATION PUBLICITE DESIGN) */
+    .dark-brand-title {
+      font-family: var(--disp);
+      font-size: clamp(64px, 13vw, 200px);
+      font-weight: 700; text-transform: uppercase;
+      line-height: 0.84; letter-spacing: -0.05em;
+      color: var(--white);
+    }
+    /* Décale légèrement le premier "I" de CALIFORNIE vers la droite */
+    #heroTitle .hl-wrap:nth-child(2) .hl .char-wrap:nth-child(4) {
+      margin-left: 0.04em;
+    }
+    /* Idem dans l'outro : "Mermoz Californie" sur une ligne — 11ᵉ char = premier I */
+    #outroTitle .hl .char-wrap:nth-child(11) {
+      margin-left: 0.04em;
+    }
+    .hl { display: block; }
+
+    /* 004 — Petits titres gris (tagline hero, label mantra, sous-titres services, liste outils) */
+    .dark-brand-meta {
+      display: flex; align-items: center; justify-content: center;
+      gap: 20px; margin-top: 36px;
+      font-family: var(--body); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase; color: #555;
+      opacity: 0; transition: opacity 0.6s ease;
+    }
+    .dark-brand-meta.is-visible { opacity: 1; }
+    .dark-meta-line { width: 40px; height: 1px; background: #333; flex-shrink: 0; }
+
+    /* Baseline hero — typo 002 italique grise + mask-reveal mot par mot */
+    .hero-baseline {
+      font-family: 'Editorial New', Georgia, serif;
+      font-style: italic; font-weight: 400;
+      font-size: clamp(28px, 3.5vw, 52px);
+      color: #888;
+      text-align: center; line-height: 1.2;
+      margin-top: 16px;
+    }
+    .hero-baseline .word {
+      display: inline-block;
+      overflow: hidden;
+      padding: 0.08em 0.04em 0.18em;
+      vertical-align: top;
+    }
+    .hero-baseline .word-inner {
+      display: inline-block;
+      transform: translateY(115%);
+      opacity: 0;
+      transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.5s ease;
+    }
+    .hero-baseline.is-visible .word-inner {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ─── SERVICES PANEL ─── */
+    #services { z-index: 1; }
+    #services .panel-inner { background: var(--bg); }
+
+    /* ─── MANIFESTE PANEL ─── */
+    #manifeste { z-index: 1; }
+    #manifeste .panel-inner { background: var(--black); }
+
+    .mfst-label {
+      font-family: var(--body); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase; color: #666;
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      margin-bottom: 22px;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.75s ease 0s,
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0s;
+    }
+    .mfst-label.is-in  { opacity: 1; transform: translateY(0); }
+    .mfst-label.is-out {
+      opacity: 0; transform: translateY(-12px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    /* 002 — Paragraphes éditoriaux (texte mantra, texte outils) — apparition ligne par ligne (opacité). */
+    .mfst-body {
+      font-family: 'Editorial New', Georgia, serif;
+      font-size: clamp(28px, 3.8vw, 64px);
+      font-style: italic;
+      color: var(--white); text-align: center;
+      max-width: 1000px; padding: 0 60px; line-height: 1.08;
+    }
+    /* Chaque mot wrappé par splitWords() ; le delay est posé par applyLineDelays()
+       en JS selon la position Y → tous les mots d'une même ligne fadent ensemble. */
+    .mfst-body .word-inner,
+    .outils-body .word-inner {
+      display: inline-block;
+      opacity: 0;
+      transition: opacity 0.45s ease-out;
+    }
+    .mfst-body.is-in .word-inner,
+    .outils-body.is-in .word-inner {
+      opacity: 1;
+    }
+    .mfst-body.is-out .word-inner,
+    .outils-body.is-out .word-inner {
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    /* 004 — Ligne de services sous le mantra */
+    .mfst-sub {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      font-family: var(--body); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase; color: #999;
+      margin-top: 36px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.75s ease 0.5s,
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+    }
+    .mfst-sub.is-in  { opacity: 1; transform: translateY(0); }
+    .mfst-sub.is-out { opacity: 0; transform: translateY(-8px);
+                        transition: opacity 0.25s ease, transform 0.25s ease; }
+
+    .svc-display {
+      font-family: var(--disp);
+      font-size: clamp(49px, 10.45vw, 162px);
+      font-weight: 700; text-transform: uppercase;
+      line-height: 0.88; letter-spacing: -0.05em;
+      color: var(--black);
+    }
+    .svc-line { display: block; overflow: visible; }
+    .svc-word { display: inline-block; }
+
+    /* Mot cliquable */
+    .svc-word {
+      cursor: pointer; user-select: none;
+      transition: opacity 0.2s ease;
+    }
+    .svc-word:hover { opacity: 0.65; }
+
+    /* Sous-titre accordéon — tiroir */
+    .svc-sub {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      font-family: var(--body); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase; color: #999;
+      max-height: 0; overflow: hidden; opacity: 0;
+      margin-top: 0; margin-bottom: 0;
+      transition: max-height 0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity    0.42s ease,
+                  margin-top    0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                  margin-bottom 0.58s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .svc-sub.is-open {
+      max-height: 60px; opacity: 1;
+      margin-top: 18px; margin-bottom: 20px;
+    }
+    .svc-sub-item { white-space: nowrap; }
+    .svc-sub-line { width: 40px; height: 1px; background: #bbb; flex-shrink: 0; }
+
+    /* ─── CHAR ANIMATION — clip mask reveal (style adcker) ─── */
+
+    /* Clip au niveau de la ligne — pas sur le char individuel */
+    .hl-wrap {
+      display: block;
+      overflow: hidden;
+    }
+    .svc-line {
+      overflow: hidden;
+    }
+
+    .char-wrap {
+      display: inline-block;
+      vertical-align: bottom;
+    }
+    .char {
+      display: inline-block;
+      will-change: transform;
+    }
+
+    /* ── Départ : sous le clip ── */
+    .dark-brand-title .char,
+    .svc-display .char,
+    .outils-display .char {
+      transform: translateY(125%);
+      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) var(--char-delay, 0s);
+    }
+    /* ── Entrée : remonte dans la zone visible ── */
+    .dark-brand-title.chars-in .char,
+    .svc-display.chars-in .char,
+    .outils-display.chars-in .char {
+      transform: translateY(0);
+    }
+    /* ── Sortie : s'échappe vers le haut ── */
+    .dark-brand-title.chars-out .char,
+    .svc-display.chars-out .char,
+    .outils-display.chars-out .char {
+      transform: translateY(-110%);
+      transition: transform 0.42s cubic-bezier(0.9, 0, 0.1, 1) var(--char-delay, 0s);
+    }
+
+    /* Reset instantané sans transition */
+    .chars-reset .char { transition-duration: 0s !important; }
+
+    /* ─── OUTILS PANEL ─── */
+    #outils { z-index: 1; }
+    #outils .panel-inner { background: var(--bg); }
+
+    /* 001 — Grand titre display Outils */
+    .outils-display {
+      font-family: var(--disp);
+      font-size: clamp(49px, 10.45vw, 162px);
+      font-weight: 700; text-transform: uppercase;
+      line-height: 0.88; letter-spacing: -0.05em;
+      color: var(--black);
+    }
+    /* padding-right compense le débord du S avec letter-spacing négatif */
+    .outils-line-wrap { display: block; overflow: hidden; padding-right: 0.08em; }
+    .outils-word {
+      display: inline-block;
+      cursor: pointer; user-select: none;
+      transition: opacity 0.2s ease;
+    }
+    .outils-word:hover { opacity: 0.65; }
+
+    /* Tiroir (petits titres gris 004) — calé sur .svc-sub */
+    .outils-drawer {
+      max-height: 0; overflow: hidden; opacity: 0;
+      margin-top: 0; margin-bottom: 0;
+      transition: max-height 0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity    0.42s ease,
+                  margin-top    0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                  margin-bottom 0.58s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .outils-drawer.is-open {
+      max-height: 60px; opacity: 1;
+      margin-top: 10px; margin-bottom: 8px;
+    }
+
+    /* Seul OUTILS monte au clic — le corps ne descend pas (évite l'écart) */
+    #outils .outils-display {
+      transition: transform 0.58s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    #outils .outils-display.drawer-open              { transform: scale(1)    translateY(-12px) !important; }
+    body.bg-open #outils .outils-display.drawer-open { transform: scale(0.88) translateY(-12px) !important; }
+
+    /* 004 — Liste outils (petits titres gris) : items fade-in en cascade */
+    .outils-tools {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      font-family: var(--body); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase; color: #999;
+    }
+    .outils-tool-line { width: 40px; height: 1px; background: #bbb; flex-shrink: 0; }
+    .outils-tools > span {
+      opacity: 0;
+      transition: opacity 0.38s ease;
+    }
+    .outils-drawer.is-open .outils-tools > span:nth-child(1) { opacity: 1; transition-delay: 0.18s; }
+    .outils-drawer.is-open .outils-tools > span:nth-child(2) { opacity: 1; transition-delay: 0.24s; }
+    .outils-drawer.is-open .outils-tools > span:nth-child(3) { opacity: 1; transition-delay: 0.30s; }
+    .outils-drawer.is-open .outils-tools > span:nth-child(4) { opacity: 1; transition-delay: 0.24s; }
+    .outils-drawer.is-open .outils-tools > span:nth-child(5) { opacity: 1; transition-delay: 0.18s; }
+
+    /* 002 — Paragraphe éditorial Outils — apparition ligne par ligne. */
+    .outils-body {
+      font-family: 'Editorial New', Georgia, serif;
+      font-size: clamp(18px, 2.3vw, 36px);
+      color: var(--black); text-align: center;
+      line-height: 1.08;
+      max-width: 850px; padding: 0 40px;
+      margin-top: 18px;
+    }
+    /* Les transitions in/out sont gérées sur les .word-inner (voir bloc plus haut). */
+
+    /* 003 — Sous-texte gris centré (outils) */
+    .outils-sub {
+      font-family: var(--body); font-size: clamp(12px, 1.15vw, 16px);
+      color: #777; text-align: center;
+      max-width: 850px; padding: 0 40px; line-height: 1.65;
+      margin-top: 28px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.75s ease 0.35s,
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.35s;
+    }
+    .outils-sub.is-in  { opacity: 1; transform: translateY(0); }
+    .outils-sub.is-out { opacity: 0; transform: translateY(-8px);
+                          transition: opacity 0.25s ease, transform 0.25s ease; }
+
+    /* ─── RÉFÉRENCES PANEL ─── */
+    #references { z-index: 1; }
+    #references .panel-inner { background: #111; padding: 0; }
+
+    /* Track de scroll horizontal natif + snap (équivalent x du scroll vertical) */
+    .ref-scroll {
+      position: absolute; inset: 0;
+      display: flex;
+      overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ref-scroll::-webkit-scrollbar { display: none; }
+
+    .ref-slide {
+      flex: 0 0 100%;
+      height: 100%;
+      background-size: cover; background-position: center;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    /* Carte blanche fixe au centre — overlay, ne bloque pas le scroll */
+    .ref-card {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      background: #fff;
+      border-radius: 20px;
+      width: min(420px, 86vw);
+      padding: 44px 44px 36px;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      box-shadow: 0 12px 60px rgba(0,0,0,0.3);
+      pointer-events: none; /* le scroll passe au travers */
+      user-select: none;
+    }
+
+    /* Conteneur clipé qui suit le scroll en X */
+    .ref-text-clip { width: 100%; overflow: hidden; }
+    .ref-text-track {
+      display: flex; width: 100%;
+      will-change: transform;
+    }
+    .ref-text {
+      flex: 0 0 100%;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+
+    .ref-logo {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 4px;
+    }
+    .ref-logo span {
+      font-family: var(--body); font-size: 8px;
+      letter-spacing: 0.12em; color: #bbb; text-transform: uppercase;
+    }
+    .ref-logo img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; }
+
+    .ref-title {
+      font-family: var(--disp);
+      font-size: clamp(36px, 5vw, 62px);
+      font-weight: 700; text-transform: uppercase;
+      letter-spacing: -0.03em; line-height: 0.88;
+      color: var(--black); margin: 0;
+    }
+    .ref-desc {
+      font-family: var(--body); font-size: clamp(11px, 0.95vw, 13px);
+      color: #888; line-height: 1.65;
+      max-width: 280px; margin-top: 4px;
+    }
+
+    /* Dots — cliquables, restent par-dessus la carte */
+    .ref-dots {
+      display: flex; gap: 7px; margin-top: 28px;
+      pointer-events: auto;
+    }
+    .ref-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: #ddd;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .ref-dot.is-active { background: var(--black); transform: scale(1.4); }
+
+    /* ─── OUTRO PANEL ─── */
+    #outro { z-index: 1; }
+    #outro .panel-inner { background: var(--black); }
+
+    /* Override : titre outro — font-size calculé par fitOutroTitle() pour
+       remplir la largeur entre 25px de marge gauche/droite */
+    #outro .dark-brand-title {
+      font-size: 8.8vw; /* fallback / valeur initiale, écrasée par JS */
+      white-space: nowrap;
+      transform: translateX(-5px) scale(1);
+      transform-origin: center bottom;
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    /* En dézoom, le titre rétrécit via scale et descend de 4px (--dezoom-scale calculé en JS). */
+    body.bg-open #outro .dark-brand-title {
+      transform: translate(-5px, 4px) scale(var(--dezoom-scale, 0.93));
+    }
+    #outro .hl-wrap { white-space: nowrap; }
+
+    /* Titre ancré en bas du card — padding intermédiaire */
+    #outro .panel-inner {
+      justify-content: flex-end;
+      padding-bottom: 24px;
+    }
+    /* Dézoom outro : hérite de la règle générale (inset 28px), pas de surcharge */
+
+    /* meta fixée sur le viewport — indépendante du dézoom */
+    .outro-meta {
+      position: fixed; bottom: 22px; left: 25px; right: 25px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--body); font-size: 9px; font-weight: 400;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--white);
+      z-index: 10; pointer-events: none;
+      /* Visible UNIQUEMENT en dézoom : on attend body.bg-open */
+      opacity: 0; transition: opacity 0.5s ease;
+    }
+    body.bg-open .outro-meta.is-in { opacity: 1; }
+    .outro-meta.is-out { opacity: 0; transition: opacity 0.2s ease; }
+
+    /* ─── OUTRO FORM — formulaire centré (3 lignes : nom, email, demande) ─── */
+    .outro-form {
+      position: absolute; top: 42%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column;
+      width: min(560px, 70vw);
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.6s ease 0.4s,
+                  transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
+    }
+    .outro-form.is-in  { opacity: 1; }
+    .outro-form.is-out { opacity: 0; transition: opacity 0.2s ease; }
+
+    .outro-form-row {
+      display: flex; align-items: center;
+      border-bottom: 1px solid rgba(239, 237, 234, 0.35);
+      padding: 14px 0;
+      transition: border-color 0.3s ease;
+    }
+    .outro-form-row:focus-within { border-color: var(--white); }
+
+    .outro-form-input {
+      flex: 1;
+      background: none; border: none; outline: none;
+      color: var(--white);
+      font-family: var(--body); font-size: 14px; font-weight: 400;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 4px 0;
+    }
+    .outro-form-input::placeholder {
+      color: rgba(239, 237, 234, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    /* Textarea du message — auto-grow géré en JS, max 3 lignes (cap via JS). */
+    .outro-form-textarea {
+      resize: none;
+      overflow: hidden;
+      line-height: 1.4;
+      min-height: calc(1.4em + 8px);
+      display: block;
+    }
+    /* État invalide (champ requis vide à la soumission) */
+    .outro-form-row.is-invalid { border-color: rgba(255, 90, 90, 0.6); }
+    .outro-form-send {
+      background: none; border: none; cursor: pointer;
+      color: var(--white);
+      padding: 4px 6px; margin-left: 12px;
+      display: flex; align-items: center;
+      opacity: 0.6;
+      transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    .outro-form-send:hover { opacity: 1; transform: translateX(5px); }
+
+    .outro-form.is-sent {
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .outro-form-confirm {
+      position: absolute; top: 42%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--white);
+      font-family: var(--body); font-size: 11px; font-weight: 400;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.5s ease 0.25s,
+                  transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
+    }
+    .outro-form-confirm.is-shown { opacity: 1; }
+
+    /* ─── SECTION NAV — graduations à droite ─── */
+    .section-nav {
+      position: fixed;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      transform-origin: right center;
+      display: flex; flex-direction: column;
+      align-items: flex-end;
+      gap: 14px;
+      z-index: 11;
+      color: #fff;
+      mix-blend-mode: difference;
+      opacity: 0.3;
+      pointer-events: none;
+      transition: right 1s cubic-bezier(0.16,1,0.3,1) 0.08s,
+                  transform 1s cubic-bezier(0.16,1,0.3,1) 0.08s,
+                  opacity 0.3s ease;
+    }
+    .section-nav:hover { opacity: 0.9; }
+    .section-nav-tick { pointer-events: auto; }
+    /* Au dézoom : la nav disparaît */
+    body.bg-open .section-nav {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .section-nav-tick {
+      position: relative;
+      display: flex; align-items: center; justify-content: flex-end;
+      background: none; border: none; padding: 6px 0;
+      cursor: pointer;
+      color: inherit;
+      font-family: var(--body);
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .section-nav-tick .label {
+      position: absolute;
+      right: calc(100% + 12px);
+      top: 50%;
+      opacity: 0;
+      transform: translateY(-50%) translateX(6px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .section-nav-tick:hover .label,
+    .section-nav-tick.is-active .label {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+    .section-nav-tick .bar {
+      display: block;
+      width: 18px; height: 1.5px;
+      background: currentColor;
+      opacity: 0.55;
+      transition: width 0.5s cubic-bezier(0.22,1,0.36,1),
+                  opacity 0.3s ease,
+                  background-color 0.5s ease;
+    }
+    .section-nav-tick:hover .bar { opacity: 1; }
+    .section-nav-tick.is-active .bar {
+      width: 36px;
+      opacity: 1;
+    }
+
+    /* Bloc contact mobile : invisible par défaut (desktop), visible via media query. */
+    .mobile-contact { display: none; }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       RESPONSIVE — TABLETTE & MOBILE
+         ≤1024px : tablette (ajustements légers)
+         ≤768px  : mobile — page unique : hero + ligne + email. Rien d'autre.
+       ───────────────────────────────────────────────────────────────────── */
+
+    /* Tablette : on réduit la marge de dézoom et la taille des outils. */
+    @media (max-width: 1024px) {
+      body.bg-open .panel-inner { inset: 36px; }
+      .outils-tools { font-size: 11px; }
+    }
+
+    /* Mobile : layout radicalement simplifié — un seul écran avec hero + email. */
+    @media (max-width: 768px) {
+      /* Plus de scroll, un seul écran fixe. */
+      html, body { overflow: hidden; height: 100vh; height: 100dvh; }
+
+      /* Nav : on retire tout (logo, email, dot menu) sur mobile. */
+      nav { padding: 14px 16px; }
+      .nav-logo, .nav-link, .nav-menu-btn { display: none; }
+
+      /* Cacher tous les panels sauf le hero. */
+      .panel:not(#hero) { display: none; }
+
+      /* Cacher tous les éléments fixes liés aux autres sections. */
+      .section-nav, .outro-meta { display: none; }
+
+      /* Tagline : cachée par défaut, révélée au tap sur le titre.
+         Même motion que les sous-titres des services (.svc-sub) : simple
+         expansion en hauteur + fade. Aucun stagger par enfant. */
+      .js-tagline {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        max-height: 0;
+        opacity: 0 !important;
+        margin-top: 0;
+        margin-bottom: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height 0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity    0.42s ease,
+                    margin-top    0.58s cubic-bezier(0.16, 1, 0.3, 1),
+                    margin-bottom 0.58s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .js-tagline.is-tap-shown {
+        max-height: 60px;
+        opacity: 1 !important;
+        margin-top: 18px;
+        margin-bottom: 20px;
+        pointer-events: auto;
+      }
+
+      /* Hero title : plus grand mais "CALIFORNIE" tient sur une ligne. */
+      #heroTitle {
+        font-size: clamp(50px, 15vw, 80px) !important;
+        cursor: pointer;
+      }
+
+      /* Pas de dezoom sur mobile (pas de bouton menu). */
+      body.bg-open .panel-inner { inset: 0; border-radius: 0; }
+
+      /* Hero centré, fond noir plein écran. */
+      #hero .panel-inner {
+        background: var(--black);
+        padding: 24px;
+        justify-content: center;
+        gap: 26px;
+      }
+
+      /* Bloc contact mobile : ligne + email. */
+      .mobile-contact {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* Motion explicite : descend visiblement quand la tagline est révélée. */
+        transition: transform 0.58s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      /* On retire le filet blanc au-dessus de l'email. */
+      .mobile-contact-line { display: none; }
+      .mobile-contact-email {
+        color: var(--white);
+        font-family: var(--body);
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding-bottom: 2px;
+        border-bottom: 1px solid rgba(239, 237, 234, 0.35);
+        transition: opacity 0.3s ease, border-color 0.3s ease;
+      }
+      .mobile-contact-email:hover,
+      .mobile-contact-email:active {
+        opacity: 0.75;
+        border-color: var(--white);
+      }
+      /* Motion explicite d'écartement : titre monte, email descend. Sync avec
+         l'ouverture de la tagline (même durée 0.58s, même courbe). Garantit une
+         vraie motion visible, sans dépendre du recalcul de layout. */
+      .js-tagline.is-tap-shown + .mobile-contact {
+        transform: translateY(20px);
+      }
+      #heroTitle {
+        transition: transform 0.58s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      body.tagline-shown #heroTitle {
+        transform: translateY(-20px);
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="bg-reveal"></div>
+<div id="bg-grain"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <a href="#" class="nav-logo">Mermoz Californie</a>
+  <div class="nav-right">
+    <a href="mailto:creation@mermoz-californie.com" class="nav-link">creation@mermoz-californie.com</a>
+    <button class="nav-menu-btn" aria-label="Menu"><span></span></button>
+  </div>
+</nav>
+
+<!-- Panel 1 — Hero -->
+<div id="hero" class="panel">
+  <div class="panel-inner">
+    <div class="dark-brand-title" id="heroTitle">
+      <span class="hl-wrap"><span class="hl js-hl">Mermoz</span></span>
+      <span class="hl-wrap"><span class="hl js-hl">Californie</span></span>
+    </div>
+    <div class="hero-baseline js-baseline">Picture it.</div>
+    <!-- Bloc visible UNIQUEMENT en mobile (≤768px) : ligne + email cliquable -->
+    <div class="mobile-contact">
+      <div class="mobile-contact-line"></div>
+      <a href="mailto:creation@mermoz-californie.com" class="mobile-contact-email">creation@mermoz-californie.com</a>
+    </div>
+  </div>
+</div>
+
+<!-- Panel 2 — Manifeste -->
+<div id="manifeste" class="panel">
+  <div class="panel-inner">
+    <div class="mfst-label" id="mfstLabel">
+      <span>CE QUE NOUS FAISONS</span>
+    </div>
+    <p class="mfst-body" id="mfstBody">
+      Nous imageons ce que vous imaginez<br>pour votre startup et votre entreprise.
+    </p>
+    <p class="mfst-sub" id="mfstSub">
+      <span class="svc-sub-item">Identité visuelle</span>
+      <span class="svc-sub-line"></span>
+      <span class="svc-sub-item">Conception rédaction</span>
+      <span class="svc-sub-line"></span>
+      <span class="svc-sub-item">Naming</span>
+    </p>
+  </div>
+</div>
+
+<!-- Panel 3 — Services -->
+<div id="services" class="panel">
+  <div class="panel-inner">
+  <div class="svc-display" id="svcDisplay">
+    <span class="svc-line">
+      <span class="svc-word">Creation</span>
+      <span class="svc-sub">
+        <span class="svc-sub-item">Identite Visuelle</span>
+        <span class="svc-sub-line"></span>
+        <span class="svc-sub-item">Direction Artistique</span>
+        <span class="svc-sub-line"></span>
+        <span class="svc-sub-item">Motion</span>
+      </span>
+    </span>
+    <span class="svc-line">
+      <span class="svc-word">Publicite</span>
+      <span class="svc-sub">
+        <span class="svc-sub-item">Campagnes</span>
+        <span class="svc-sub-line"></span>
+        <span class="svc-sub-item">Print & OOH</span>
+        <span class="svc-sub-line"></span>
+        <span class="svc-sub-item">Digital</span>
+      </span>
+    </span>
+    <span class="svc-line">
+      <span class="svc-word">Design</span>
+      <span class="svc-sub">
+        <span class="svc-sub-item">UI/UX</span>
+        <span class="svc-sub-line"></span>
+        <span class="svc-sub-item">Editorial</span>
+        <span class="svc-sub-line"></span>
+        <span class="svc-sub-item">Packaging</span>
+      </span>
+    </span>
+  </div>
+  </div>
+</div>
+
+<!-- Panel 4 — Outils -->
+<div id="outils" class="panel">
+  <div class="panel-inner">
+    <div class="outils-display" id="outilsDisplay">
+      <span class="outils-line-wrap">
+        <span class="outils-word">Outils</span>
+      </span>
+    </div>
+    <div class="outils-drawer" id="outilsDrawer">
+      <div class="outils-tools">
+        <span>Claude Opus 4.7</span>
+        <span class="outils-tool-line"></span>
+        <span>Nano Banana</span>
+        <span class="outils-tool-line"></span>
+        <span>Adobe Firefly</span>
+      </div>
+    </div>
+    <p class="outils-body" id="outilsBody">
+      L'intelligence artificielle ne rendra jamais un directeur artistique ou un concepteur rédacteur meilleur. Sans vision l'intelligence artificielle n'est rien.
+    </p>
+    <p class="outils-sub" id="outilsSub">
+      Mais elle est l'outil pour nous permettre de concrétiser plus rapidement nos projets. Elle doit être utilisée dans un cadre très précis, en transparence avec nos annonceurs, et dans un souci de protection des données et d'une éthique écologique responsable.
+    </p>
+  </div>
+</div>
+
+<!-- =====================================================================
+     Panel 5 — Références
+     Le contenu est piloté par le tableau REFS (cherche "RÉFÉRENCES — édite ICI" dans le JS).
+     Voir aussi assets/references/README.md.
+     ===================================================================== -->
+<div id="references" class="panel">
+  <div class="panel-inner">
+    <!-- Fonds : remplis par le JS depuis le tableau REFS -->
+    <div class="ref-scroll" id="refScroll">
+      <div class="ref-slide" style="background-color:#1a1a1a;"></div>
+      <div class="ref-slide" style="background-color:#222;"></div>
+      <div class="ref-slide" style="background-color:#2a2a2a;"></div>
+    </div>
+
+    <!-- Carte blanche centrée -->
+    <div class="ref-card">
+      <div class="ref-text-clip">
+        <div class="ref-text-track" id="refTextTrack">
+          <div class="ref-text">
+            <div class="ref-logo"><img alt="" onerror="this.style.display='none'"></div>
+            <h3 class="ref-title">LOREM<br>IPSUM</h3>
+            <p class="ref-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          </div>
+          <div class="ref-text">
+            <div class="ref-logo"><img alt="" onerror="this.style.display='none'"></div>
+            <h3 class="ref-title">DOLOR<br>SIT</h3>
+            <p class="ref-desc">Ut enim ad minim veniam, quis nostrud exercitation.</p>
+          </div>
+          <div class="ref-text">
+            <div class="ref-logo"><img alt="" onerror="this.style.display='none'"></div>
+            <h3 class="ref-title">AMET<br>CONS</h3>
+            <p class="ref-desc">Duis aute irure dolor in reprehenderit in voluptate.</p>
+          </div>
+        </div>
+      </div>
+      <div class="ref-dots" id="refDots">
+        <span class="ref-dot is-active" data-idx="0"></span>
+        <span class="ref-dot" data-idx="1"></span>
+        <span class="ref-dot" data-idx="2"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Meta outro — fixed sur viewport, hors panel (pas affectée par dézoom) -->
+<div class="outro-meta" id="outroMeta">
+  <span>©2026</span>
+  <span>By Studio MC</span>
+</div>
+
+<!-- Section nav — graduations à droite pour accès direct -->
+<nav class="section-nav" id="sectionNav" aria-label="Sections">
+  <button class="section-nav-tick is-active" data-idx="0" aria-label="Home"><span class="label">Home</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="1" aria-label="Mantra"><span class="label">Mantra</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="2" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="3" aria-label="Outils"><span class="label">Outils</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="4" aria-label="Références"><span class="label">Références</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="5" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
+</nav>
+
+<!-- Panel 5 — Outro -->
+<div id="outro" class="panel">
+  <div class="panel-inner">
+    <form class="outro-form" id="outroForm" novalidate>
+      <div class="outro-form-row">
+        <input type="text" name="name" id="outroFormName" class="outro-form-input"
+               placeholder="Prénom / Nom" autocomplete="name" maxlength="120" required />
+      </div>
+      <div class="outro-form-row">
+        <input type="email" name="email" id="outroFormEmail" class="outro-form-input"
+               placeholder="Adresse email" autocomplete="email" maxlength="120" required />
+      </div>
+      <div class="outro-form-row">
+        <textarea name="message" id="outroFormInput" class="outro-form-input outro-form-textarea"
+                  placeholder="Votre demande en deux mots" autocomplete="off" maxlength="500"
+                  rows="1" required></textarea>
+        <button type="submit" class="outro-form-send" aria-label="Envoyer">
+          <svg width="26" height="14" viewBox="0 0 26 14" fill="none" aria-hidden="true">
+            <path d="M0 7H24M24 7L18 1M24 7L18 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/>
+          </svg>
+        </button>
+      </div>
+    </form>
+    <div class="outro-form-confirm" id="outroFormConfirm">Merci, message envoyé.</div>
+    <div class="dark-brand-title" id="outroTitle">
+      <span class="hl-wrap"><span class="hl js-outro-hl">Mermoz Californie</span></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ─── CURSOR ─── */
+  const cur = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function tick(){
+    cur.style.left=mx+'px'; cur.style.top=my+'px';
+    rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(tick);
+  })();
+
+  /* ─── SPLIT EN CHARS (graphème complet, É = 1 seul span) ─── */
+  const _segmenter = typeof Intl !== 'undefined' && Intl.Segmenter
+    ? new Intl.Segmenter()
+    : null;
+
+  function getGraphemes(text) {
+    if (_segmenter) return [..._segmenter.segment(text)].map(s => s.segment);
+    // fallback basique si Intl.Segmenter absent
+    return [...text];
+  }
+
+  /* splitChars : crée char-wrap > char pour le clip mask reveal */
+  function splitChars(container, selector) {
+    let globalIdx = 0;
+    container.querySelectorAll(selector).forEach((span, wordIdx) => {
+      const text = span.textContent;
+      const frag = document.createDocumentFragment();
+      getGraphemes(text).forEach(ch => {
+        const wrap  = document.createElement('span');
+        wrap.className = 'char-wrap';
+        const inner = document.createElement('span');
+        inner.className = 'char';
+        inner.textContent = ch === ' ' ? '\u00a0' : ch;
+        // Stagger séquentiel + légère variation organique
+        const delay = wordIdx * 0.12 + globalIdx * 0.032 + Math.random() * 0.018;
+        inner.style.setProperty('--char-delay', delay + 's');
+        globalIdx++;
+        wrap.appendChild(inner);
+        frag.appendChild(wrap);
+      });
+      span.textContent = '';
+      span.appendChild(frag);
+    });
+  }
+
+  const heroTitle    = document.getElementById('heroTitle');
+
+  /* Mobile : tap sur MERMOZ CALIFORNIE → toggle l'affichage de la tagline. */
+  heroTitle.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      const tag = document.querySelector('.js-tagline');
+      tag?.classList.toggle('is-tap-shown');
+      document.body.classList.toggle('tagline-shown', tag?.classList.contains('is-tap-shown'));
+    }
+  });
+  const svcDisplay   = document.getElementById('svcDisplay');
+  const outilsDisplay = document.getElementById('outilsDisplay');
+  const outilsDrawer  = document.getElementById('outilsDrawer');
+  const outilsBody    = document.getElementById('outilsBody');
+  const outilsSub     = document.getElementById('outilsSub');
+  const outroTitle    = document.getElementById('outroTitle');
+
+  splitChars(heroTitle,    '.js-hl');
+  splitChars(svcDisplay,   '.svc-word');
+  splitChars(outilsDisplay, '.outils-word');
+  splitChars(outroTitle,    '.js-outro-hl');
+
+  /* Wrap chaque mot des paragraphes 002 (éditoriaux) dans <span.word><span.word-inner>mot</span></span>
+     pour permettre l'apparition ligne par ligne. Préserve les <br>. */
+  function splitWords(el) {
+    const walk = (node) => {
+      Array.from(node.childNodes).forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const parts = child.textContent.split(/(\s+)/);
+          const frag = document.createDocumentFragment();
+          parts.forEach(p => {
+            if (!p) return;
+            if (/^\s+$/.test(p)) {
+              frag.appendChild(document.createTextNode(p));
+            } else {
+              const w = document.createElement('span');
+              w.className = 'word';
+              const inner = document.createElement('span');
+              inner.className = 'word-inner';
+              inner.textContent = p;
+              w.appendChild(inner);
+              frag.appendChild(w);
+            }
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== 'BR') {
+          walk(child);
+        }
+      });
+    };
+    walk(el);
+  }
+  /* Regroupe les .word-inner par ligne (offsetTop) et pose un transition-delay
+     identique pour tous les mots d'une même ligne → fade ligne par ligne. */
+  function applyLineDelays(el, perLine = 0.10) {
+    if (!el) return;
+    const words = el.querySelectorAll('.word-inner');
+    if (!words.length) return;
+    let lastTop = null;
+    let lineIdx = -1;
+    words.forEach(w => {
+      w.style.transitionDelay = '0s';
+      const top = Math.round(w.getBoundingClientRect().top);
+      if (lastTop === null || Math.abs(top - lastTop) > 4) {
+        lineIdx++;
+        lastTop = top;
+      }
+      w.style.transitionDelay = (lineIdx * perLine) + 's';
+    });
+  }
+  const _mfstBody = document.getElementById('mfstBody');
+  const _outilsBody = document.getElementById('outilsBody');
+  if (_mfstBody)   splitWords(_mfstBody);
+  if (_outilsBody) splitWords(_outilsBody);
+  const _heroBaseline = document.querySelector('.hero-baseline');
+  if (_heroBaseline) {
+    splitWords(_heroBaseline);
+    _heroBaseline.querySelectorAll('.word-inner').forEach((w, i) => {
+      w.style.transitionDelay = `${i * 0.15}s`;
+    });
+  }
+  function refreshLineDelays() {
+    applyLineDelays(_mfstBody);
+    applyLineDelays(_outilsBody);
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(refreshLineDelays);
+  } else {
+    window.addEventListener('load', refreshLineDelays);
+  }
+  let _lineDelaysTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(_lineDelaysTimer);
+    _lineDelaysTimer = setTimeout(refreshLineDelays, 150);
+  });
+
+
+  /* ─── ENTER / EXIT ─── */
+  function enterEl(el) {
+    // Recalcule le stagger séquentiel à chaque entrée
+    el.querySelectorAll('.char').forEach((ch, i) => {
+      ch.style.setProperty('--char-delay', (i * 0.028 + Math.random() * 0.015) + 's');
+    });
+    el.classList.add('chars-reset');
+    el.classList.remove('chars-in', 'chars-out');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.classList.remove('chars-reset');
+      el.classList.add('chars-in');
+    }));
+  }
+
+  function exitEl(el) {
+    // Sortie rapide quasi-simultanée, léger stagger décroissant
+    const chars = [...el.querySelectorAll('.char')];
+    chars.forEach((ch, i) => {
+      ch.style.setProperty('--char-delay', (i * 0.008) + 's');
+    });
+    el.classList.remove('chars-in');
+    el.classList.add('chars-out');
+  }
+
+  /* ─── NAVIGATION ENTRE PANELS ─── */
+  let current = 0;
+  let isAnimating = false;
+  const panels = [
+    document.getElementById('hero'),
+    document.getElementById('manifeste'),
+    document.getElementById('services'),
+    document.getElementById('outils'),
+    document.getElementById('references'),
+    document.getElementById('outro')
+  ];
+
+  /* ╔════════════════════════════════════════════════════════════════════╗
+     ║  RÉFÉRENCES — auto-découverte                                     ║
+     ║  Drop un dossier dans assets/references/, refresh, c'est tout.    ║
+     ║  Si le serveur ne supporte pas le directory listing, on retombe   ║
+     ║  sur assets/references/references.json (généré par bin/sync-refs).║
+     ╚════════════════════════════════════════════════════════════════════╝ */
+  const refScrollEl     = document.getElementById('refScroll');
+  const refTextTrack    = document.getElementById('refTextTrack');
+  const refDotsContainer = document.getElementById('refDots');
+
+  let REFS = [], REF_COUNT = 0, refCurrent = 0;
+  let refSlideEls = [], refTextEls = [], refDotsEls = [];
+
+  /* 3 niveaux de fallback : directory listing → manifeste JSON → liste par défaut */
+  async function discoverRefs() {
+    const cacheBust = `?_=${Date.now()}`;
+
+    /* 1. Directory listing du serveur (Python http.server, http-server npm, …) */
+    try {
+      const res = await fetch('assets/references/' + cacheBust);
+      if (res.ok) {
+        const text = await res.text();
+        if (text.toLowerCase().includes('<a ')) {
+          const doc = new DOMParser().parseFromString(text, 'text/html');
+          const folders = Array.from(doc.querySelectorAll('a'))
+            .map(a => { let h = a.getAttribute('href') || ''; try { h = decodeURIComponent(h); } catch (e) {} return h; })
+            .filter(h => h.endsWith('/') && !h.startsWith('..') && !h.startsWith('?') && !h.startsWith('http') && h !== './' && h !== '/' && !h.includes(':'))
+            .map(h => h.replace(/\/$/, '').split('/').pop())
+            .filter(name => name && !name.startsWith('.') && !name.startsWith('_'));
+          if (folders.length > 0) return folders.sort();
+        }
+      }
+    } catch (e) {}
+
+    /* 2. Manifeste JSON (généré par bin/sync-refs.sh) */
+    try {
+      const res = await fetch('assets/references/references.json' + cacheBust);
+      if (res.ok) {
+        const list = await res.json();
+        if (Array.isArray(list) && list.length > 0) return list;
+      }
+    } catch (e) {}
+
+    /* 3. Liste par défaut */
+    return ['slide1', 'slide2', 'slide3'];
+  }
+
+  /* Ajuste le DOM pour matcher le nombre de slides découvertes (clone les templates) */
+  function ensureSlideCount(target) {
+    const slideTpl = refScrollEl.firstElementChild;
+    const textTpl  = refTextTrack.firstElementChild;
+    const dotTpl   = refDotsContainer.firstElementChild;
+    let n = refScrollEl.children.length;
+    while (n < target) {
+      if (slideTpl) refScrollEl.appendChild(slideTpl.cloneNode(true));
+      if (textTpl)  refTextTrack.appendChild(textTpl.cloneNode(true));
+      if (dotTpl)   {
+        const d = dotTpl.cloneNode(true);
+        d.classList.remove('is-active');
+        d.dataset.idx = n;
+        refDotsContainer.appendChild(d);
+      }
+      n++;
+    }
+    while (n > target) {
+      refScrollEl.removeChild(refScrollEl.lastElementChild);
+      refTextTrack.removeChild(refTextTrack.lastElementChild);
+      refDotsContainer.removeChild(refDotsContainer.lastElementChild);
+      n--;
+    }
+  }
+
+  /* Sync : le track texte suit le scroll des fonds + dots */
+  function syncRefFromScroll() {
+    const w = refScrollEl.clientWidth;
+    if (!w) return;
+    const progress = refScrollEl.scrollLeft / w;
+    refTextTrack.style.transform = `translateX(${-progress * 100}%)`;
+    const idx = Math.round(progress);
+    if (idx !== refCurrent && idx >= 0 && idx < REF_COUNT) {
+      refCurrent = idx;
+      refDotsEls.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+    }
+  }
+  refScrollEl.addEventListener('scroll', syncRefFromScroll, { passive: true });
+
+  /* Charge les textes depuis assets/references/<nom>/texte/*.txt */
+  async function loadRefTexts() {
+    for (let i = 0; i < REFS.length; i++) {
+      const ref = REFS[i];
+      const el  = refTextEls[i];
+      if (!el) continue;
+      try {
+        const [titleRes, descRes] = await Promise.all([
+          fetch(`assets/references/${ref}/texte/title.txt`),
+          fetch(`assets/references/${ref}/texte/description.txt`)
+        ]);
+        if (titleRes.ok) {
+          const t = (await titleRes.text()).trim();
+          el.querySelector('.ref-title').innerHTML = t.replace(/\n/g, '<br>');
+        }
+        if (descRes.ok) {
+          const d = (await descRes.text()).trim();
+          el.querySelector('.ref-desc').textContent = d;
+        }
+      } catch (e) { /* fallback HTML */ }
+    }
+  }
+
+  /* Init principal : découvre, génère les slides, branche tout */
+  async function initRefs() {
+    REFS      = await discoverRefs();
+    REF_COUNT = REFS.length;
+    console.log('[Références] dossiers détectés :', REFS);
+    if (REF_COUNT === 0) return;
+
+    ensureSlideCount(REF_COUNT);
+
+    refSlideEls = Array.from(refScrollEl.children);
+    refTextEls  = Array.from(refTextTrack.children);
+    refDotsEls  = Array.from(refDotsContainer.children);
+
+    /* Branche images de fond + logos */
+    REFS.forEach((ref, i) => {
+      if (refSlideEls[i]) {
+        refSlideEls[i].style.backgroundImage = `url('assets/references/${ref}/image-fond/background.jpg')`;
+      }
+      const logoImg = refTextEls[i]?.querySelector('.ref-logo img');
+      if (logoImg) {
+        logoImg.style.display = '';
+        logoImg.src = `assets/references/${ref}/logo/logo.svg`;
+        logoImg.alt = `Logo ${ref}`;
+      }
+    });
+
+    /* Premier dot actif + clicks */
+    refDotsEls.forEach((d, i) => d.classList.toggle('is-active', i === 0));
+    refDotsEls.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const i = +dot.dataset.idx;
+        refScrollEl.scrollTo({ left: i * refScrollEl.clientWidth, behavior: 'smooth' });
+      });
+    });
+
+    /* Init scroll position */
+    requestAnimationFrame(() => { refScrollEl.scrollLeft = 0; syncRefFromScroll(); });
+
+    /* Charge les textes (async, ne bloque pas) */
+    loadRefTexts();
+  }
+  initRefs();
+
+  const mfstBody     = document.getElementById('mfstBody');
+  const mfstLabel    = document.getElementById('mfstLabel');
+  const mfstSub      = document.getElementById('mfstSub');
+  const outroMeta        = document.getElementById('outroMeta');
+  const outroForm        = document.getElementById('outroForm');
+  const outroFormName    = document.getElementById('outroFormName');
+  const outroFormEmail   = document.getElementById('outroFormEmail');
+  const outroFormInput   = document.getElementById('outroFormInput');
+  const outroFormConfirm = document.getElementById('outroFormConfirm');
+
+  /* ─── OUTRO FORM — envoi direct via Formspree (pas d'ouverture du client mail) ─── */
+  // ⚠️ REMPLACER par votre endpoint Formspree : https://formspree.io/forms
+  // Inscription gratuite → créer un form lié à creation@mermoz-californie.com
+  // → copier l'ID (ex: xkgwjqyz) et le coller ci-dessous
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/meenarzo';
+
+  /* Auto-resize du textarea du message (cap à 3 lignes). */
+  function autoResizeMessage() {
+    const ta = outroFormInput;
+    const cs = getComputedStyle(ta);
+    const lh = parseFloat(cs.lineHeight) || 19;
+    const padTop = parseFloat(cs.paddingTop) || 0;
+    const padBot = parseFloat(cs.paddingBottom) || 0;
+    const maxH = lh * 3 + padTop + padBot;
+    ta.style.height = 'auto';
+    const newH = Math.min(ta.scrollHeight, maxH);
+    ta.style.height = newH + 'px';
+    ta.style.overflowY = (ta.scrollHeight > maxH) ? 'auto' : 'hidden';
+  }
+  outroFormInput.addEventListener('input', autoResizeMessage);
+
+  /* Validation : tous les champs requis doivent être remplis (et email valide). */
+  function validateOutroForm() {
+    const fields = [
+      { el: outroFormName,  ok: outroFormName.value.trim().length > 0 },
+      { el: outroFormEmail, ok: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(outroFormEmail.value.trim()) },
+      { el: outroFormInput, ok: outroFormInput.value.trim().length > 0 },
+    ];
+    let allOk = true;
+    fields.forEach(f => {
+      const row = f.el.closest('.outro-form-row');
+      if (!f.ok) {
+        row?.classList.add('is-invalid');
+        allOk = false;
+      } else {
+        row?.classList.remove('is-invalid');
+      }
+    });
+    return allOk;
+  }
+  // Retire l'état d'erreur dès que l'utilisateur recommence à taper
+  [outroFormName, outroFormEmail, outroFormInput].forEach(el => {
+    el.addEventListener('input', () => {
+      el.closest('.outro-form-row')?.classList.remove('is-invalid');
+    });
+  });
+
+  outroForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validateOutroForm()) return;
+    const name  = outroFormName.value.trim();
+    const email = outroFormEmail.value.trim();
+    const msg   = outroFormInput.value.trim();
+
+    // Affiche la confirmation immédiatement (UX optimiste)
+    outroForm.classList.add('is-sent');
+    outroFormConfirm.textContent = 'Envoi en cours…';
+    outroFormConfirm.classList.add('is-shown');
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          message: msg,
+          _subject: 'Demande Mermoz Californie'
+        })
+      });
+      if (res.ok) {
+        outroFormConfirm.textContent = 'Merci, message envoyé.';
+      } else {
+        outroFormConfirm.textContent = 'Erreur — réessayez plus tard.';
+      }
+    } catch (err) {
+      outroFormConfirm.textContent = 'Erreur réseau — réessayez plus tard.';
+    }
+
+    // Reset après quelques secondes pour permettre un nouvel envoi
+    setTimeout(() => {
+      outroFormName.value = '';
+      outroFormEmail.value = '';
+      outroFormInput.value = '';
+      autoResizeMessage();
+      outroForm.classList.remove('is-sent');
+      outroFormConfirm.classList.remove('is-shown');
+      // Restaure le texte par défaut après le fade-out
+      setTimeout(() => { outroFormConfirm.textContent = 'Merci, message envoyé.'; }, 600);
+    }, 4500);
+  });
+
+  function fadePanel(panel, toOpacity, duration, then) {
+    // Utilise transitionProperty pour ne pas écraser la transition CSS de inset/border-radius
+    panel.style.transitionProperty = 'opacity';
+    panel.style.transitionDuration = duration + 'ms';
+    panel.style.transitionTimingFunction = 'ease';
+    panel.style.opacity = toOpacity;
+    setTimeout(() => {
+      panel.style.transitionProperty = '';
+      panel.style.transitionDuration = '';
+      panel.style.transitionTimingFunction = '';
+      if (then) then();
+    }, duration);
+  }
+
+  /* ─── DOT TOGGLE — révèle l'image de fond ─── */
+  const navDotBtn = document.querySelector('.nav-menu-btn');
+  navDotBtn.addEventListener('click', () => {
+    document.body.classList.toggle('bg-open');
+    navDotBtn.classList.toggle('is-open');
+  });
+
+  /* ─── ACCORDÉON SOUS-TITRES ─── */
+  let openSub = null;
+
+  function closeAllSubs(instant) {
+    document.querySelectorAll('#services .svc-sub').forEach(s => {
+      if (instant) { s.style.transition = 'none'; }
+      s.classList.remove('is-open');
+      if (instant) { requestAnimationFrame(() => { s.style.transition = ''; }); }
+    });
+    openSub = null;
+  }
+
+  function toggleSub(sub) {
+    const isAlreadyOpen = sub.classList.contains('is-open');
+    // Ferme l'ouvert précédent
+    if (openSub && openSub !== sub) openSub.classList.remove('is-open');
+    sub.classList.toggle('is-open');
+    openSub = isAlreadyOpen ? null : sub;
+  }
+
+  // Binding des mots cliquables (après splitChars)
+  document.querySelectorAll('#services .svc-word').forEach(word => {
+    const sub = word.closest('.svc-line')?.querySelector('.svc-sub');
+    if (!sub) return;
+    word.addEventListener('click', e => { e.stopPropagation(); toggleSub(sub); });
+  });
+
+  // Double-clic n'importe où sur le panel → tout fermer
+  document.getElementById('services').addEventListener('dblclick', () => closeAllSubs(false));
+
+  // Outils — clic : mot monte, liste grise s'ouvre, corps 002 descend
+  document.querySelector('.outils-word').addEventListener('click', () => {
+    const isOpen = outilsDrawer.classList.toggle('is-open');
+    outilsDisplay.classList.toggle('drawer-open', isOpen);
+    outilsBody.classList.toggle('drawer-open', isOpen);
+  });
+
+
+  /* Contenu : sortie — basé sur l'ID du panel pour résister au reorder */
+  function exitContent(idx) {
+    const id = panels[idx]?.id;
+    if (id === 'hero') {
+      exitEl(heroTitle);
+      document.querySelector('.js-baseline')?.classList.remove('is-visible');
+      document.querySelector('.js-tagline')?.classList.remove('is-visible');
+    } else if (id === 'services') {
+      closeAllSubs(true);
+      exitEl(svcDisplay);
+    } else if (id === 'manifeste') {
+      mfstLabel.classList.remove('is-in');
+      mfstLabel.classList.add('is-out');
+      mfstBody.classList.remove('is-in');
+      mfstBody.classList.add('is-out');
+      mfstSub.classList.remove('is-in');
+      mfstSub.classList.add('is-out');
+    } else if (id === 'outils') {
+      exitEl(outilsDisplay);
+      outilsDrawer.classList.remove('is-open');
+      outilsDisplay.classList.remove('drawer-open');
+      outilsBody.classList.remove('drawer-open');
+      outilsBody.classList.remove('is-in');
+      outilsBody.classList.add('is-out');
+      outilsSub.classList.remove('is-in');
+      outilsSub.classList.add('is-out');
+    } else if (id === 'references') {
+      document.body.classList.remove('on-references');
+    } else if (id === 'outro') {
+      exitEl(outroTitle);
+      outroMeta.classList.remove('is-in');
+      outroMeta.classList.add('is-out');
+      outroForm.classList.remove('is-in');
+      outroForm.classList.add('is-out');
+    }
+  }
+
+  /* Contenu : entrée — basé sur l'ID du panel */
+  function enterContent(idx) {
+    const id = panels[idx]?.id;
+    if (id === 'hero') {
+      heroTitle.querySelectorAll('.char').forEach(ch =>
+        ch.style.setProperty('--char-delay', (Math.random() * 0.42) + 's'));
+      enterEl(heroTitle);
+      setTimeout(() => document.querySelector('.js-baseline')?.classList.add('is-visible'), 450);
+      setTimeout(() => document.querySelector('.js-tagline')?.classList.add('is-visible'), 700);
+    } else if (id === 'services') {
+      svcDisplay.querySelectorAll('.char').forEach(ch =>
+        ch.style.setProperty('--char-delay', (Math.random() * 0.45) + 's'));
+      enterEl(svcDisplay);
+    } else if (id === 'manifeste') {
+      mfstLabel.classList.remove('is-out');
+      mfstBody.classList.remove('is-out');
+      mfstSub.classList.remove('is-out');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        mfstLabel.classList.add('is-in');
+        mfstBody.classList.add('is-in');
+        mfstSub.classList.add('is-in');
+      }));
+    } else if (id === 'outils') {
+      outilsDisplay.querySelectorAll('.char').forEach(ch =>
+        ch.style.setProperty('--char-delay', (Math.random() * 0.45) + 's'));
+      enterEl(outilsDisplay);
+      outilsBody.classList.remove('is-out');
+      outilsSub.classList.remove('is-out');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        outilsBody.classList.add('is-in');
+        outilsSub.classList.add('is-in');
+      }));
+    } else if (id === 'references') {
+      document.body.classList.add('on-references');
+      /* Pas de reset : on retrouve le slide où on était parti */
+      syncRefFromScroll();
+    } else if (id === 'outro') {
+      outroTitle.querySelectorAll('.char').forEach(ch =>
+        ch.style.setProperty('--char-delay', (Math.random() * 0.42) + 's'));
+      enterEl(outroTitle);
+      outroMeta.classList.remove('is-out');
+      outroForm.classList.remove('is-out', 'is-sent');
+      outroFormConfirm.classList.remove('is-shown');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        outroMeta.classList.add('is-in');
+        outroForm.classList.add('is-in');
+      }));
+    }
+  }
+
+  /* ─── SECTION NAV — graduations à droite ─── */
+  const sectionTicks = document.querySelectorAll('.section-nav-tick');
+  function updateSectionNav(idx) {
+    sectionTicks.forEach((t, i) => t.classList.toggle('is-active', i === idx));
+  }
+  // Click sur tick → scroll natif vers le panel correspondant
+  sectionTicks.forEach(tick => {
+    tick.addEventListener('click', () => scrollToPanel(+tick.dataset.idx));
+  });
+
+  /* ─── SCROLL NATIF — les panels sont dans le flux du document ─── */
+  function scrollToPanel(idx) {
+    panels[idx]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // goTo simplifié : juste anime le contenu (entrée/sortie). Le scroll est natif.
+  function goTo(idx) {
+    idx = Math.max(0, Math.min(idx, panels.length - 1));
+    if (idx === current) return;
+    const from = current;
+    updateSectionNav(idx);
+    exitContent(from);
+    enterContent(idx);
+    current = idx;
+  }
+
+  // Observer : déclenche goTo quand un nouveau panel devient majoritairement visible
+  const panelObserver = new IntersectionObserver((entries) => {
+    let best = null, bestRatio = 0;
+    entries.forEach(e => {
+      if (e.intersectionRatio > bestRatio) {
+        bestRatio = e.intersectionRatio;
+        best = e;
+      }
+    });
+    if (best && bestRatio >= 0.55) {
+      const idx = panels.indexOf(best.target);
+      if (idx !== -1 && idx !== current) goTo(idx);
+    }
+  }, { threshold: [0, 0.25, 0.5, 0.6, 0.75, 0.9, 1] });
+  panels.forEach(p => panelObserver.observe(p));
+
+  /* ─── FIT OUTRO TITLE — calibre la font-size pour la taille pleine page,
+     puis pose --dezoom-scale (utilisé par CSS pour le shrink en dezoom).
+     On ne touche plus à la font-size pendant le toggle : c'est le scale CSS qui
+     anime la transition, ce qui évite les bugs de mesure dûs à la transition. ─── */
+  function fitOutroTitle() {
+    const availW = window.innerWidth - 50;
+    outroTitle.style.fontSize = '300px';
+    let textW = 0;
+    outroTitle.querySelectorAll('.char-wrap').forEach(c => textW += c.offsetWidth);
+    if (textW > 0) outroTitle.style.fontSize = (300 * availW / textW + 0).toFixed(2) + 'px';
+    // Ratio d'échelle pour le dézoom : viser une largeur visuelle de viewport - 170px
+    const scale = (window.innerWidth - 170) / (window.innerWidth - 50);
+    outroTitle.style.setProperty('--dezoom-scale', scale.toFixed(3));
+  }
+  // attendre que Kumbh Sans soit vraiment chargée avant de mesurer
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(fitOutroTitle);
+  }
+  window.addEventListener('resize', fitOutroTitle);
+
+  /* ─── HERO LOAD — déclenché dès que les fontes sont prêtes (n'attend PAS
+     le chargement complet de l'image bg, qui pèse 7 Mo). ─── */
+  function bootHero() {
+    fitOutroTitle();
+    // Randomiser les délais d'entrée du hero (plus court qu'avant pour plus de snap).
+    heroTitle.querySelectorAll('.char').forEach(ch => {
+      ch.style.setProperty('--char-delay', (Math.random() * 0.22) + 's');
+    });
+    setTimeout(() => {
+      enterEl(heroTitle);
+      setTimeout(() => document.querySelector('.js-baseline')?.classList.add('is-visible'), 350);
+      setTimeout(() => document.querySelector('.js-tagline')?.classList.add('is-visible'), 600);
+    }, 30);
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(bootHero);
+  } else {
+    window.addEventListener('load', bootHero);
+  }
+
+  /* ─── CLAVIER — flèches/PageUp/Down sautent au panel suivant/précédent ─── */
+  window.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+      e.preventDefault();
+      scrollToPanel(Math.min(current + 1, panels.length - 1));
+    }
+    if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      scrollToPanel(Math.max(current - 1, 0));
+    }
+  });
+
+  // Scroll au démarrage : remonte tout en haut (au cas où le navigateur restaurerait)
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.addEventListener('load', () => window.scrollTo(0, 0));
+</script>
+</body>
+</html>

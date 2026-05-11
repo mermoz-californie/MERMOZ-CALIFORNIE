@@ -147,6 +147,8 @@
       transition: opacity 0.75s ease;
     }
     body.bg-open #bg-reveal { opacity: 1; }
+    /* Sur la section références : bg.jpg masqué, fond noir, ref-images remplissent la zone */
+    body.on-references #bg-reveal { opacity: 0 !important; }
     body.bg-open #bg-grain  { opacity: 0.85; }
 
     /* ─── PANELS — dans le flux du document, scroll natif + snap ─── */
@@ -182,14 +184,16 @@
 
     /* Scale des éléments À L'INTÉRIEUR de la zone (sauf le titre outro
        et les éléments centrés en absolu qui ont déjà un translate). */
-    .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm) {
+    .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm):not(.ref-scroll):not(.ref-card) {
       transform: scale(1);
       transform-origin: center center;
       transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
     }
-    body.bg-open .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm) {
+    body.bg-open .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm):not(.ref-scroll):not(.ref-card) {
       transform: scale(0.88);
     }
+    body.bg-open #references .ref-scroll { transform: none; }
+    body.bg-open #references .ref-card  { transform: translate(-50%, -50%); }
     /* outro-form et outro-form-confirm : composer le scale avec leur translate. */
     body.bg-open .outro-form,
     body.bg-open .outro-form-confirm {
@@ -206,7 +210,7 @@
     #hero { z-index: 2; }
     #hero .panel-inner { background: var(--black); }
 
-    /* 003 — Grands titres (MERMOZ CALIFORNIE, CREATION PUBLICITE DESIGN) */
+    /* 001 — Grands titres display (MERMOZ CALIFORNIE, CREATION PUBLICITE DESIGN) */
     .dark-brand-title {
       font-family: var(--disp);
       font-size: clamp(64px, 13vw, 200px);
@@ -224,16 +228,43 @@
     }
     .hl { display: block; }
 
-    /* 001 — Petits titres gris (tagline hero, label manifeste, sous-titres services) */
+    /* 004 — Petits titres gris (tagline hero, label mantra, sous-titres services, liste outils) */
     .dark-brand-meta {
       display: flex; align-items: center; justify-content: center;
       gap: 20px; margin-top: 36px;
-      font-family: var(--body); font-size: 9px; font-weight: 500;
+      font-family: var(--body); font-size: 11px; font-weight: 500;
       letter-spacing: 0.2em; text-transform: uppercase; color: #555;
       opacity: 0; transition: opacity 0.6s ease;
     }
     .dark-brand-meta.is-visible { opacity: 1; }
     .dark-meta-line { width: 40px; height: 1px; background: #333; flex-shrink: 0; }
+
+    /* Baseline hero — typo 002 italique grise + mask-reveal mot par mot */
+    .hero-baseline {
+      font-family: 'Editorial New', Georgia, serif;
+      font-style: italic; font-weight: 400;
+      font-size: clamp(28px, 3.5vw, 52px);
+      color: #888;
+      text-align: center; line-height: 1.2;
+      margin-top: 16px;
+    }
+    .hero-baseline .word {
+      display: inline-block;
+      overflow: hidden;
+      padding: 0.08em 0.04em 0.18em;
+      vertical-align: top;
+    }
+    .hero-baseline .word-inner {
+      display: inline-block;
+      transform: translateY(115%);
+      opacity: 0;
+      transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.5s ease;
+    }
+    .hero-baseline.is-visible .word-inner {
+      transform: translateY(0);
+      opacity: 1;
+    }
 
     /* ─── SERVICES PANEL ─── */
     #services { z-index: 1; }
@@ -244,7 +275,7 @@
     #manifeste .panel-inner { background: var(--black); }
 
     .mfst-label {
-      font-family: var(--body); font-size: 9px; font-weight: 500;
+      font-family: var(--body); font-size: 11px; font-weight: 500;
       letter-spacing: 0.2em; text-transform: uppercase; color: #666;
       display: flex; align-items: center; justify-content: center; gap: 20px;
       margin-bottom: 22px;
@@ -258,7 +289,7 @@
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
-    /* 002 — Paragraph (manifesto) — line-by-line opacity reveal. */
+    /* 002 — Paragraphes éditoriaux (texte mantra, texte outils) — apparition ligne par ligne (opacité). */
     .mfst-body {
       font-family: 'Editorial New', Georgia, serif;
       font-size: clamp(20px, 2.6vw, 44px);
@@ -281,6 +312,20 @@
       transition: opacity 0.25s ease;
     }
 
+    /* 003 — Sous-textes gris centrés (sous-paragraphes mantra & outils) */
+    .mfst-sub {
+      font-family: var(--body); font-size: clamp(12px, 1.15vw, 16px);
+      color: #777; text-align: center;
+      max-width: 1000px; padding: 0 60px; line-height: 1.65;
+      margin-top: 28px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.75s ease 0.35s,
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.35s;
+    }
+    .mfst-sub.is-in  { opacity: 1; transform: translateY(0); }
+    .mfst-sub.is-out { opacity: 0; transform: translateY(-8px);
+                        transition: opacity 0.25s ease, transform 0.25s ease; }
+
     .svc-display {
       font-family: var(--disp);
       font-size: clamp(49px, 10.45vw, 162px);
@@ -301,7 +346,7 @@
     /* Sous-titre accordéon — tiroir */
     .svc-sub {
       display: flex; align-items: center; justify-content: center; gap: 20px;
-      font-family: var(--body); font-size: 9px; font-weight: 500;
+      font-family: var(--body); font-size: 11px; font-weight: 500;
       letter-spacing: 0.2em; text-transform: uppercase; color: #999;
       max-height: 0; overflow: hidden; opacity: 0;
       margin-top: 0; margin-bottom: 0;
@@ -365,7 +410,7 @@
     #outils { z-index: 1; }
     #outils .panel-inner { background: var(--bg); }
 
-    /* 003 — Grand titre Outils */
+    /* 001 — Grand titre display Outils */
     .outils-display {
       font-family: var(--disp);
       font-size: clamp(49px, 10.45vw, 162px);
@@ -382,7 +427,7 @@
     }
     .outils-word:hover { opacity: 0.65; }
 
-    /* Tiroir 001 — calé sur .svc-sub */
+    /* Tiroir (petits titres gris 004) — calé sur .svc-sub */
     .outils-drawer {
       max-height: 0; overflow: hidden; opacity: 0;
       margin-top: 0; margin-bottom: 0;
@@ -406,10 +451,10 @@
     #outils .outils-body.drawer-open                 { transform: scale(1)    translateY(16px)  !important; }
     body.bg-open #outils .outils-body.drawer-open    { transform: scale(0.88) translateY(16px)  !important; }
 
-    /* 001 — Liste outils : items fade-in en cascade */
+    /* 004 — Liste outils (petits titres gris) : items fade-in en cascade */
     .outils-tools {
       display: flex; align-items: center; justify-content: center; gap: 20px;
-      font-family: var(--body); font-size: 9px; font-weight: 500;
+      font-family: var(--body); font-size: 11px; font-weight: 500;
       letter-spacing: 0.2em; text-transform: uppercase; color: #999;
     }
     .outils-tool-line { width: 40px; height: 1px; background: #bbb; flex-shrink: 0; }
@@ -423,7 +468,7 @@
     .outils-drawer.is-open .outils-tools > span:nth-child(4) { opacity: 1; transition-delay: 0.24s; }
     .outils-drawer.is-open .outils-tools > span:nth-child(5) { opacity: 1; transition-delay: 0.18s; }
 
-    /* 002 — Body visible below Outils — slide-up + fade of the whole block. */
+    /* 002 — Paragraphe éditorial Outils — slide-up + fade of the whole block. */
     .outils-body {
       font-family: 'Editorial New', Georgia, serif;
       font-size: clamp(18px, 2.3vw, 36px);
@@ -440,6 +485,106 @@
       opacity: 0; transform: translateY(-16px);
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
+
+    /* 003 — Sous-texte gris centré (outils) */
+    .outils-sub {
+      font-family: var(--body); font-size: clamp(12px, 1.15vw, 16px);
+      color: #777; text-align: center;
+      max-width: 850px; padding: 0 40px; line-height: 1.65;
+      margin-top: 28px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.75s ease 0.35s,
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.35s;
+    }
+    .outils-sub.is-in  { opacity: 1; transform: translateY(0); }
+    .outils-sub.is-out { opacity: 0; transform: translateY(-8px);
+                          transition: opacity 0.25s ease, transform 0.25s ease; }
+
+    /* ─── RÉFÉRENCES PANEL ─── */
+    #references { z-index: 1; }
+    #references .panel-inner { background: #111; padding: 0; }
+
+    .ref-scroll {
+      position: absolute; inset: 0;
+      display: flex;
+      overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ref-scroll::-webkit-scrollbar { display: none; }
+
+    .ref-slide {
+      flex: 0 0 100%;
+      height: 100%;
+      background-size: cover; background-position: center;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    .ref-card {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      background: #fff;
+      border-radius: 20px;
+      width: min(420px, 86vw);
+      padding: 44px 44px 36px;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      box-shadow: 0 12px 60px rgba(0,0,0,0.3);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .ref-text-clip { width: 100%; overflow: hidden; }
+    .ref-text-track {
+      display: flex; width: 100%;
+      will-change: transform;
+    }
+    .ref-text {
+      flex: 0 0 100%;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+
+    .ref-logo {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 4px;
+    }
+    .ref-logo span {
+      font-family: var(--body); font-size: 8px;
+      letter-spacing: 0.12em; color: #bbb; text-transform: uppercase;
+    }
+    .ref-logo img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; }
+
+    .ref-title {
+      font-family: var(--disp);
+      font-size: clamp(36px, 5vw, 62px);
+      font-weight: 700; text-transform: uppercase;
+      letter-spacing: -0.03em; line-height: 0.88;
+      color: var(--black); margin: 0;
+    }
+    .ref-desc {
+      font-family: var(--body); font-size: clamp(11px, 0.95vw, 13px);
+      color: #888; line-height: 1.65;
+      max-width: 280px; margin-top: 4px;
+    }
+
+    .ref-dots {
+      display: flex; gap: 7px; margin-top: 28px;
+      pointer-events: auto;
+    }
+    .ref-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: #ddd;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .ref-dot.is-active { background: var(--black); transform: scale(1.4); }
 
     /* ─── OUTRO PANEL ─── */
     #outro { z-index: 1; }
@@ -746,13 +891,7 @@
       <span class="hl-wrap"><span class="hl js-hl">Mermoz</span></span>
       <span class="hl-wrap"><span class="hl js-hl">Californie</span></span>
     </div>
-    <div class="dark-brand-meta js-tagline">
-      <span>Creation</span>
-      <div class="dark-meta-line"></div>
-      <span>Advertising</span>
-      <div class="dark-meta-line"></div>
-      <span>Design</span>
-    </div>
+    <div class="hero-baseline js-baseline">Picture it.</div>
     <!-- Mobile-only block (≤768px) : line + clickable email -->
     <div class="mobile-contact">
       <div class="mobile-contact-line"></div>
@@ -765,12 +904,13 @@
 <div id="manifeste" class="panel">
   <div class="panel-inner">
     <div class="mfst-label" id="mfstLabel">
-      <span>No dogma</span>
-      <span class="dark-meta-line"></span>
-      <span>just conviction</span>
+      <span>MANTRA</span>
     </div>
     <p class="mfst-body" id="mfstBody">
-      Working out of Paris and Lyon, we put our craft to building brands that ring true and travel far. The edge? A restless creativity and an appetite for image that never quite settles. We pull our references from the world around us, champions of considered work and the well-judged detail, and we add something of our own to every identity we help shape.
+      Things don't change because the incumbents decide they should. They change when a creator, somewhere, sees the status quo isn't working and believes they can do better.
+    </p>
+    <p class="mfst-sub" id="mfstSub">
+      At Mermoz Californie, we work with these builders. We help them craft brands that last, with communications that rise to their ambition. We bring together the sharpest creatives to catch what others miss — because spotting the problem isn't enough. Our job is to convince you we have the answer that makes your project stand out.
     </p>
   </div>
 </div>
@@ -831,9 +971,53 @@
       </div>
     </div>
     <p class="outils-body" id="outilsBody">
-      Artificial intelligence belongs within a clearly defined frame, used in full transparency with our clients, with care for data protection and a responsible ecological&nbsp;ethic.<br>
-      AI is only there to help us bring a vision, an idea, a concept to life faster, once we have thought it through ourselves.
+      AI will never make an art director or a copywriter better at their craft. Without vision, AI is nothing.
     </p>
+    <p class="outils-sub" id="outilsSub">
+      But it's the tool that lets us bring our work to life faster. We use it within clear boundaries, in full transparency with our clients, with care for data protection and a responsible environmental footprint.
+    </p>
+  </div>
+</div>
+
+<!-- =====================================================================
+     Panel 5 — Références
+     Le contenu est piloté par auto-découverte (cherche "RÉFÉRENCES — auto-découverte" dans le JS).
+     Voir aussi assets/references/README.md.
+     ===================================================================== -->
+<div id="references" class="panel">
+  <div class="panel-inner">
+    <div class="ref-scroll" id="refScroll">
+      <div class="ref-slide" style="background-color:#1a1a1a;"></div>
+      <div class="ref-slide" style="background-color:#222;"></div>
+      <div class="ref-slide" style="background-color:#2a2a2a;"></div>
+    </div>
+
+    <div class="ref-card">
+      <div class="ref-text-clip">
+        <div class="ref-text-track" id="refTextTrack">
+          <div class="ref-text">
+            <div class="ref-logo"><img alt="" onerror="this.style.display='none'"></div>
+            <h3 class="ref-title">LOREM<br>IPSUM</h3>
+            <p class="ref-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          </div>
+          <div class="ref-text">
+            <div class="ref-logo"><img alt="" onerror="this.style.display='none'"></div>
+            <h3 class="ref-title">DOLOR<br>SIT</h3>
+            <p class="ref-desc">Ut enim ad minim veniam, quis nostrud exercitation.</p>
+          </div>
+          <div class="ref-text">
+            <div class="ref-logo"><img alt="" onerror="this.style.display='none'"></div>
+            <h3 class="ref-title">AMET<br>CONS</h3>
+            <p class="ref-desc">Duis aute irure dolor in reprehenderit in voluptate.</p>
+          </div>
+        </div>
+      </div>
+      <div class="ref-dots" id="refDots">
+        <span class="ref-dot is-active" data-idx="0"></span>
+        <span class="ref-dot" data-idx="1"></span>
+        <span class="ref-dot" data-idx="2"></span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -849,7 +1033,8 @@
   <button class="section-nav-tick" data-idx="1" aria-label="Manifesto"><span class="label">Manifesto</span><span class="bar"></span></button>
   <button class="section-nav-tick" data-idx="2" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
   <button class="section-nav-tick" data-idx="3" aria-label="Tools"><span class="label">Tools</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="4" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="4" aria-label="References"><span class="label">References</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="5" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
 </nav>
 
 <!-- Panel 5 — Outro -->
@@ -944,12 +1129,25 @@
   const outilsDisplay = document.getElementById('outilsDisplay');
   const outilsDrawer  = document.getElementById('outilsDrawer');
   const outilsBody    = document.getElementById('outilsBody');
+  const outilsSub     = document.getElementById('outilsSub');
   const outroTitle    = document.getElementById('outroTitle');
 
   splitChars(heroTitle,    '.js-hl');
   splitChars(svcDisplay,   '.svc-word');
   splitChars(outilsDisplay, '.outils-word');
   splitChars(outroTitle,    '.js-outro-hl');
+
+  /* Hero baseline : wrap chaque mot dans .word > .word-inner pour mask-reveal */
+  const _heroBaseline = document.querySelector('.hero-baseline');
+  if (_heroBaseline) {
+    const words = _heroBaseline.textContent.trim().split(/\s+/);
+    _heroBaseline.innerHTML = words
+      .map(w => `<span class="word"><span class="word-inner">${w}</span></span>`)
+      .join(' ');
+    _heroBaseline.querySelectorAll('.word-inner').forEach((w, i) => {
+      w.style.transitionDelay = `${i * 0.15}s`;
+    });
+  }
 
 
   /* ─── ENTER / EXIT ─── */
@@ -984,10 +1182,143 @@
     document.getElementById('manifeste'),
     document.getElementById('services'),
     document.getElementById('outils'),
+    document.getElementById('references'),
     document.getElementById('outro')
   ];
+
+  /* ╔════════════════════════════════════════════════════════════════════╗
+     ║  RÉFÉRENCES — auto-découverte                                     ║
+     ║  Drop un dossier dans assets/references/, refresh, c'est tout.    ║
+     ║  Si le serveur ne supporte pas le directory listing, on retombe   ║
+     ║  sur assets/references/references.json (généré par bin/sync-refs).║
+     ╚════════════════════════════════════════════════════════════════════╝ */
+  const refScrollEl     = document.getElementById('refScroll');
+  const refTextTrack    = document.getElementById('refTextTrack');
+  const refDotsContainer = document.getElementById('refDots');
+
+  let REFS = [], REF_COUNT = 0, refCurrent = 0;
+  let refSlideEls = [], refTextEls = [], refDotsEls = [];
+
+  async function discoverRefs() {
+    const cacheBust = `?_=${Date.now()}`;
+    try {
+      const res = await fetch('../assets/references/' + cacheBust);
+      if (res.ok) {
+        const text = await res.text();
+        if (text.toLowerCase().includes('<a ')) {
+          const doc = new DOMParser().parseFromString(text, 'text/html');
+          const folders = Array.from(doc.querySelectorAll('a'))
+            .map(a => { let h = a.getAttribute('href') || ''; try { h = decodeURIComponent(h); } catch (e) {} return h; })
+            .filter(h => h.endsWith('/') && !h.startsWith('..') && !h.startsWith('?') && !h.startsWith('http') && h !== './' && h !== '/' && !h.includes(':'))
+            .map(h => h.replace(/\/$/, '').split('/').pop())
+            .filter(name => name && !name.startsWith('.') && !name.startsWith('_'));
+          if (folders.length > 0) return folders.sort();
+        }
+      }
+    } catch (e) {}
+    try {
+      const res = await fetch('../assets/references/references.json' + cacheBust);
+      if (res.ok) {
+        const list = await res.json();
+        if (Array.isArray(list) && list.length > 0) return list;
+      }
+    } catch (e) {}
+    return ['slide1', 'slide2', 'slide3'];
+  }
+
+  function ensureSlideCount(target) {
+    const slideTpl = refScrollEl.firstElementChild;
+    const textTpl  = refTextTrack.firstElementChild;
+    const dotTpl   = refDotsContainer.firstElementChild;
+    let n = refScrollEl.children.length;
+    while (n < target) {
+      if (slideTpl) refScrollEl.appendChild(slideTpl.cloneNode(true));
+      if (textTpl)  refTextTrack.appendChild(textTpl.cloneNode(true));
+      if (dotTpl)   {
+        const d = dotTpl.cloneNode(true);
+        d.classList.remove('is-active');
+        d.dataset.idx = n;
+        refDotsContainer.appendChild(d);
+      }
+      n++;
+    }
+    while (n > target) {
+      refScrollEl.removeChild(refScrollEl.lastElementChild);
+      refTextTrack.removeChild(refTextTrack.lastElementChild);
+      refDotsContainer.removeChild(refDotsContainer.lastElementChild);
+      n--;
+    }
+  }
+
+  function syncRefFromScroll() {
+    const w = refScrollEl.clientWidth;
+    if (!w) return;
+    const progress = refScrollEl.scrollLeft / w;
+    refTextTrack.style.transform = `translateX(${-progress * 100}%)`;
+    const idx = Math.round(progress);
+    if (idx !== refCurrent && idx >= 0 && idx < REF_COUNT) {
+      refCurrent = idx;
+      refDotsEls.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+    }
+  }
+  refScrollEl.addEventListener('scroll', syncRefFromScroll, { passive: true });
+
+  async function loadRefTexts() {
+    for (let i = 0; i < REFS.length; i++) {
+      const ref = REFS[i];
+      const el  = refTextEls[i];
+      if (!el) continue;
+      try {
+        const [titleRes, descRes] = await Promise.all([
+          fetch(`../assets/references/${ref}/texte/title.txt`),
+          fetch(`../assets/references/${ref}/texte/description.txt`)
+        ]);
+        if (titleRes.ok) {
+          const t = (await titleRes.text()).trim();
+          el.querySelector('.ref-title').innerHTML = t.replace(/\n/g, '<br>');
+        }
+        if (descRes.ok) {
+          const d = (await descRes.text()).trim();
+          el.querySelector('.ref-desc').textContent = d;
+        }
+      } catch (e) {}
+    }
+  }
+
+  async function initRefs() {
+    REFS      = await discoverRefs();
+    REF_COUNT = REFS.length;
+    console.log('[Références] dossiers détectés :', REFS);
+    if (REF_COUNT === 0) return;
+    ensureSlideCount(REF_COUNT);
+    refSlideEls = Array.from(refScrollEl.children);
+    refTextEls  = Array.from(refTextTrack.children);
+    refDotsEls  = Array.from(refDotsContainer.children);
+    REFS.forEach((ref, i) => {
+      if (refSlideEls[i]) {
+        refSlideEls[i].style.backgroundImage = `url('../assets/references/${ref}/image-fond/background.jpg')`;
+      }
+      const logoImg = refTextEls[i]?.querySelector('.ref-logo img');
+      if (logoImg) {
+        logoImg.style.display = '';
+        logoImg.src = `../assets/references/${ref}/logo/logo.svg`;
+        logoImg.alt = `Logo ${ref}`;
+      }
+    });
+    refDotsEls.forEach((d, i) => d.classList.toggle('is-active', i === 0));
+    refDotsEls.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const i = +dot.dataset.idx;
+        refScrollEl.scrollTo({ left: i * refScrollEl.clientWidth, behavior: 'smooth' });
+      });
+    });
+    requestAnimationFrame(() => { refScrollEl.scrollLeft = 0; syncRefFromScroll(); });
+    loadRefTexts();
+  }
+  initRefs();
   const mfstBody     = document.getElementById('mfstBody');
   const mfstLabel    = document.getElementById('mfstLabel');
+  const mfstSub      = document.getElementById('mfstSub');
   const outroMeta        = document.getElementById('outroMeta');
   const outroForm        = document.getElementById('outroForm');
   const outroFormName    = document.getElementById('outroFormName');
@@ -1151,6 +1482,7 @@
     const id = panels[idx]?.id;
     if (id === 'hero') {
       exitEl(heroTitle);
+      document.querySelector('.js-baseline')?.classList.remove('is-visible');
       document.querySelector('.js-tagline')?.classList.remove('is-visible');
     } else if (id === 'services') {
       closeAllSubs(true);
@@ -1160,6 +1492,8 @@
       mfstLabel.classList.add('is-out');
       mfstBody.classList.remove('is-in');
       mfstBody.classList.add('is-out');
+      mfstSub.classList.remove('is-in');
+      mfstSub.classList.add('is-out');
     } else if (id === 'outils') {
       exitEl(outilsDisplay);
       outilsDrawer.classList.remove('is-open');
@@ -1167,6 +1501,10 @@
       outilsBody.classList.remove('drawer-open');
       outilsBody.classList.remove('is-in');
       outilsBody.classList.add('is-out');
+      outilsSub.classList.remove('is-in');
+      outilsSub.classList.add('is-out');
+    } else if (id === 'references') {
+      document.body.classList.remove('on-references');
     } else if (id === 'outro') {
       exitEl(outroTitle);
       outroMeta.classList.remove('is-in');
@@ -1183,7 +1521,8 @@
       heroTitle.querySelectorAll('.char').forEach(ch =>
         ch.style.setProperty('--char-delay', (Math.random() * 0.42) + 's'));
       enterEl(heroTitle);
-      setTimeout(() => document.querySelector('.js-tagline')?.classList.add('is-visible'), 600);
+      setTimeout(() => document.querySelector('.js-baseline')?.classList.add('is-visible'), 450);
+      setTimeout(() => document.querySelector('.js-tagline')?.classList.add('is-visible'), 700);
     } else if (id === 'services') {
       svcDisplay.querySelectorAll('.char').forEach(ch =>
         ch.style.setProperty('--char-delay', (Math.random() * 0.45) + 's'));
@@ -1191,17 +1530,26 @@
     } else if (id === 'manifeste') {
       mfstLabel.classList.remove('is-out');
       mfstBody.classList.remove('is-out');
+      mfstSub.classList.remove('is-out');
       requestAnimationFrame(() => requestAnimationFrame(() => {
         mfstLabel.classList.add('is-in');
         mfstBody.classList.add('is-in');
+        mfstSub.classList.add('is-in');
       }));
     } else if (id === 'outils') {
       outilsDisplay.querySelectorAll('.char').forEach(ch =>
         ch.style.setProperty('--char-delay', (Math.random() * 0.45) + 's'));
       enterEl(outilsDisplay);
       outilsBody.classList.remove('is-out');
-      requestAnimationFrame(() => requestAnimationFrame(() =>
-        outilsBody.classList.add('is-in')));
+      outilsSub.classList.remove('is-out');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        outilsBody.classList.add('is-in');
+        outilsSub.classList.add('is-in');
+      }));
+    } else if (id === 'references') {
+      document.body.classList.add('on-references');
+      /* Pas de reset : on retrouve le slide où on était parti */
+      syncRefFromScroll();
     } else if (id === 'outro') {
       outroTitle.querySelectorAll('.char').forEach(ch =>
         ch.style.setProperty('--char-delay', (Math.random() * 0.42) + 's'));
@@ -1287,6 +1635,7 @@
     });
     setTimeout(() => {
       enterEl(heroTitle);
+      setTimeout(() => document.querySelector('.js-baseline')?.classList.add('is-visible'), 600);
       setTimeout(() => document.querySelector('.js-tagline')?.classList.add('is-visible'), 900);
     }, 100);
   });

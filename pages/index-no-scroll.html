@@ -250,6 +250,19 @@
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
+    .mfst-sub {
+      font-family: var(--body); font-size: clamp(12px, 1.15vw, 16px);
+      color: #777; text-align: center;
+      max-width: 1000px; padding: 0 60px; line-height: 1.65;
+      margin-top: 28px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.75s ease 0.35s,
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.35s;
+    }
+    .mfst-sub.is-in  { opacity: 1; transform: translateY(0); }
+    .mfst-sub.is-out { opacity: 0; transform: translateY(-8px);
+                        transition: opacity 0.25s ease, transform 0.25s ease; }
+
     .svc-display {
       font-family: var(--disp);
       font-size: clamp(49px, 10.45vw, 162px);
@@ -389,6 +402,19 @@
       opacity: 0; transform: translateY(-16px);
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
+
+    .outils-sub {
+      font-family: var(--body); font-size: clamp(12px, 1.15vw, 16px);
+      color: #777; text-align: center;
+      max-width: 850px; padding: 0 40px; line-height: 1.65;
+      margin-top: 28px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.75s ease 0.35s,
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.35s;
+    }
+    .outils-sub.is-in  { opacity: 1; transform: translateY(0); }
+    .outils-sub.is-out { opacity: 0; transform: translateY(-8px);
+                          transition: opacity 0.25s ease, transform 0.25s ease; }
 
     /* ─── OUTRO PANEL ─── */
     #outro { z-index: 1; background: var(--black); }
@@ -716,12 +742,13 @@
 <div id="manifeste" class="panel" style="z-index:1">
   <div class="panel-inner">
     <div class="mfst-label" id="mfstLabel">
-      <span>Pas de certitude</span>
-      <span class="dark-meta-line"></span>
-      <span>que des convictions</span>
+      <span>MANTRA</span>
     </div>
     <p class="mfst-body" id="mfstBody">
-      Implantés sur Paris et Lyon, nous apportons notre savoir-faire pour développer votre image de marque de manière probante et large. Votre meilleur allié pour cela ? Notre créativité et une addiction à l'image jamais rassasiée. Puisant nos références dans ce qui nous entoure, chantre d'une communication fine et du détail bien senti, nous apporterons notre pierre à l'édifice dans la construction de votre identité.
+      Les choses ne changent pas parce que les leaders le décident. Elles changent parce que quelqu'un, quelque part, considère que le système ne fonctionne plus et a la conviction de pouvoir faire mieux.
+    </p>
+    <p class="mfst-sub" id="mfstSub">
+      Chez Mermoz Californie, nous aidons ces créateurs à bâtir des marques qui durent, avec une communication à leur niveau d'exigence. Nous réunissons les meilleurs créatifs pour voir ce que les autres ne voient pas encore, et nous savons qu'identifier un problème ne suffit pas. Notre rôle est de vous convaincre que nous avons la solution pour votre recherche de notoriété.
     </p>
   </div>
 </div>
@@ -782,8 +809,10 @@
       </div>
     </div>
     <p class="outils-body" id="outilsBody">
-      L'intelligence artificielle doit être utilisée dans un cadre très précis, en transparence avec nos annonceurs, et dans un souci de protection des données et d'une éthique écologique responsable.<br>
-      L'IA nous sert seulement à concrétiser plus rapidement une vision, une idée, un concept, préalablement pensé par nous-mêmes.
+      L'intelligence artificielle ne rendra jamais un directeur artistique ou un concepteur rédacteur meilleur. Sans vision l'intelligence artificielle n'est rien.
+    </p>
+    <p class="outils-sub" id="outilsSub">
+      Mais elle est l'outil pour nous permettre de concrétiser plus rapidement nos projets. Elle doit être utilisée dans un cadre très précis, en transparence avec nos annonceurs, et dans un souci de protection des données et d'une éthique écologique responsable.
     </p>
   </div>
 </div>
@@ -797,7 +826,7 @@
 <!-- Section nav — graduations à droite pour accès direct -->
 <nav class="section-nav" id="sectionNav" aria-label="Sections">
   <button class="section-nav-tick is-active" data-idx="0" aria-label="Home"><span class="label">Home</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="1" aria-label="Manifeste"><span class="label">Manifeste</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="1" aria-label="Mantra"><span class="label">Mantra</span><span class="bar"></span></button>
   <button class="section-nav-tick" data-idx="2" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
   <button class="section-nav-tick" data-idx="3" aria-label="Outils"><span class="label">Outils</span><span class="bar"></span></button>
   <button class="section-nav-tick" data-idx="4" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
@@ -895,6 +924,7 @@
   const outilsDisplay = document.getElementById('outilsDisplay');
   const outilsDrawer  = document.getElementById('outilsDrawer');
   const outilsBody    = document.getElementById('outilsBody');
+  const outilsSub     = document.getElementById('outilsSub');
   const outroTitle    = document.getElementById('outroTitle');
 
   splitChars(heroTitle,    '.js-hl');
@@ -938,6 +968,7 @@
   ];
   const mfstBody     = document.getElementById('mfstBody');
   const mfstLabel    = document.getElementById('mfstLabel');
+  const mfstSub      = document.getElementById('mfstSub');
   const outroMeta        = document.getElementById('outroMeta');
   const outroForm        = document.getElementById('outroForm');
   const outroFormName    = document.getElementById('outroFormName');
@@ -1108,11 +1139,15 @@
       mfstLabel.classList.add('is-out');
       mfstBody.classList.remove('is-in');
       mfstBody.classList.add('is-out');
+      mfstSub.classList.remove('is-in');
+      mfstSub.classList.add('is-out');
     } else if (id === 'outils') {
       exitEl(outilsDisplay);
       outilsDrawer.classList.remove('is-open');
       outilsBody.classList.remove('is-in');
       outilsBody.classList.add('is-out');
+      outilsSub.classList.remove('is-in');
+      outilsSub.classList.add('is-out');
     } else if (id === 'outro') {
       exitEl(outroTitle);
       outroMeta.classList.remove('is-in');
@@ -1137,17 +1172,22 @@
     } else if (id === 'manifeste') {
       mfstLabel.classList.remove('is-out');
       mfstBody.classList.remove('is-out');
+      mfstSub.classList.remove('is-out');
       requestAnimationFrame(() => requestAnimationFrame(() => {
         mfstLabel.classList.add('is-in');
         mfstBody.classList.add('is-in');
+        mfstSub.classList.add('is-in');
       }));
     } else if (id === 'outils') {
       outilsDisplay.querySelectorAll('.char').forEach(ch =>
         ch.style.setProperty('--char-delay', (Math.random() * 0.45) + 's'));
       enterEl(outilsDisplay);
       outilsBody.classList.remove('is-out');
-      requestAnimationFrame(() => requestAnimationFrame(() =>
-        outilsBody.classList.add('is-in')));
+      outilsSub.classList.remove('is-out');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        outilsBody.classList.add('is-in');
+        outilsSub.classList.add('is-in');
+      }));
     } else if (id === 'outro') {
       outroTitle.querySelectorAll('.char').forEach(ch =>
         ch.style.setProperty('--char-delay', (Math.random() * 0.42) + 's'));
