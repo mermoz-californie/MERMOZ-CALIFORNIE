@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleeden — Intro</title>
+<style>
+@font-face{
+  font-family: 'PPObjectSans';
+  src: url('../../assets/fonts/PPObjectSans/PPObjectSans-Heavy.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: 'PPObjectSans';
+  src: url('../../assets/fonts/PPObjectSans/PPObjectSans-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: 'PPObjectSans';
+  src: url('../../assets/fonts/PPObjectSans/PPObjectSans-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INTRO GLEEDEN — 3 phases :
+   1) Le picto G apparaît seul, centré
+   2) Les lettres "leeden" s'écrivent une par une (le mot Gleeden se forme)
+   3) Le tagline apparaît en dessous
+   Déclenché par le parent via postMessage('replay') → ajout de body.go
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:     #551565;
+  --accent: #C880EA;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{ overflow:hidden; margin:0; width:100%; height:100%; cursor:none; background: transparent; }
+body{
+  background: transparent;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  width: 100vw; height: 100vh;
+  font-family: 'PPObjectSans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+*{ cursor:none !important; }
+.tagline, .tagline *{ user-select:text; cursor:text !important; }
+
+/* ─── Logo Gleeden complet (SVG) ─── */
+/* Le wrapper grandit en largeur de la taille du G seul jusqu'à la taille du mot entier.
+   Comme il est centré, son bord gauche se décale à gauche pendant l'expansion →
+   le G se décale naturellement à gauche en même temps que le mot apparaît. */
+/* ─── Mot Gleeden : picto + lettres ─── */
+.word{
+  display: flex;
+  align-items: flex-end;
+  --gap: 0;
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform 0.4s ease;
+}
+body.dezoom .word{ transform: scale(1.1); }
+.picto-wrap{
+  position: relative;
+  left: 2px;
+  padding: calc(2 * var(--lvh, 1vh));
+  margin: calc(-2 * var(--lvh, 1vh)) calc(-2 * var(--lvh, 1vh)) calc(2 * var(--lvh, 1vh)) calc(-2 * var(--lvh, 1vh));
+  cursor: pointer;
+}
+.picto{
+  width: calc(19 * var(--lvh, 1vh));
+  height: auto;
+  display: block;
+  opacity: 0;
+  transform: scale(.5);
+  pointer-events: auto;
+  transition: transform 0.4s cubic-bezier(.16,1,.3,1), opacity 0.5s ease;
+}
+body.go .picto{ opacity: 1; transform: scale(1); }
+body.go:not(.go-letters) .picto-wrap:hover  .picto { transform: scale(1.70); }
+body.go:not(.go-letters) .picto-wrap:active .picto { transform: scale(1.40); transition: transform 0.1s ease; }
+
+.letters{
+  display: inline-flex;
+  margin-left: -4px;
+}
+.letter{
+  font-family: 'PPObjectSans', sans-serif;
+  font-size: calc(24 * var(--lvh, 1vh));
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  display: inline-block;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  padding-right: 0.04em;
+  transition: max-width 0.4s cubic-bezier(.16,1,.3,1),
+              opacity   0.35s ease;
+}
+.letter + .letter{ margin-left: var(--gap); }
+.letter:nth-child(2){ margin-left: calc(-2    * var(--lvh, 1vh) - 4px); }
+.letter:nth-child(3){ margin-left: calc(-1.5  * var(--lvh, 1vh) - 4px); }
+.letter:nth-child(4){ margin-left: calc(-2    * var(--lvh, 1vh)); }
+.letter:nth-child(5){ margin-left: calc(-2.625 * var(--lvh, 1vh)); }
+.letter:nth-child(6){ margin-left: calc(-2.625 * var(--lvh, 1vh)); }
+
+/* ─── Tagline (machine à écrire — visible UNIQUEMENT en dézoom) ─── */
+.tagline{
+  margin-top: calc(5 * var(--lvh, 1vh));
+  font-size: calc(2.3 * var(--lvh, 1vh));
+  color: var(--accent);
+  letter-spacing: 0.01em;
+}
+.tagline strong{ font-weight: 700; }
+.tagline .ch{
+  opacity: 0;
+  transition: opacity 0.06s linear;
+}
+body.dezoom .tagline .ch{ opacity: 1; }
+body:not(.dezoom) .tagline .ch{ transition-delay: 0s !important; }
+
+/* ─── Au clic : les lettres se révèlent une par une (expand width + fade), puis tagline ─── */
+body.go-letters .letter   { max-width: 5em; opacity: 1; }
+body.go-letters .letter:nth-child(1){ transition-delay: 0.00s; }
+body.go-letters .letter:nth-child(2){ transition-delay: 0.18s; }
+body.go-letters .letter:nth-child(3){ transition-delay: 0.36s; }
+body.go-letters .letter:nth-child(4){ transition-delay: 0.54s; }
+body.go-letters .letter:nth-child(5){ transition-delay: 0.72s; }
+body.go-letters .letter:nth-child(6){ transition-delay: 0.90s; }
+</style>
+</head>
+<body>
+<div class="word">
+  <div class="picto-wrap"><img class="picto" src="../../assets/visuels/picto_logo.svg" alt="G"></div>
+  <div class="letters">
+    <span class="letter">l</span><span class="letter">e</span><span class="letter">e</span><span class="letter">d</span><span class="letter">e</span><span class="letter">n</span>
+  </div>
+</div>
+<div class="tagline">L&rsquo;app de rencontre extra-conjugale&nbsp; <strong>pens&eacute;e par les femmes.</strong></div>
+
+<script>
+/* ─── Lock vh : on fige les tailles sur la viewport du PARENT, pas de l'iframe.
+   Comme ça, quand le panel-inner shrink en dézoom, le logo et la tagline gardent leur taille fixe.
+   Le 2e "dézoom" (celui du logo) disparaît → un seul mouvement visible : le panel qui rétrécit. */
+function setLockedVh(){
+  let h, w;
+  try { h = window.parent.innerHeight; w = window.parent.innerWidth; }
+  catch(e) { h = window.innerHeight;  w = window.innerWidth; }
+  if (h) document.documentElement.style.setProperty('--lvh', (h / 100) + 'px');
+  if (w) document.documentElement.style.setProperty('--lvw', (w / 100) + 'px');
+}
+setLockedVh();
+/* On écoute le resize du parent (pas de l'iframe) pour rester responsive aux vraies redimensions de fenêtre */
+try {
+  window.parent.addEventListener('resize', setLockedVh);
+} catch(e) {
+  window.addEventListener('resize', setLockedVh);
+}
+
+/* ─── Split de la tagline en chars (préserve <strong>) ─── */
+function splitTagline(){
+  const tagline = document.querySelector('.tagline');
+  if (!tagline || tagline.dataset.split) return;
+  tagline.dataset.split = '1';
+
+  let charIndex = 0;
+  const START_DELAY = 0.45;
+  const CHAR_STEP   = 0.038;
+
+  function walk(node){
+    if (node.nodeType === Node.TEXT_NODE){
+      const text = node.textContent;
+      const frag = document.createDocumentFragment();
+      for (const ch of text){
+        const span = document.createElement('span');
+        span.className = 'ch';
+        span.textContent = ch;
+        span.style.transitionDelay = (START_DELAY + charIndex * CHAR_STEP) + 's';
+        frag.appendChild(span);
+        charIndex++;
+      }
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === Node.ELEMENT_NODE){
+      Array.from(node.childNodes).forEach(walk);
+    }
+  }
+  Array.from(tagline.childNodes).forEach(walk);
+}
+splitTagline();
+
+function replay(){
+  document.body.classList.remove('go');
+  document.body.classList.remove('go-letters');
+  void document.body.offsetHeight;
+  document.body.classList.add('go');
+}
+window.addEventListener('message', function(e){
+  if (e.data === 'replay') replay();
+});
+
+/* Sync immédiate body.dezoom avec body.bg-open du parent */
+(function syncDezoomWithParent(){
+  try {
+    const parentBody = window.parent.document.body;
+    const apply = () => {
+      const open = parentBody.classList.contains('bg-open');
+      document.body.classList.toggle('dezoom', open);
+    };
+    apply();
+    new MutationObserver(apply).observe(parentBody, {
+      attributes: true, attributeFilter: ['class']
+    });
+  } catch(err) {
+    window.addEventListener('message', function(e){
+      if      (e.data === 'bg-open')  document.body.classList.add('dezoom');
+      else if (e.data === 'bg-close') document.body.classList.remove('dezoom');
+    });
+  }
+})();
+
+/* Clic sur le picto → lance l'animation des lettres + tagline */
+const pictoWrap = document.querySelector('.picto-wrap');
+pictoWrap.addEventListener('click', function(){
+  document.body.classList.add('go-letters');
+  try { parent.postMessage({ type:'cursor-show' }, '*'); } catch(err){}
+});
+pictoWrap.addEventListener('mouseenter', function(){
+  if (document.body.classList.contains('go-letters')) return;
+  try { parent.postMessage({ type:'cursor-hide' }, '*'); } catch(err){}
+});
+pictoWrap.addEventListener('mouseleave', function(){
+  try { parent.postMessage({ type:'cursor-show' }, '*'); } catch(err){}
+});
+/* Relai mousemove au parent (curseur custom) */
+window.addEventListener('mousemove', function(e){
+  try { parent.postMessage({ type:'gleeden-mouse', x:e.clientX, y:e.clientY }, '*'); } catch(err){}
+}, { passive: true });
+/* Double-click / double-tap n'importe où dans l'iframe → toggle réduc/full sur le parent */
+window.addEventListener('dblclick', function(){
+  try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+});
+let _lastTap0 = 0;
+window.addEventListener('touchend', function(e){
+  const now = Date.now();
+  if (now - _lastTap0 < 300) {
+    try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+    e.preventDefault();   /* évite zoom natif iOS */
+    _lastTap0 = 0;
+  } else {
+    _lastTap0 = now;
+  }
+}, { passive: false });
+</script>
+</body>
+</html>

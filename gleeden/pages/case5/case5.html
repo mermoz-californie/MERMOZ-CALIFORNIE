@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleeden — Typo PP Object Sans</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION TYPO OBJECT SANS
+   - Full   : fond violet sombre #551565 (fourni par le parent), logo Gleeden + ligne + "PP Object Sans bold"
+   - Réduc  : panel-inner devient #280F37 (violet clair arrondi), showcase 4 weights apparaît
+   - Motion fluide identique aux autres sections (transitions parent synchronisées).
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* ─── Fonts PP Object Sans (chemin partagé avec gleeden/) ─── */
+@font-face{font-family:'PPObjectSans';src:url('../../assets/fonts/PPObjectSans/PPObjectSans-Thin.woff') format('woff');font-weight:100;font-display:swap;}
+@font-face{font-family:'PPObjectSans';src:url('../../assets/fonts/PPObjectSans/PPObjectSans-Regular.woff') format('woff');font-weight:400;font-display:swap;}
+@font-face{font-family:'PPObjectSans';src:url('../../assets/fonts/PPObjectSans/PPObjectSans-Bold.woff') format('woff');font-weight:700;font-display:swap;}
+@font-face{font-family:'PPObjectSans';src:url('../../assets/fonts/PPObjectSans/PPObjectSans-Heavy.woff') format('woff');font-weight:900;font-display:swap;}
+
+:root{
+  --bg:       #551565;
+  --accent:   #C880EA;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{ overflow:hidden; margin:0; width:100%; height:100%; cursor:none; background: transparent; }
+body{
+  background: transparent;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  width: 100vw; height: 100vh;
+  font-family: 'PPObjectSans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: var(--accent);
+}
+*{ cursor:none !important; }
+.annot-label, .row-text, .row-name, .row-label{ user-select:text; -webkit-user-select:text; cursor:text !important; }
+
+.stage{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 6vw;
+}
+
+/* ─── LOGO + annotation wrapper : largeur définie par le logo, annot stretch ─── */
+.logo-block{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;   /* annot prend la même largeur que le logo */
+}
+
+/* ─── LOGO GIF — visible en mode FULL uniquement (remplace le logo statique).
+   Taille forcée >> viewport : le gif déborde et est rogné par body { overflow: hidden },
+   centré via le flex de .stage → effet "plein écran zoomé". ─── */
+.logo-gif{
+  display: block;
+  height: 170vh;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  align-self: center;
+  flex-shrink: 0;            /* ne pas se laisser shrink par .logo-block */
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+body.go .logo-gif{ opacity: 1; transition-delay: 0.05s; }
+/* En réduc : on cache le gif et on affiche le logo statique typographique */
+body.dezoom .logo-gif{ display: none; }
+
+/* ─── LOGO Gleeden statique — visible en mode RÉDUC uniquement ─── */
+.logo{
+  display: none;             /* caché en full — le gif prend sa place */
+  align-items: flex-end;
+  --gap: 0;
+}
+body.dezoom .logo{ display: flex; }
+.picto-wrap{
+  position: relative;
+  left: 2px;
+  margin-bottom: calc(4.5vh - 3px);   /* remonte le picto au-dessus de la baseline (descendu de 3px par rapport à 4.5vh) */
+}
+.picto{
+  width: 19vh;
+  height: auto;
+  display: block;
+}
+.letters{
+  display: inline-flex;
+  margin-left: -4px;
+}
+.letter{
+  font-family: 'PPObjectSans', sans-serif;
+  font-size: 24vh;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  display: inline-block;
+  padding-right: 0.04em;
+}
+.letter:last-child{ padding-right: 0; }   /* "n" sans padding-right pour aligner le bord droit du logo sur le bord visible du "n" */
+.letter + .letter{ margin-left: var(--gap); }
+/* Kerning identique à case0 */
+.letter:nth-child(2){ margin-left: calc(-2vh - 4px); }      /* 1er "e" */
+.letter:nth-child(3){ margin-left: calc(-1.5vh - 4px); }    /* 2e "e" */
+.letter:nth-child(4){ margin-left: calc(-2vh); }            /* "d" */
+.letter:nth-child(5){ margin-left: calc(-2.625vh); }        /* 3e "e" */
+.letter:nth-child(6){ margin-left: calc(-2.625vh); }        /* "n" */
+
+/* ─── Annotation ligne + label sous le logo (cachée en full pour libérer la hauteur au gif) ─── */
+.annot{
+  display: none;
+  align-items: center;
+  margin-top: 1.6vh;
+  width: 100%;             /* = largeur du logo grâce au wrapper logo-block */
+}
+body.dezoom .annot{ display: flex; }
+.annot-line{
+  flex: 1;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.55;
+}
+.annot-label{
+  margin-left: 1.5vh;
+  margin-right: 3px;   /* décalage du label vers la gauche */
+  font-size: 1.3vh;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ─── Showcase — 2 rows (Regular + Bold) — visible UNIQUEMENT en réduc ─── */
+.showcase{
+  margin-top: 6vh;
+  display: none;
+  flex-direction: column;
+  gap: 4vh;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+body.dezoom .showcase{ display: flex; opacity: 1; }
+
+.row{
+  display: flex;
+  align-items: center;
+}
+.row-text{
+  font-size: 2.4vh;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  margin-right: 1.5vh;     /* gap entre texte et ligne (= gap label↔ligne dans la top annot) */
+  flex-shrink: 0;
+}
+.row-text.bold{ font-weight: 700; }
+
+/* Ligne identique en épaisseur + opacité à .annot-line */
+.row-line{
+  flex: 1;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+/* Label avec EXACTEMENT le même style que .annot-label (top "PP Object Sans bold") */
+.row-label{
+  margin-left: 1.5vh;
+  margin-right: 3px;
+  font-size: 1.3vh;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ─── ANIMATIONS D'ENTRÉE (body.go déclenché par le parent) ─── */
+/* Le gif a son propre fade-in (body.go .logo-gif plus haut).
+   Le logo statique apparaît seulement en réduc (display:flex via body.dezoom) — pas d'anim,
+   le mouvement du panel-inner couvre visuellement la transition. */
+/* .annot (ligne + label typo) : caché en full, fade-in pur en réduc */
+.annot{
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+body.dezoom .annot{ opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="logo-block">
+    <!-- Mode FULL : gif animé -->
+    <img class="logo-gif" src="../../assets/visuels/anim_logo_2027.gif" alt="Gleeden — logo animé">
+    <!-- Mode RÉDUC : logo statique typographique -->
+    <div class="logo">
+      <div class="picto-wrap"><img class="picto" src="../../assets/visuels/picto_logo.svg" alt="G"></div>
+      <div class="letters">
+        <span class="letter">l</span><span class="letter">e</span><span class="letter">e</span><span class="letter">d</span><span class="letter">e</span><span class="letter">n</span>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-line"></div>
+      <div class="annot-label">PP Object Sans bold</div>
+    </div>
+
+    <div class="showcase">
+      <div class="row">
+        <span class="row-text">L&rsquo;app de rencontre extra-conjugale</span>
+        <span class="row-line"></span>
+        <span class="row-label">PP Object Sans Regular</span>
+      </div>
+      <div class="row">
+        <span class="row-text bold">pens&eacute;e par les femmes.</span>
+        <span class="row-line"></span>
+        <span class="row-label">PP Object Sans Bold</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function replay(){
+  document.body.classList.remove('go');
+  void document.body.offsetHeight;
+  document.body.classList.add('go');
+}
+window.addEventListener('message', function(e){
+  if (e.data === 'replay') replay();
+});
+
+/* Sync immédiate body.dezoom avec body.bg-open du parent */
+(function syncDezoom(){
+  try {
+    const parentBody = window.parent.document.body;
+    const apply = () => document.body.classList.toggle('dezoom', parentBody.classList.contains('bg-open'));
+    apply();
+    new MutationObserver(apply).observe(parentBody, { attributes: true, attributeFilter: ['class'] });
+  } catch(err) {
+    window.addEventListener('message', function(e){
+      if      (e.data === 'bg-open')  document.body.classList.add('dezoom');
+      else if (e.data === 'bg-close') document.body.classList.remove('dezoom');
+    });
+  }
+})();
+
+/* Relai mousemove au parent (curseur custom) */
+window.addEventListener('mousemove', function(e){
+  try { parent.postMessage({ type:'gleeden-mouse', x:e.clientX, y:e.clientY }, '*'); } catch(err){}
+}, { passive: true });
+/* Double-click / double-tap → toggle réduc/full */
+window.addEventListener('dblclick', function(){
+  try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+});
+let _lastTap5 = 0;
+window.addEventListener('touchend', function(e){
+  const now = Date.now();
+  if (now - _lastTap5 < 300) {
+    try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+    e.preventDefault();
+    _lastTap5 = 0;
+  } else {
+    _lastTap5 = now;
+  }
+}, { passive: false });
+</script>
+</body>
+</html>

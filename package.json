@@ -1,0 +1,24 @@
+{
+  "name": "mermoz-californie",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mermoz-californie/MERMOZ-CALIFORNIE.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mermoz-californie/MERMOZ-CALIFORNIE/issues"
+  },
+  "homepage": "https://github.com/mermoz-californie/MERMOZ-CALIFORNIE#readme",
+  "dependencies": {
+    "hyperframes": "^0.6.33"
+  }
+}

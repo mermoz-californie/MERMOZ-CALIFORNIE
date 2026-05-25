@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gleeden — Le 1er site de rencontres extra-conjugales pensé par des femmes</title>
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════════
+       GLEEDEN-NEW v3 — Beige Gleeden + violet foncé, layouts inspirés Bumble.
+       Plus de jaune. Logo SVG centré. Topbar pill blanche sur fond beige.
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    @font-face { font-family:'PPObjectSans'; src:url('assets/fonts/PPObjectSans/PPObjectSans-Heavy.woff') format('woff'); font-weight:900; font-display:swap; }
+    @font-face { font-family:'PPObjectSans'; src:url('assets/fonts/PPObjectSans/PPObjectSans-Bold.woff') format('woff'); font-weight:700; font-display:swap; }
+    @font-face { font-family:'PPObjectSans'; src:url('assets/fonts/PPObjectSans/PPObjectSans-Regular.woff') format('woff'); font-weight:400; font-display:swap; }
+    @font-face { font-family:'PPAcma'; src:url('assets/fonts/PPAcma/PPAcma-Bold.otf') format('opentype'); font-weight:700; font-display:swap; }
+    @font-face { font-family:'PPAcma'; src:url('assets/fonts/PPAcma/PPAcma-Semibold.otf') format('opentype'); font-weight:600; font-display:swap; }
+    @font-face { font-family:'PPAcma'; src:url('assets/fonts/PPAcma/PPAcma-Light.otf') format('opentype'); font-weight:300; font-display:swap; }
+
+    :root {
+      --beige:        #551565;             /* fond principal — violet foncé Gleeden */
+      --beige-soft:   #6A1F82;             /* variation un poil plus claire */
+      --beige-deep:   #3E0F4F;             /* variation plus foncée */
+      --cream:        #F8F1E6;             /* crème claire — texte par défaut + logo hero */
+      --cream-gleeden:#E3DED8;             /* crème Gleeden brand officielle */
+      --white:        #FFFFFF;             /* nav pill, sections rythme (values, testi) */
+      --purple-deep:  #280F37;             /* violet très foncé — accents + textes sur bg clair */
+      --purple-mid:   #551565;             /* identique --beige — utilisé pour accents */
+      --purple-light: #C880EA;             /* rose lavande Gleeden — logo topbar + accents */
+      /* Texte : par défaut crème (sur fond violet foncé) ; surchargé en violet foncé dans .values + .testi */
+      --text:         var(--cream);
+      --text-soft:    rgba(248, 241, 230, 0.7);
+      --border:       rgba(248, 241, 230, 0.18);
+      --sans:         'PPObjectSans','Inter','Helvetica Neue',Arial,sans-serif;
+      --serif:        'PPAcma',Georgia,serif;
+      --r-pill:       999px;
+      --r-card:       28px;
+      --r-card-sm:    18px;
+      --shadow-sm:    0 6px 24px rgba(40, 15, 55, 0.08);
+      --shadow-md:    0 18px 50px rgba(40, 15, 55, 0.14);
+      --shadow-lg:    0 30px 80px rgba(40, 15, 55, 0.22);
+      --logo-svg:    url("data:image/svg+xml;utf8,%3C?xml%20version=%221.0%22%20encoding=%22UTF-8%22?%3E%3Csvg%20id=%22Calque_2%22%20xmlns=%22http://www.w3.org/2000/svg%22%20version=%221.1%22%20viewBox=%220%200%201071.83%20221.83%22%3E%3Cdefs%3E%3Cstyle%3E%20.st0%20%7B%20fill:%20%23000;%20%7D%20%3C/style%3E%3C/defs%3E%3Crect%20class=%22st0%22%20x=%22230.54%22%20y=%228.57%22%20width=%2239.35%22%20height=%22208.72%22/%3E%3Cpath%20class=%22st0%22%20d=%22M427.41,181.72l-33.37-8.56c-3.26,5.86-7.9,10.62-13.79,14.15-6.16,3.7-13.37,5.57-21.43,5.57-10.39,0-19.22-3.16-26.25-9.39-7.03-6.22-11.46-14.77-13.19-25.43l-.22-1.35h113.56c.27-2.26.41-6.17.41-11.64,0-14.9-3.22-28.2-9.57-39.54-6.34-11.32-15.37-20.26-26.86-26.57-11.51-6.32-24.92-9.53-39.85-9.53s-28.78,3.16-40.57,9.39c-11.76,6.22-21.08,15.12-27.7,26.44-6.62,11.33-9.98,24.53-9.98,39.23s3.36,28.67,9.99,40.39c6.62,11.69,15.98,20.87,27.84,27.28,11.88,6.42,25.57,9.67,40.7,9.67,17.17,0,32.32-3.73,45.03-11.08,12.25-7.08,20.74-16.85,25.25-29.04h0ZM319.1,131.51c1.73-10.07,5.87-18.19,12.33-24.12,6.48-5.96,14.66-8.98,24.3-8.98s18.23,3.12,25,9.26c6.75,6.13,10.85,14.17,12.2,23.88l.18,1.32h-74.24l.23-1.36Z%22/%3E%3Cpath%20class=%22st0%22%20d=%22M590.65,181.72l-33.37-8.56c-3.26,5.86-7.9,10.62-13.79,14.15-6.16,3.7-13.37,5.57-21.43,5.57-10.39,0-19.22-3.16-26.25-9.39-7.03-6.22-11.46-14.77-13.19-25.43l-.22-1.35h113.56c.27-2.26.41-6.17.41-11.64,0-14.9-3.22-28.2-9.57-39.54-6.34-11.32-15.37-20.26-26.86-26.57-11.51-6.32-24.92-9.53-39.85-9.53s-28.78,3.16-40.57,9.39c-11.76,6.22-21.08,15.12-27.7,26.44-6.62,11.33-9.98,24.53-9.98,39.23s3.36,28.67,9.99,40.39c6.62,11.69,15.98,20.87,27.84,27.28,11.88,6.42,25.57,9.67,40.7,9.67,17.17,0,32.32-3.73,45.03-11.08,12.25-7.08,20.74-16.85,25.25-29.04h0ZM482.33,131.51c1.73-10.07,5.87-18.19,12.33-24.12,6.48-5.96,14.66-8.98,24.3-8.98s18.23,3.12,25,9.26c6.75,6.13,10.85,14.17,12.2,23.88l.18,1.32h-74.24l.23-1.36Z%22/%3E%3Cpath%20class=%22st0%22%20d=%22M761.01,217.29V8.57h-39.35v83.62h-.87l-.35-.51c-4.93-7.19-14.99-12.76-22.57-16.54-7.6-3.79-16.38-5.71-26.09-5.71-12.67,0-24.21,3.24-34.29,9.63-10.1,6.4-18.11,15.43-23.8,26.84-5.71,11.44-8.61,24.81-8.61,39.73s2.9,28.34,8.61,39.87c5.69,11.51,13.7,20.53,23.79,26.83h0c10.09,6.3,21.73,9.49,34.58,9.49,19.4,0,38.14-7.58,48.38-22.53l.35-.51h.87v18.49h39.35v.02ZM712.07,176h0c-7.33,8.18-16.81,12.33-28.18,12.33s-20.65-4.15-28.17-12.32c-7.49-8.15-11.29-18.37-11.29-30.37s3.75-22.17,11.15-30.23c7.42-8.08,16.95-12.18,28.31-12.18s20.84,4.1,28.17,12.19c7.3,8.06,11,18.22,11,30.22s-3.7,22.21-11,30.36h0Z%22/%3E%3Cpath%20class=%22st0%22%20d=%22M918.53,181.72l-33.37-8.56c-3.26,5.86-7.9,10.62-13.79,14.15-6.16,3.7-13.37,5.57-21.43,5.57-10.39,0-19.22-3.16-26.25-9.39-7.03-6.22-11.46-14.77-13.19-25.43l-.22-1.35h113.56c.27-2.26.41-6.17.41-11.64,0-14.9-3.22-28.2-9.57-39.54-6.34-11.32-15.37-20.26-26.86-26.57-11.51-6.32-24.92-9.53-39.85-9.53s-28.78,3.16-40.57,9.39c-11.76,6.22-21.08,15.12-27.7,26.44-6.62,11.33-9.98,24.53-9.98,39.23s3.36,28.67,9.99,40.39c6.62,11.69,15.98,20.87,27.84,27.28,11.88,6.42,25.57,9.67,40.7,9.67,17.17,0,32.32-3.73,45.03-11.08,12.25-7.08,20.74-16.85,25.25-29.04h0ZM810.22,131.51c1.73-10.07,5.87-18.19,12.33-24.12,6.48-5.96,14.66-8.98,24.3-8.98s18.23,3.12,25,9.26c6.75,6.13,10.85,14.17,12.2,23.88l.18,1.32h-74.24l.23-1.36Z%22/%3E%3Cpath%20class=%22st0%22%20d=%22M1004.28,103.52c8.57,0,15.49,2.96,20.59,8.79,5.05,5.79,7.61,13.46,7.61,22.81v82.17h39.35v-88.15c0-11.33-2.23-21.64-6.64-30.63-4.39-8.95-10.69-16.07-18.72-21.14-8.04-5.07-17.4-7.64-27.82-7.64-16.77,0-34.28,8.15-44.7,24.21l-.34.53h-.89v-20.48h-39.35v143.3h39.35v-80.75c0-9.37,3.1-17.3,9.2-23.56,6.11-6.27,13.64-9.45,22.37-9.45h0Z%22/%3E%3Cpath%20class=%22st0%22%20d=%22M221.71,106.36v-.36h0c-.31-7.05-1.27-13.92-2.83-20.56h-39.67c.13.37.27.75.4,1.12-.13-.37-.28-.75-.42-1.12h-9.6c-13.72,0-24.85,11.14-24.85,24.85h0c0,.97.05,1.88.16,2.79,1.4,12.4,11.92,22.05,24.69,22.05h10.05c-9.97,28.35-36.98,48.65-68.74,48.65h.01c-22.05,0-41.81-9.79-55.18-25.27-1.11-1.29-2.17-2.61-3.19-3.95-9.1-12.16-14.5-27.27-14.5-43.63,0-14.24,4.08-27.53,11.15-38.76h0c2.57-4.09,5.54-7.89,8.83-11.38l.08-.09c2.16-2.26,4.46-4.4,6.89-6.37l.09-.06c5.22-3.55,11.5-5.63,18.28-5.63,2.53,0,4.99.29,7.36.84h.02c.81.19,1.59.4,2.39.64,5.53,1.38,11.31,2.15,17.27,2.18,0-.42.01-.82.01-1.22,0-4.4-.25-8.74-.71-13.01h-.02.01c.39,0,.8-.02,1.18-.02,1.32,0,2.63.03,3.91.1h0c.44,4.25.65,8.55.65,12.92v1.09c4.64-.29,9.14-1.01,13.51-2.12.63-.19,1.28-.36,1.92-.52,2.44-.58,4.97-.89,7.59-.89,6.65,0,12.84,1.99,18,5.43,2.71,2.18,5.27,4.55,7.65,7.1,3.18,3.37,6.02,7.07,8.5,11,5.82-2.49,11.47-5.33,16.91-8.49h0c5.55-3.23,10.88-6.79,15.98-10.65-8.43-13.74-19.76-25.5-33.15-34.43v-.02C154.77,6.85,133.62,0,110.89,0c-2.06,0-4.09.07-6.12.18h0c-1.79.09-3.56.23-5.32.42h-.01c-18.35,1.89-35.38,8.25-49.98,17.98,0,0,.01,0,.01.02h-.02c-13.4,8.92-24.73,20.69-33.15,34.43C5.96,69.87,0,89.69,0,110.91s6.1,41.49,16.66,58.47h0c.93,1.53,1.92,3.03,2.94,4.49h.02c20.01,28.96,53.43,47.94,91.31,47.94,52.93,0,97.2-37.09,108.25-86.69h0c1.5-6.73,2.39-13.69,2.62-20.82v-.49c.02-.97.04-1.94.04-2.92h0c0-1.52-.04-3.03-.1-4.55h-.01Z%22/%3E%3C/svg%3E");
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:var(--sans);
+      /* Fond : image bg1_gleeden bien présente + voile violet 35% léger */
+      background:
+        linear-gradient(rgba(85, 21, 101, 0.35), rgba(85, 21, 101, 0.35)),
+        url('assets/backgrounds/bg1_gleeden.jpg') center/cover fixed;
+      color:var(--text);
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    /* Sections "violettes" : transparent → laisse passer l'image de fond du body.
+       Les sections rythme (press, values, testi) gardent leur fond blanc opaque pour couper le motif. */
+    .hero, .features, .mobile, .cta, footer { background:transparent !important; }
+
+    /* Sections sur fond CLAIR (rythme) → on remet le texte foncé via cascade --text */
+    .values, .testi,
+    .press {
+      --text:      #280F37;
+      --text-soft: rgba(40, 15, 55, 0.62);
+      --border:    rgba(40, 15, 55, 0.10);
+      color:       var(--text);
+      background:  var(--white);
+    }
+
+    /* Cards / pills à fond clair (au sein de sections sombres) → idem cascade --text */
+    .eyebrow, .hero-counter, .hero-panel,
+    .topbar-nav, .lang-pill,
+    .sec-eyebrow, .val-eyebrow,
+    .bc-feat, .bc-glow,
+    .mobile-grid > div:first-child,
+    .soc, .trust {
+      --text:      #280F37;
+      --text-soft: rgba(40, 15, 55, 0.62);
+      color:       var(--text);
+    }
+
+    img { display:block; max-width:100%; }
+    button, input, select { font-family:inherit; }
+    a { color:inherit; text-decoration:none; }
+
+    /* ══════════ TOPBAR : pill blanche centrée sur fond beige ══════════ */
+    .topbar {
+      position:fixed; top:18px; left:0; right:0; z-index:200;
+      display:grid; grid-template-columns:1fr auto 1fr;
+      align-items:center; gap:16px;
+      padding:0 32px;
+      pointer-events:none;
+    }
+    .topbar > * { pointer-events:auto; }
+    /* Logo topbar : on cache l'<img> et on dessine un rectangle masqué par le SVG → couleur violet exacte */
+    .topbar-logo {
+      justify-self:start;
+      position:relative;
+      display:inline-block;
+      width:135px; height:28px;          /* ratio SVG ≈ 4.83 × hauteur */
+    }
+    .topbar-logo img { display:none; }
+    .topbar-logo::before {
+      content:'';
+      position:absolute; inset:0;
+      background:var(--white);           /* blanc */
+      -webkit-mask:var(--logo-svg) center/contain no-repeat;
+              mask:var(--logo-svg) center/contain no-repeat;
+    }
+
+    .topbar-nav {
+      display:flex; gap:0;
+      background:var(--white);
+      padding:8px;
+      border-radius:var(--r-pill);
+      box-shadow:var(--shadow-sm);
+    }
+    .topbar-nav a {
+      padding:12px 24px;
+      font-size:14px; font-weight:500;
+      color:var(--text);
+      border-radius:var(--r-pill);
+      transition:background .2s, color .2s;
+      white-space:nowrap;
+    }
+    .topbar-nav a:hover { background:#551565; color:var(--white); }
+    .topbar-nav a.is-active { background:var(--purple-deep); color:var(--white); }
+
+    .topbar-right { justify-self:end; display:flex; align-items:center; gap:10px; }
+    .lang-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      background:var(--white); padding:12px 16px;
+      border-radius:var(--r-pill);
+      border:none; cursor:pointer;
+      box-shadow:var(--shadow-sm);
+      color:var(--text); font-size:14px; font-weight:500;
+    }
+    .lang-pill svg { width:18px; height:18px; }
+    .lang-pill .chev { width:12px; height:12px; opacity:.6; }
+
+    /* Anciens champs topbar : on les cache, on garde le markup pour ne pas casser le JS */
+    .topbar-right .flag,
+    .topbar-right .lang-sel,
+    .topbar-right .tb-sep,
+    .topbar-right .tb-label,
+    .topbar-right .tb-input,
+    .topbar-right .tb-help { display:none; }
+    .tb-connect {
+      display:inline-flex; align-items:center; justify-content:center;
+      background:#551565; color:var(--white);   /* violet clair Gleeden */
+      padding:14px 28px; border-radius:var(--r-pill);
+      font-size:14px; font-weight:500; border:none; cursor:pointer;
+      transition:transform .15s, opacity .2s;
+    }
+    .tb-connect:hover { transform:translateY(-1px); opacity:.92; }
+
+    /* ══════════ HERO : beige + logo SVG géant violet centré ══════════ */
+    .hero {
+      position:relative;
+      min-height:100vh;
+      background:var(--beige);
+      padding:140px 32px 100px;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center;
+      gap:32px;
+    }
+    .hero-left {
+      max-width:1100px;
+      width:100%;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:48px;                          /* gap moyen pour décoller le logo de la tagline */
+    }
+
+    /* Flèche scroll-hint en bas de hero — animation bounce */
+    .scroll-hint {
+      position:absolute;
+      bottom:40px; left:50%;
+      width:56px; height:56px;
+      color:var(--cream-gleeden);     /* crème Gleeden #E3DED8 */
+      opacity:0.85;
+      animation:scroll-bounce 2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .scroll-hint svg { width:100%; height:100%; }
+    @keyframes scroll-bounce {
+      0%, 100% { transform:translateX(-50%) translateY(0); }
+      50%       { transform:translateX(-50%) translateY(10px); }
+    }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:10px;
+      background:var(--white);
+      padding:10px 20px;
+      border-radius:var(--r-pill);
+      box-shadow:var(--shadow-sm);
+    }
+    .eyebrow-line { display:none; }
+    .eyebrow-text {
+      font-size:11px; font-weight:700; letter-spacing:0.16em;
+      text-transform:uppercase; color:var(--text);
+    }
+    /* Logo SVG géant au centre */
+    .hero-title {
+      font-family:var(--serif);
+      font-size:0;     /* on cache le texte original */
+      line-height:0;
+      margin:0;
+      width:100%;
+      max-width:1300px;
+      position:relative;        /* ancrage pour ::after (bruit) */
+    }
+    .hero-title::before {
+      content:'';
+      display:block;
+      width:100%;
+      aspect-ratio:1071.83 / 221.83;
+      /* Logo central en rose lavande Gleeden sur fond violet foncé */
+      background:var(--purple-light);
+      -webkit-mask:var(--logo-svg) center/contain no-repeat;
+              mask:var(--logo-svg) center/contain no-repeat;
+    }
+    /* Léger bruit / grain SVG fractalNoise — clippé sur la silhouette du logo */
+    .hero-title::after {
+      content:'';
+      position:absolute; inset:0;
+      background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:240px 240px;
+      -webkit-mask:var(--logo-svg) center/contain no-repeat;
+              mask:var(--logo-svg) center/contain no-repeat;
+      mix-blend-mode:overlay;
+      opacity:0.45;
+      pointer-events:none;
+    }
+    .hero-title .hero-title-line { display:none; }
+    .hero-sub {
+      font-family:var(--serif);
+      font-size:clamp(20px, 1.8vw, 26px);
+      font-weight:400; font-style:normal;     /* Acma Book (light) */
+      color:var(--cream);
+      max-width:none;
+      line-height:1.2;
+      letter-spacing:0;
+      margin:0;
+      text-align:center;
+      white-space:nowrap;
+      transform:translateX(22px);
+    }
+    .hero-sub-accent {
+      display:inline;
+      font-style:italic;
+      font-weight:400;
+      color:var(--purple-light);
+      margin:0;
+    }
+    @media (max-width:900px) {
+      .hero-sub { white-space:normal; }      /* sur petit écran, on autorise le wrap */
+    }
+    .hero-counter {
+      display:inline-flex; align-items:baseline; gap:14px;
+      background:var(--white);
+      padding:18px 28px;
+      border-radius:var(--r-pill);
+      box-shadow:var(--shadow-sm);
+    }
+    .hero-counter-num {
+      font-family:var(--serif); font-weight:700;
+      font-size:1.5rem; color:var(--text); letter-spacing:-0.02em;
+    }
+    .hero-counter-lbl {
+      font-size:10px; font-weight:700; letter-spacing:0.22em;
+      text-transform:uppercase; color:var(--text-soft);
+    }
+
+    /* Hero-panel (formulaire) : carte blanche dans le bento, occupe la colonne gauche */
+    .hero-panel {
+      background:var(--white);
+      border-radius:var(--r-card);
+      padding:36px 32px 30px;
+      box-shadow:var(--shadow-md);
+      text-align:left;
+      /* Position dans le bento (remplace l'ancien bc-stat) */
+      grid-column:1; grid-row:1 / span 2;
+      display:flex; flex-direction:column;
+    }
+    .panel-title {
+      font-family:var(--serif); font-size:clamp(18px, 1.5vw, 22px); font-weight:700;
+      color:var(--text); margin-bottom:24px; line-height:1.25;
+      letter-spacing:-0.015em;
+    }
+    .panel-title em { font-style:italic; color:var(--purple-mid); font-weight:400; }
+    .field { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+    .field-label {
+      font-size:11px; font-weight:700; letter-spacing:0.14em;
+      text-transform:uppercase; color:#280F37;        /* pleine opacité — lisible sur card white */
+    }
+    .field-input, .field-select {
+      background:#FFFFFF;
+      border:1.5px solid rgba(40,15,55,0.14);
+      border-radius:var(--r-pill);
+      padding:14px 20px;
+      font-family:var(--sans); font-size:14px; color:#280F37; font-weight:500;
+      outline:none; -webkit-appearance:none; appearance:none; width:100%;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .field-input::placeholder { color:rgba(40,15,55,0.42); font-weight:400; }
+    .field-input:focus, .field-select:focus {
+      border-color:#280F37;
+      box-shadow:0 0 0 4px rgba(40,15,55,0.06);
+    }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .panel-cta {
+      width:100%; margin-top:14px;
+      background:var(--purple-deep); border:none; border-radius:var(--r-pill);
+      padding:16px; font-family:var(--sans); font-size:13px; font-weight:600;
+      letter-spacing:0; text-transform:none; color:var(--white); cursor:pointer;
+      transition:opacity .2s, transform .15s;
+    }
+    .panel-cta:hover { opacity:.92; transform:translateY(-1px); }
+    .panel-note {
+      font-size:11px; color:var(--text-soft); text-align:center;
+      margin-top:14px; line-height:1.55;
+    }
+    .panel-note a { color:var(--text); text-decoration:underline; text-underline-offset:2px; }
+
+    /* ══════════ PRESS — strip blanc pour rythme break entre hero violet et features ══════════ */
+    .press {
+      background:var(--white);
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      padding:22px 0; overflow:hidden;
+    }
+    .press-track { display:flex; align-items:center; width:max-content; will-change:transform; }
+    .press-item {
+      padding:0 54px; font-size:18px; font-weight:700;
+      color:var(--text-soft); white-space:nowrap;
+      border-right:1px solid var(--border);
+      cursor:default;
+    }
+    .press-item.s { font-family:var(--serif); font-style:italic; font-weight:400; font-size:22px; }
+    .press-item.xs { font-size:13px; letter-spacing:0.18em; font-weight:700; }
+
+    /* ══════════ FEATURES — Bento centré ══════════ */
+    .features {
+      background:var(--beige);
+      padding:120px 32px 100px;
+      display:flex; flex-direction:column;
+      align-items:center;         /* tout centré horizontalement */
+      text-align:center;
+    }
+    .sec-eyebrow {
+      display:inline-flex; align-items:center;
+      font-size:11px; font-weight:700; letter-spacing:0.16em;
+      text-transform:uppercase; color:var(--text);
+      background:var(--white);
+      padding:8px 18px;
+      border-radius:var(--r-pill);
+      margin-bottom:24px;
+      box-shadow:var(--shadow-sm);
+    }
+    .sec-title {
+      font-family:var(--serif);
+      font-size:clamp(36px, 4.5vw, 64px);
+      font-weight:700; color:var(--text);
+      line-height:1.05; margin-bottom:48px;
+      letter-spacing:-0.025em;
+      max-width:880px;
+      text-align:center;
+    }
+    .sec-title em { font-style:italic; color:var(--purple-light); font-weight:400; }  /* rose lavande lisible sur fond violet */
+
+    .bento {
+      width:100%;
+      max-width:1280px;
+      margin:0 auto;
+      text-align:left;       /* contenus des cards left-aligned (override le center de .features) */
+      display:grid;
+      grid-template-columns:1.4fr 1fr 1fr;
+      grid-template-rows:auto auto;
+      gap:18px;
+      max-width:1280px;
+    }
+    .bc {
+      background:var(--white);
+      border-radius:var(--r-card);
+      padding:36px 32px;
+      position:relative;
+      box-shadow:var(--shadow-sm);
+      transition:transform .25s, box-shadow .25s;
+    }
+    .bc:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+    /* bc-stat supprimé — la carte form (hero-panel) prend sa place dans le bento */
+    .bc-feat { background:var(--cream-gleeden); }   /* Entièrement gratuit + Expertes Gleeden */
+    .bc-dark { background:var(--beige-soft); }       /* Modération 24h/7j — reste violet */
+    .bc-glow { background:var(--cream-gleeden); }    /* Espace ultra-sécurisé */
+    /* Icônes : box violet foncé + stroke crème → lisible sur cards blanches ET cards violettes */
+    .bc-icon {
+      width:50px; height:50px; border-radius:14px;
+      background:var(--purple-deep);
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:22px;
+      color:var(--cream);
+    }
+    /* Sur la card violet clair (.bc-dark), on inverse : box crème + stroke violet foncé pour différencier */
+    .bc-dark .bc-icon { background:var(--cream); color:var(--purple-deep); }
+    .bc-icon svg { width:24px; height:24px; }
+    .bc-tag {
+      display:inline-flex; align-items:center; gap:8px;
+      background:var(--purple-deep);
+      color:var(--white);
+      border-radius:var(--r-pill);
+      padding:6px 14px 6px 12px;
+      font-size:10px; font-weight:700;
+      letter-spacing:0.06em; margin-bottom:16px;
+    }
+    .bc-tag::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--purple-light); }
+    .bc-name {
+      font-family:var(--serif);
+      font-size:1.1rem; font-weight:700;
+      color:var(--text); margin-bottom:10px;
+      letter-spacing:-0.01em;
+    }
+    .bc-desc { font-size:14px; color:var(--text-soft); line-height:1.6; }
+
+    /* ══════════ VALUES — fond crème Gleeden + cards violet foncé avec textes blancs ══════════ */
+    .values {
+      position:relative;
+      background:var(--cream-gleeden);
+      padding:120px 80px;
+      overflow:hidden;
+    }
+    .val-head { text-align:center; margin-bottom:60px; }
+    /* "NOS ENGAGEMENTS" — pill violet foncé + texte blanc */
+    .val-eyebrow {
+      display:inline-flex; align-items:center;
+      font-size:11px; font-weight:700; letter-spacing:0.16em;
+      text-transform:uppercase;
+      color:var(--white);
+      background:var(--purple-deep);
+      padding:8px 18px;
+      border-radius:var(--r-pill);
+      margin-bottom:18px;
+    }
+    .val-eyebrow::before, .val-eyebrow::after { display:none; }
+    /* "Nos valeurs" — reste foncé pour lisibilité sur crème */
+    .val-title {
+      font-family:var(--serif);
+      font-size:clamp(36px, 4.5vw, 60px);
+      font-weight:700; color:var(--purple-deep);
+      letter-spacing:-0.025em;
+    }
+    .val-grid {
+      display:grid; grid-template-columns:repeat(4, 1fr);
+      gap:18px; max-width:1280px; margin:0 auto;
+    }
+    .val-card {
+      background:#551565;              /* VIOLET CLAIR Gleeden (charte officielle — COULEUR 02) */
+      border-radius:var(--r-card);
+      padding:40px 28px 36px;
+      text-align:center;
+      opacity:0; transform:translateY(20px);
+      transition:transform .25s, box-shadow .25s;
+    }
+    .val-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+    .val-icon {
+      width:60px; height:60px; border-radius:16px;
+      background:var(--cream-gleeden);     /* box crème Gleeden */
+      margin:0 auto 22px;
+      display:flex; align-items:center; justify-content:center;
+      color:var(--purple-deep);            /* picto violet foncé */
+    }
+    .val-icon svg { width:26px; height:26px; }
+    .val-name {
+      font-family:var(--serif);
+      font-size:clamp(28px, 2.4vw, 36px); font-weight:700;
+      color:var(--white); margin-bottom:14px;
+      letter-spacing:-0.02em;
+      line-height:1.1;
+    }
+    .val-desc { font-size:13px; line-height:1.65; color:rgba(255,255,255,0.78); }
+
+    /* ══════════ MOBILE — 2 cards : texte gauche + carte violette droite ══════════ */
+    .mobile {
+      background:var(--beige);
+      padding:120px 80px;
+    }
+    .mobile-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:32px;
+      max-width:1280px; margin:0 auto;
+    }
+    .mobile-grid > div:first-child {
+      background:var(--white);
+      border-radius:var(--r-card);
+      padding:48px 44px 52px;
+      display:flex; flex-direction:column;
+    }
+    .mobile .sec-eyebrow {
+      display:inline-flex;
+      background:var(--beige-deep);     /* violet plus foncé pour contraster avec la carte blanche du mobile-grid */
+      color:var(--cream);
+      align-self:flex-start;
+      margin-bottom:22px;
+      box-shadow:none;
+    }
+    .mobile-title {
+      font-family:var(--serif);
+      font-size:clamp(36px, 4vw, 56px);
+      font-weight:700; color:var(--text);
+      line-height:1.05; margin-bottom:18px;
+      letter-spacing:-0.025em;
+    }
+    .mobile-title em { font-style:italic; color:var(--purple-mid); font-weight:400; }
+    .mobile-sub {
+      font-size:1.05rem; line-height:1.65; color:var(--text-soft);
+      margin-bottom:32px; flex-grow:1;
+    }
+    /* Badges download officiels — noir, côte à côte (pas de wrap) */
+    .app-btns { display:flex; gap:14px; flex-wrap:nowrap; }
+    .app-btn {
+      display:inline-flex; align-items:center; gap:12px;
+      background:#000; color:#FFF;
+      padding:12px 22px; border-radius:12px;
+      border:none; cursor:pointer;
+      transition:transform .15s, opacity .2s;
+      min-width:170px;
+    }
+    .app-btn:hover { transform:translateY(-1px); opacity:.92; }
+    .app-btn svg { width:24px; height:24px; opacity:1; flex-shrink:0; fill:#FFF; }
+    .app-btn-pre { font-size:11px; opacity:0.85; letter-spacing:0; text-transform:none; display:block; line-height:1; font-weight:400; }
+    .app-btn-name { font-size:18px; font-weight:600; display:block; margin-top:3px; line-height:1; letter-spacing:-0.01em; }
+
+    /* Carte droite : violet foncé avec quote */
+    .mobile-visual {
+      background:var(--purple-deep);
+      color:var(--white);
+      border-radius:var(--r-card);
+      padding:48px 44px 52px;
+      display:flex; flex-direction:column;
+      justify-content:space-between;
+      min-height:380px;
+      position:relative; overflow:hidden;
+      box-shadow:none;
+      border:none;
+      transform:none;
+    }
+    .mobile-visual::before {
+      content:'Communauté discrète';
+      display:inline-flex; align-items:center;
+      background:var(--purple-light); color:var(--purple-deep);
+      padding:8px 18px; border-radius:var(--r-pill);
+      font-size:11px; font-weight:700; letter-spacing:0.16em;
+      text-transform:uppercase;
+      align-self:flex-start;
+    }
+    .mobile-visual::after {
+      content:'Une communauté féminine bienveillante. 14 688 079 membres dans le monde nous font confiance, en toute discrétion.';
+      font-family:var(--serif);
+      font-size:1.7rem; font-weight:700;
+      color:var(--white);
+      line-height:1.18;
+      letter-spacing:-0.015em;
+      margin-top:auto;
+    }
+    .mobile-visual img { display:none; }
+
+    /* ══════════ TESTIMONIAL — Posts géants scrollables horizontalement sur fond crème Gleeden ══════════ */
+    .testi {
+      background:var(--cream-gleeden);
+      padding:120px 0;
+    }
+    .testi-head {
+      display:block; text-align:center;
+      max-width:1280px; margin:0 auto 56px;
+      padding:0 32px;
+    }
+    .testi-eyebrow {
+      display:inline-flex; align-items:center;
+      font-size:11px; font-weight:700; letter-spacing:0.16em;
+      text-transform:uppercase; color:var(--white);
+      background:var(--purple-deep);
+      padding:8px 18px;
+      border-radius:var(--r-pill);
+      margin-bottom:18px;
+    }
+    .testi-eyebrow::before, .testi-eyebrow::after { display:none; }
+    .testi-title {
+      font-family:var(--serif);
+      font-size:clamp(36px, 4.5vw, 60px);
+      font-weight:700; color:var(--purple-deep);
+      letter-spacing:-0.025em;
+    }
+    /* Track scroll horizontal — marge gauche alignée sur le container max 1280px (comme les autres sections) */
+    .testi-track {
+      display:flex;
+      gap:28px;
+      padding:8px 32px 32px max(32px, calc((100vw - 1280px) / 2));
+      scroll-padding-inline-start:max(32px, calc((100vw - 1280px) / 2));
+      overflow-x:auto;
+      overflow-y:hidden;
+      scroll-snap-type:x mandatory;
+      scrollbar-width:none;
+      -webkit-overflow-scrolling:touch;
+    }
+    .testi-track::-webkit-scrollbar { display:none; }
+    /* Cards = grands posts (plus étroits) */
+    .testi-card {
+      flex:0 0 380px;                /* largeur réduite */
+      min-height:480px;
+      scroll-snap-align:start;
+      background:var(--white);
+      border-radius:28px;
+      padding:40px 36px 32px;
+      display:flex; flex-direction:column;
+      box-shadow:var(--shadow-sm);
+      position:relative;
+      opacity:0; transform:translateY(16px);
+      transition:transform .25s, box-shadow .25s;
+    }
+    .testi-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+    /* Gros guillemet en haut */
+    .testi-q {
+      font-family:var(--serif);
+      font-size:68px; line-height:0.7;
+      color:var(--purple-deep);
+      font-weight:700;
+      margin-bottom:18px;
+    }
+    /* Texte du témoignage : gros serif foncé */
+    .testi-text {
+      font-family:var(--serif);
+      font-size:clamp(24px, 2vw, 30px);    /* un poil plus petit pour s'ajuster à la card plus étroite */
+      font-style:normal; font-weight:600;
+      line-height:1.1; letter-spacing:-0.015em;
+      color:var(--purple-deep);
+      flex-grow:1;                          /* pousse le user vers le bas */
+    }
+    /* Footer du post : avatar + nom/statut */
+    .testi-user {
+      display:flex; align-items:center; gap:14px;
+      margin-top:32px;
+    }
+    .testi-av {
+      width:44px; height:44px; border-radius:50%;
+      background:var(--purple-light);
+      display:flex; align-items:center; justify-content:center;
+      font-size:14px; font-weight:900; color:var(--purple-deep);
+      flex-shrink:0;
+    }
+    .testi-name { font-size:14px; font-weight:700; color:var(--purple-deep); line-height:1.2; }
+    .testi-status { font-size:12px; color:rgba(40,15,55,0.55); margin-top:3px; }
+    /* Marge droite : confort sur la dernière card */
+    .testi-card:last-child { margin-right:max(32px, calc((100vw - 1280px) / 2)); }
+
+    /* ══════════ CTA — carte beige soft centrée ══════════ */
+    .cta {
+      background:var(--beige);
+      padding:80px 32px 100px;
+    }
+    .cta-inner {
+      max-width:1280px; margin:0 auto;
+      background:var(--purple-deep);
+      color:var(--white);
+      border-radius:var(--r-card);
+      padding:96px 64px;
+      text-align:center;
+      position:relative; overflow:hidden;
+    }
+    .cta-inner::before {
+      content:'';
+      position:absolute; inset:auto -10% -50% auto;
+      width:60%; height:160%;
+      background:radial-gradient(ellipse at center, rgba(200,128,234,0.25) 0%, transparent 65%);
+      pointer-events:none;
+    }
+    .cta-pre {
+      display:inline-flex; align-items:center;
+      background:rgba(200,128,234,0.18);
+      color:var(--purple-light);
+      padding:8px 18px;
+      border-radius:var(--r-pill);
+      font-size:11px; font-weight:700; letter-spacing:0.16em;
+      text-transform:uppercase;
+      margin-bottom:28px;
+      position:relative;
+    }
+    .cta-title {
+      font-family:var(--serif);
+      font-size:clamp(48px, 7vw, 110px);
+      font-weight:700; color:var(--white);
+      line-height:0.96; margin-bottom:18px;
+      letter-spacing:-0.03em;
+      position:relative;
+    }
+    .cta-title em { font-style:italic; color:var(--purple-light); font-weight:400; }
+    .cta-sub {
+      font-size:1.1rem; color:rgba(255,255,255,0.72);
+      margin-bottom:44px; position:relative;
+    }
+    .cta-btn {
+      background:var(--white); color:var(--purple-deep);
+      padding:18px 44px; border-radius:var(--r-pill);
+      font-family:var(--sans); font-size:14px; font-weight:600;
+      letter-spacing:0; text-transform:none; border:none; cursor:pointer;
+      position:relative;
+      transition:transform .15s, opacity .2s;
+    }
+    .cta-btn:hover { transform:translateY(-2px); opacity:.92; }
+
+    /* ══════════ FOOTER ══════════ */
+    footer {
+      background:var(--beige);
+      color:var(--text);
+      padding:80px 80px 40px;
+    }
+    .footer-top {
+      display:grid; grid-template-columns:280px 1fr auto;
+      gap:80px; align-items:start;
+      padding-bottom:48px; margin-bottom:32px;
+      border-bottom:1px solid var(--border);
+      max-width:1280px; margin-left:auto; margin-right:auto;
+    }
+    /* Footer logo : plus gros */
+    .footer-logo {
+      position:relative;
+      display:inline-block;
+      width:194px; height:40px;
+    }
+    .footer-logo img { display:none; }
+    .footer-logo::before {
+      content:'';
+      position:absolute; inset:0;
+      background:var(--cream);          /* crème sur fond violet foncé du footer */
+      -webkit-mask:var(--logo-svg) center/contain no-repeat;
+              mask:var(--logo-svg) center/contain no-repeat;
+    }
+    .footer-tagline { font-size:12px; color:var(--text-soft); margin-top:14px; font-style:italic; line-height:1.55; }
+    .footer-nav { display:flex; gap:64px; }
+    .footer-nav-col { display:flex; flex-direction:column; gap:12px; }
+    .footer-link {
+      font-size:12px; color:var(--text); opacity:0.72;
+      transition:opacity .2s;
+    }
+    .footer-link:hover { opacity:1; }
+    .footer-socials { display:flex; gap:8px; align-self:flex-start; }
+    .soc {
+      width:44px; height:44px; border-radius:50%;
+      border:1px solid var(--border);
+      background:var(--white);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--text);
+      transition:background .2s, color .2s;
+    }
+    .soc svg { width:20px; height:20px; }
+    .soc:hover { background:var(--purple-deep); color:var(--white); border-color:var(--purple-deep); }
+    .footer-bottom {
+      display:flex; justify-content:space-between; align-items:center;
+      flex-wrap:wrap; gap:12px;
+      max-width:1280px; margin:0 auto;
+    }
+    .footer-legal { font-size:11px; color:var(--text-soft); line-height:1.7; }
+    .trust {
+      font-size:9px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+      color:var(--text-soft);
+      border:1px solid var(--border);
+      background:var(--white);
+      border-radius:var(--r-pill); padding:7px 14px;
+    }
+
+    /* ══════════ REVEAL ══════════ */
+    .reveal { opacity:0; transform:translateY(22px); }
+
+    /* ══════════ RESPONSIVE ══════════ */
+    @media (max-width:1100px) {
+      .topbar { grid-template-columns:1fr auto; padding:0 16px; }
+      .topbar-nav { display:none; }
+      .features, .values, .mobile, .testi { padding:90px 32px; }
+      .bento { grid-template-columns:1fr 1fr; }
+      .hero-panel { grid-column:auto; grid-row:auto; }
+      .val-grid { grid-template-columns:repeat(2, 1fr); }
+      .mobile-grid { grid-template-columns:1fr; }
+      .testi-card { flex-basis:340px; min-height:420px; padding:36px 32px 28px; }
+      .footer-top { grid-template-columns:1fr; gap:36px; }
+    }
+    @media (max-width:768px) {
+      .hero { padding:120px 16px 80px; }
+      .hero-title { max-width:90vw; }
+      .features, .values, .mobile, .testi, .cta, footer { padding-left:20px; padding-right:20px; }
+      .cta-inner { padding:64px 28px; }
+      .bento { grid-template-columns:1fr; }
+      .val-grid { grid-template-columns:1fr; }
+      .panel-title { white-space:normal; }   /* sur mobile : peut wrap si le form est étroit */
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar" id="topbar">
+  <a class="topbar-logo" href="#"><img src="assets/visuels/GLEEDEN_2027.svg" alt="Gleeden"></a>
+  <nav class="topbar-nav" aria-label="Sections">
+    <a href="#features" class="is-active">Télécharger l'app</a>
+    <a href="#features">Communauté</a>
+    <a href="#values">Sécurité</a>
+    <a href="#testi">Témoignages</a>
+    <a href="#">Aide</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="flag">🇫🇷</span>
+    <select class="lang-sel">
+      <option>Français</option><option>English</option>
+      <option>Español</option><option>Deutsch</option><option>Italiano</option>
+    </select>
+    <div class="tb-sep"></div>
+    <span class="tb-label">Déjà membre ?</span>
+    <input type="text" class="tb-input" placeholder="identifiant">
+    <input type="password" class="tb-input" placeholder="mot de passe">
+    <button class="lang-pill" type="button" aria-label="Langue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+      <span>FR</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+    </button>
+    <button class="tb-connect">Se connecter</button>
+    <div class="tb-help">?</div>
+  </div>
+</header>
+
+<!-- ── HERO : beige + logo SVG centré ── -->
+<section class="hero">
+  <div class="hero-left">
+    <h1 class="hero-title">
+      <span class="hero-title-line"><span class="hero-title-line-inner line-bold" id="tl1">Gleeden</span></span>
+    </h1>
+    <p class="hero-sub" id="heroSub">Le 1<sup>er</sup> site de rencontres extra-conjugales, <span class="hero-sub-accent">pensé par des femmes,</span> pour les femmes.</p>
+  </div>
+  <div class="scroll-hint" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+</section>
+
+<!-- ── PRESS ── -->
+<div class="press">
+  <div class="press-track" id="pressTrack">
+    <span class="press-item s">ELLE</span>
+    <span class="press-item s">marie claire</span>
+    <span class="press-item">TF1</span>
+    <span class="press-item s">Le Monde</span>
+    <span class="press-item xs">BFMTV</span>
+    <span class="press-item">M6</span>
+    <span class="press-item s">ELLE</span>
+    <span class="press-item s">marie claire</span>
+    <span class="press-item">TF1</span>
+    <span class="press-item s">Le Monde</span>
+    <span class="press-item xs">BFMTV</span>
+    <span class="press-item">M6</span>
+  </div>
+</div>
+
+<!-- ── FEATURES ── -->
+<section class="features" id="features">
+  <h2 class="sec-title reveal" style="font-weight:400;">Rejoignez l'aventure <em>avec ou sans lendemain.</em></h2>
+  <div class="bento">
+    <div class="bc hero-panel reveal" id="heroPanel">
+      <p class="panel-title">Retrouvez la communauté<br><em>la plus discrète des app de rencontre.</em></p>
+      <form novalidate>
+        <div class="field">
+          <label class="field-label">Identifiant</label>
+          <input type="text" class="field-input" placeholder="Votre pseudo">
+        </div>
+        <div class="field">
+          <label class="field-label">Pays</label>
+          <select class="field-select">
+            <option>France</option><option>Belgique</option><option>Suisse</option><option>Canada</option><option>Luxembourg</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Je suis</label>
+            <select class="field-select"><option>Homme</option><option>Femme</option></select>
+          </div>
+          <div class="field">
+            <label class="field-label">Je cherche</label>
+            <select class="field-select"><option>Femme</option><option>Homme</option></select>
+          </div>
+        </div>
+        <button type="submit" class="panel-cta">Inscription gratuite</button>
+      </form>
+      <p class="panel-note">Entièrement gratuit pour les femmes. <a href="#">Conditions d'utilisation</a></p>
+    </div>
+    <div class="bc bc-feat reveal">
+      <div class="bc-tag">Pour les femmes</div>
+      <div class="bc-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div class="bc-name">Entièrement gratuit pour les femmes</div>
+      <div class="bc-desc">Créez votre profil, parcourez les membres et échangez sans jamais payer.</div>
+    </div>
+    <div class="bc bc-glow reveal">
+      <div class="bc-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="bc-name">Espace ultra-sécurisé</div>
+      <div class="bc-desc">Vos données sont protégées. La discrétion est notre priorité absolue.</div>
+    </div>
+    <div class="bc bc-dark reveal">
+      <div class="bc-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="bc-name">Modération 24h/7j</div>
+      <div class="bc-desc">Une équipe féminine veille sur la qualité de la communauté en permanence.</div>
+    </div>
+    <div class="bc bc-feat reveal">
+      <div class="bc-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="bc-name">Conseils par les Expertes Gleeden</div>
+      <div class="bc-desc">Nos spécialistes vous accompagnent pour des rencontres épanouissantes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── VALUES ── -->
+<section class="values" id="values">
+  <div class="val-head">
+    <div class="val-eyebrow">Nos engagements</div>
+    <h2 class="val-title">Nos valeurs</h2>
+  </div>
+  <div class="val-grid">
+    <div class="val-card">
+      <div class="val-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="val-name">Sécurité</div>
+      <div class="val-desc">Un espace ultra-sécurisé afin que vos secrets soient bien gardés.</div>
+    </div>
+    <div class="val-card">
+      <div class="val-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="val-name">Anonymat</div>
+      <div class="val-desc">Des fonctionnalités pensées pour préserver votre anonymat.</div>
+    </div>
+    <div class="val-card">
+      <div class="val-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="val-name">Qualité</div>
+      <div class="val-desc">Une modération intransigeante 24h/7j pour une communauté de qualité.</div>
+    </div>
+    <div class="val-card">
+      <div class="val-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      </div>
+      <div class="val-name">Liberté</div>
+      <div class="val-desc">Vivez vos désirs sans jugement, en toute liberté et discrétion.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MOBILE ── -->
+<section class="mobile">
+  <div class="mobile-grid">
+    <div class="reveal">
+      <div class="sec-eyebrow">Application</div>
+      <h2 class="mobile-title">Gleeden<br>sur <em>mobile</em></h2>
+      <p class="mobile-sub">Disponible sur iOS et Android pour rester connecté·e discrètement où que vous soyez. Notifications discrètes, mode confidentiel, accès rapide à votre communauté.</p>
+      <div class="app-btns">
+        <a class="app-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.19 1.28-2.17 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.76M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <span><span class="app-btn-pre">Disponible sur</span><span class="app-btn-name">App Store</span></span>
+        </a>
+        <a class="app-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.65.19.98.08l11.93-6.9-2.58-2.58L3.18 23.76zm-1.41-1.15L1.76 2.4c0-.38.2-.7.5-.9l11.4 11.4-11.9 9.71zM20.1 10.1l-2.71-1.57-2.89 2.89 2.89 2.89 2.73-1.59c.78-.45.78-1.17-.02-1.62z"/></svg>
+          <span><span class="app-btn-pre">Disponible sur</span><span class="app-btn-name">Google Play</span></span>
+        </a>
+      </div>
+    </div>
+    <div class="mobile-visual reveal">
+      <img src="assets/visuels/picto_logo.svg" alt="">
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIAL ── -->
+<section class="testi" id="testi">
+  <div class="testi-head"><div class="testi-eyebrow">Témoignages</div><h2 class="testi-title">Ils nous font confiance</h2></div>
+  <div class="testi-track">
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">Gleeden m'a permis de retrouver confiance en moi. L'interface est intuitive et la discrétion est vraiment au rendez-vous.</div>
+      <div class="testi-user">
+        <div class="testi-av">S</div>
+        <div><div class="testi-name">Sophie, 34 ans</div><div class="testi-status">Membre depuis 2 ans</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">Une plateforme sérieuse avec une vraie communauté.</div>
+      <div class="testi-user">
+        <div class="testi-av">M</div>
+        <div><div class="testi-name">Marc, 42 ans</div><div class="testi-status">Membre depuis 1 an</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">Le fait que Gleeden soit gratuit pour les femmes fait vraiment la différence.</div>
+      <div class="testi-user">
+        <div class="testi-av">L</div>
+        <div><div class="testi-name">Laura, 29 ans</div><div class="testi-status">Membre depuis 8 mois</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">L'application mobile est parfaite pour rester discret au quotidien.</div>
+      <div class="testi-user">
+        <div class="testi-av">T</div>
+        <div><div class="testi-name">Thomas, 38 ans</div><div class="testi-status">Membre depuis 3 ans</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">Après mon divorce, j'ai retrouvé une vraie liberté. Gleeden m'a redonné le sourire.</div>
+      <div class="testi-user">
+        <div class="testi-av">É</div>
+        <div><div class="testi-name">Élodie, 45 ans</div><div class="testi-status">Membre depuis 4 ans</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">Une discrétion absolue. Mes confidences restent entre les murs de l'app.</div>
+      <div class="testi-user">
+        <div class="testi-av">C</div>
+        <div><div class="testi-name">Camille, 31 ans</div><div class="testi-status">Membre depuis 6 mois</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">Modération sérieuse, profils authentiques. Ça change des autres applis.</div>
+      <div class="testi-user">
+        <div class="testi-av">J</div>
+        <div><div class="testi-name">Julien, 36 ans</div><div class="testi-status">Membre depuis 2 ans</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">Les Expertes Gleeden m'ont conseillée avec finesse. Un vrai plus de la plateforme.</div>
+      <div class="testi-user">
+        <div class="testi-av">A</div>
+        <div><div class="testi-name">Anaïs, 28 ans</div><div class="testi-status">Membre depuis 1 an</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-q">“</div>
+      <div class="testi-text">Je vis mes désirs sans culpabilité. Une vraie bouffée d'oxygène.</div>
+      <div class="testi-user">
+        <div class="testi-av">N</div>
+        <div><div class="testi-name">Nadia, 39 ans</div><div class="testi-status">Membre depuis 5 ans</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta">
+  <div class="cta-inner">
+    <p class="cta-pre">Rejoignez-nous</p>
+    <h2 class="cta-title">Merci<br>de votre <em>fidélité</em></h2>
+    <p class="cta-sub">14&nbsp;688&nbsp;079 membres vous ont précédé·e.</p>
+    <button class="cta-btn">Inscription gratuite</button>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <a href="#" class="footer-logo"><img src="assets/visuels/GLEEDEN_2027.svg" alt="Gleeden"></a>
+    </div>
+    <div class="footer-nav">
+      <div class="footer-nav-col">
+        <a class="footer-link" href="#">À propos</a>
+        <a class="footer-link" href="#">Comment ça marche</a>
+        <a class="footer-link" href="#">Témoignages</a>
+        <a class="footer-link" href="#">Presse</a>
+      </div>
+      <div class="footer-nav-col">
+        <a class="footer-link" href="#">Aide</a>
+        <a class="footer-link" href="#">FAQ</a>
+        <a class="footer-link" href="#">Sécurité</a>
+        <a class="footer-link" href="#">Contact</a>
+      </div>
+      <div class="footer-nav-col">
+        <a class="footer-link" href="#">CGU</a>
+        <a class="footer-link" href="#">Confidentialité</a>
+        <a class="footer-link" href="#">Cookies</a>
+        <a class="footer-link" href="#">Mentions légales</a>
+      </div>
+    </div>
+    <div class="footer-socials">
+      <a class="soc" href="#" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a class="soc" href="#" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+      </a>
+      <a class="soc" href="#" aria-label="X">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-legal">© 2024 Gleeden. Tous droits réservés.<br>Gleeden.com — site réservé aux adultes de plus de 18 ans.</p>
+    <span class="trust">Site 100% sécurisé</span>
+  </div>
+</footer>
+
+<script src="assets/vendor/gsap.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   ANIMATIONS — apparition élégante de chaque élément (Bumble-style)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Cards du bento sont gérées par bentoObs (stagger groupé) — pas par le reveal générique */
+document.querySelectorAll('.bento .bc').forEach(el => el.classList.remove('reveal'));
+
+/* ───── HERO entrance (au load) ───── */
+window.addEventListener('load', () => {
+  const tl = gsap.timeline({ defaults:{ ease:'power3.out' } });
+  tl.from('#topbar',     { y:-24, opacity:0, duration:0.7 }, 0)
+    .from('.hero-title', { y:40, opacity:0, scale:0.96, duration:1.2, ease:'expo.out' }, 0.15)
+    .from('#heroSub',    { y:24, opacity:0, duration:0.8 }, 0.7)
+    .from('.scroll-hint',{ opacity:0, duration:0.6 }, 1.0);
+});
+
+/* ───── Press marquee ───── */
+(function() {
+  const t = document.getElementById('pressTrack');
+  if (!t) return;
+  gsap.to(t, {
+    x: () => -(t.scrollWidth / 2),
+    duration:28, ease:'none', repeat:-1,
+    modifiers: { x: x => (parseFloat(x) % (t.scrollWidth / 2)) + 'px' }
+  });
+})();
+
+/* ───── Scroll-reveal générique : éléments .reveal (titres, eyebrows…) ───── */
+document.querySelectorAll('.reveal').forEach(el => {
+  gsap.set(el, { opacity:0, y:32, scale:0.98 });
+});
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    gsap.to(entry.target, { opacity:1, y:0, scale:1, duration:0.9, ease:'power3.out' });
+    io.unobserve(entry.target);
+  });
+}, { threshold:0.12 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ───── Bento — stagger groupé des 5 cards (form + 4 features) ───── */
+gsap.set('.bento .bc', { opacity:0, y:36, scale:0.97 });
+const bentoObs = new IntersectionObserver((entries) => {
+  if (!entries.some(e => e.isIntersecting)) return;
+  gsap.to('.bento .bc', {
+    opacity:1, y:0, scale:1,
+    duration:0.85, ease:'power3.out',
+    stagger:{ each:0.09, from:'start' }
+  });
+  entries.forEach(e => bentoObs.unobserve(e.target));
+}, { threshold:0.15 });
+const bento = document.querySelector('.bento');
+if (bento) bentoObs.observe(bento);
+
+/* ───── Values — stagger des 4 cards ───── */
+gsap.set('.val-card', { opacity:0, y:40, scale:0.97 });
+const valObs = new IntersectionObserver((entries) => {
+  if (!entries.some(e => e.isIntersecting)) return;
+  gsap.to('.val-card', {
+    opacity:1, y:0, scale:1,
+    duration:0.8, ease:'power3.out',
+    stagger:{ each:0.11, from:'start' }
+  });
+  entries.forEach(e => valObs.unobserve(e.target));
+}, { threshold:0.15 });
+const vg = document.querySelector('.val-grid');
+if (vg) valObs.observe(vg);
+
+/* ───── Mobile — 2 cards (gauche texte + droite citation violette) ───── */
+gsap.set('.mobile-grid > div', { opacity:0, y:32 });
+const mobObs = new IntersectionObserver((entries) => {
+  if (!entries.some(e => e.isIntersecting)) return;
+  gsap.to('.mobile-grid > div', {
+    opacity:1, y:0,
+    duration:0.85, ease:'power3.out',
+    stagger:{ each:0.12, from:'start' }
+  });
+  entries.forEach(e => mobObs.unobserve(e.target));
+}, { threshold:0.15 });
+const mg = document.querySelector('.mobile-grid');
+if (mg) mobObs.observe(mg);
+
+/* ───── Testimonials — stagger horizontal ───── */
+gsap.set('.testi-card', { opacity:0, y:32 });
+const testiObs = new IntersectionObserver((entries) => {
+  if (!entries.some(e => e.isIntersecting)) return;
+  gsap.to('.testi-card', {
+    opacity:1, y:0,
+    duration:0.7, ease:'power3.out',
+    stagger:{ each:0.08, from:'start' }
+  });
+  entries.forEach(e => testiObs.unobserve(e.target));
+}, { threshold:0.1 });
+const tt = document.querySelector('.testi-track');
+if (tt) testiObs.observe(tt);
+
+/* ───── CTA — apparition de la grande carte violette ───── */
+gsap.set('.cta-inner', { opacity:0, y:40, scale:0.98 });
+const ctaObs = new IntersectionObserver((entries) => {
+  if (!entries.some(e => e.isIntersecting)) return;
+  const tl = gsap.timeline({ defaults:{ ease:'power3.out' } });
+  tl.to('.cta-inner', { opacity:1, y:0, scale:1, duration:0.9 })
+    .from('.cta-pre',  { opacity:0, y:14, duration:0.5 }, '-=0.5')
+    .from('.cta-title',{ opacity:0, y:24, duration:0.7 }, '-=0.35')
+    .from('.cta-sub',  { opacity:0, y:14, duration:0.5 }, '-=0.45')
+    .from('.cta-btn',  { opacity:0, y:14, duration:0.5 }, '-=0.4');
+  entries.forEach(e => ctaObs.unobserve(e.target));
+}, { threshold:0.2 });
+const ctaInner = document.querySelector('.cta-inner');
+if (ctaInner) ctaObs.observe(ctaInner);
+
+/* ───── Footer — fade-in subtil ───── */
+gsap.set('footer', { opacity:0 });
+const footObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    gsap.to('footer', { opacity:1, duration:1, ease:'power2.out' });
+    footObs.unobserve(entry.target);
+  });
+}, { threshold:0.1 });
+const ft = document.querySelector('footer');
+if (ft) footObs.observe(ft);
+</script>
+</body>
+</html>

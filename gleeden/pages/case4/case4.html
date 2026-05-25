@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleeden — Typographie</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE TYPO GLEEDEN
+   - Fond full violet (#551565) fourni par le parent (.panel-inner)
+   - Se réduit naturellement en bg-open (inset 67px + radius 16px du parent)
+   - Au scroll-in : body.go déclenche un stagger d'apparitions :
+     1) le calque violet "respire" (subtil scale)
+     2) Typo › distinguée › esthétique › féminine
+     3) annotations latérales
+     4) la pomme
+   - Tout sized en calc(var(--w) * X) pour scaler proprement.
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* ─── PP Acma ─── */
+@font-face{font-family:'PP Acma';src:url('../../assets/fonts/PPAcma/PPAcma-Thin.otf')      format('opentype');font-weight:100;font-display:swap;}
+@font-face{font-family:'PP Acma';src:url('../../assets/fonts/PPAcma/PPAcma-Light.otf')     format('opentype');font-weight:300;font-display:swap;}
+@font-face{font-family:'PP Acma';src:url('../../assets/fonts/PPAcma/PPAcma-Book.otf')      format('opentype');font-weight:400;font-display:swap;}
+@font-face{font-family:'PP Acma';src:url('../../assets/fonts/PPAcma/PPAcma-Medium.otf')    format('opentype');font-weight:500;font-display:swap;}
+@font-face{font-family:'PP Acma';src:url('../../assets/fonts/PPAcma/PPAcma-Semibold.otf')  format('opentype');font-weight:600;font-display:swap;}
+@font-face{font-family:'PP Acma';src:url('../../assets/fonts/PPAcma/PPAcma-Bold.otf')      format('opentype');font-weight:700;font-display:swap;}
+@font-face{font-family:'PP Acma';src:url('../../assets/fonts/PPAcma/PPAcma-Black.otf')     format('opentype');font-weight:900;font-display:swap;}
+
+:root{
+  --bg:        #551565;   /* fond global (identique au parent, full page) */
+  --card-bg:   #280F37;   /* fond du sous-panel arrondi (comme --card-bg de case2) */
+  --text:      #F4E9C8;   /* crème — typo principale */
+  --accent:    #C880EA;   /* lavande — sous-titres + annots */
+  --sans:      PPObjectSans, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --serif:     'PP Acma', Georgia, serif;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{ overflow:hidden; margin:0; width:100%; height:100%; cursor:none; }
+body{
+  background: var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  width:100vw; height:100vh;
+  font-family: var(--serif);
+  color: var(--text);
+}
+*{ cursor:none !important; }
+.subtitle, .word, .annot, .apple{ user-select:text; -webkit-user-select:text; cursor:text !important; }
+
+/* ─── STAGE : référence de mise à l'échelle (--w) ─── */
+.stage{
+  --w: 100vw;
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ─── Sous-panel violet plus clair derrière les typos (comme la card de case2) ─── */
+.column{
+  position: relative;
+  width: calc(var(--w) * 0.46);
+  background: var(--card-bg);
+  border-radius: calc(var(--w) * 0.018);
+  padding: calc(var(--w) * 0.034) 0 calc(var(--w) * 0.038);
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  opacity: 0; transform: translateY(34px) scale(.94);
+}
+
+.block{
+  position: relative;
+  width: 100%;
+  display:flex; flex-direction:column; align-items:center;
+}
+.block + .block{ margin-top: calc(var(--w) * 0.022); }
+/* Espace réduit entre "Typo" et "distinguée" */
+.block-2{ margin-top: calc(var(--w) * 0.005) !important; }
+
+.subtitle{
+  font-family: var(--sans);
+  font-size: calc(var(--w) * 0.0078);
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-weight: 400;
+  opacity: 0; transform: translateY(12px);
+  margin-bottom: calc(var(--w) * -0.003);
+}
+
+.word{
+  font-family: var(--serif);
+  color: var(--text);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  opacity: 0; transform: translateY(24px);
+  display: block;
+}
+.word.thin   { font-weight: 100; font-size: calc(var(--w) * 0.062); }
+.word.light  { font-weight: 300; font-size: calc(var(--w) * 0.082); }
+.word.medium { font-weight: 500; font-size: calc(var(--w) * 0.082); }
+.word.black  { font-weight: 900; font-size: calc(var(--w) * 0.080); }
+
+/* "UNE" placé légèrement sur le côté de "Typo" */
+.block-une .subtitle{
+  transform: translate(calc(var(--w) * -0.012), calc(var(--w) * 0.010));
+}
+
+/* "POUR UNE CAMPAGNE" remonté légèrement */
+.block-3 .subtitle{
+  margin-top: calc(var(--w) * -0.005);
+}
+.block-3 .word{
+  margin-top: 2px;
+}
+
+/* "ET SÉDUIRE LA COMMUNAUTÉ" remonté légèrement */
+.block-4 .subtitle{
+  margin-top: calc(var(--w) * -0.015);
+}
+.block-4 .word{
+  margin-top: calc(var(--w) * 0.008);
+}
+
+/* ─── Pomme ─── */
+.apple{
+  margin-top: calc(var(--w) * 0.014);
+  font-size: calc(var(--w) * 0.036);
+  line-height: 1;
+  opacity: 0; transform: translateY(20px) scale(.8);
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));
+}
+
+/* ─── Annotations à droite (PP ACMA …) ─── */
+.annotations{
+  position: absolute;
+  top: 0; bottom: 0;
+  right: calc(var(--w) * 0.08);
+  width: calc(var(--w) * 0.16);
+  pointer-events: none;
+}
+.annot{
+  position: absolute;
+  font-family: var(--sans);
+  font-size: calc(var(--w) * 0.0072);
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  text-transform: uppercase;
+  white-space: nowrap;
+  display:flex; align-items:center;
+  gap: calc(var(--w) * 0.008);
+  opacity: 0; transform: translateY(-50%) translateX(20px);
+  left: 0;
+  transition: opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1);
+}
+.annot::before{
+  content:'';
+  display:block;
+  width: calc(var(--w) * 0.045);
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.65;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .5s cubic-bezier(.16,1,.3,1);
+}
+
+/* ─── MOTION (body.go déclenché par le parent à l'entrée du panel) ──── */
+body.go .column{
+  animation-name: colIn;
+  animation-duration: .85s;
+  animation-timing-function: cubic-bezier(.34,1.4,.64,1);
+  animation-fill-mode: forwards;
+}
+body.go .subtitle,
+body.go .word{
+  animation-name: textIn;
+  animation-duration: .55s;
+  animation-timing-function: cubic-bezier(.34,1.3,.64,1);
+  animation-fill-mode: forwards;
+}
+body.dezoom .annot        { opacity: 1; transform: translateY(-50%) translateX(0); }
+body.dezoom .annot::before{ transform: scaleX(1); }
+body.go .apple{
+  animation-name: appleIn;
+  animation-duration: .6s;
+  animation-timing-function: cubic-bezier(.34,1.5,.64,1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes colIn   { to{opacity:1; transform:translateY(0) scale(1)} }
+@keyframes textIn  { to{opacity:1; transform:translateY(0)} }
+@keyframes appleIn { to{opacity:1; transform:translateY(0) scale(1)} }
+
+/* Délais — on cible body.go pour rester plus spécifique que les règles ci-dessus */
+body.go .column            { animation-delay: 0.05s; }
+body.go .block-1 .subtitle { animation-delay: 0.25s; }
+body.go .block-1 .word     { animation-delay: 0.28s; }
+body.go .block-2 .word     { animation-delay: 0.50s; }
+body.go .block-3 .subtitle { animation-delay: 0.72s; }
+body.go .block-3 .word     { animation-delay: 0.75s; }
+body.go .block-4 .subtitle { animation-delay: 0.96s; }
+body.go .block-4 .word     { animation-delay: 0.99s; }
+body.go .apple             { animation-delay: 1.20s; }
+
+body.dezoom .annot.thin        { transition-delay: 0.00s; }
+body.dezoom .annot.light       { transition-delay: 0.12s; }
+body.dezoom .annot.medium      { transition-delay: 0.24s; }
+body.dezoom .annot.black       { transition-delay: 0.36s; }
+body.dezoom .annot.thin::before   { transition-delay: 0.00s; }
+body.dezoom .annot.light::before  { transition-delay: 0.12s; }
+body.dezoom .annot.medium::before { transition-delay: 0.24s; }
+body.dezoom .annot.black::before  { transition-delay: 0.36s; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="column">
+
+    <div class="block block-1 block-une">
+      <span class="subtitle">Une</span>
+      <span class="word thin">Typo</span>
+    </div>
+
+    <div class="block block-2">
+      <span class="word light">distingu&eacute;e</span>
+    </div>
+
+    <div class="block block-3">
+      <span class="subtitle">pour des annonces esth&eacute;tiques</span>
+      <span class="word medium">esth&eacute;tique</span>
+    </div>
+
+    <div class="block block-4">
+      <span class="subtitle">et s&eacute;duire la communaut&eacute;</span>
+      <span class="word black">f&eacute;minine</span>
+    </div>
+
+    <div class="apple">&#x1F34E;</div>
+  </div>
+
+  <div class="annotations">
+    <div class="annot thin">PP Acma Thin</div>
+    <div class="annot light">PP Acma Light</div>
+    <div class="annot medium">PP Acma Medium</div>
+    <div class="annot black">PP Acma Black</div>
+  </div>
+
+</div>
+
+<script>
+/* ─── Aligne chaque annotation sur le centre vertical de son mot ─── */
+function alignAnnotations() {
+  const container = document.querySelector('.annotations');
+  if (!container) return;
+  const cTop = container.getBoundingClientRect().top;
+  const pairs = [
+    ['.word.thin',   '.annot.thin'],
+    ['.word.light',  '.annot.light'],
+    ['.word.medium', '.annot.medium'],
+    ['.word.black',  '.annot.black'],
+  ];
+  pairs.forEach(function([ws, as]) {
+    const word  = document.querySelector(ws);
+    const annot = document.querySelector(as);
+    if (!word || !annot) return;
+    const r = word.getBoundingClientRect();
+    annot.style.top = (r.top + r.height / 2 - cTop + 8) + 'px';
+  });
+}
+document.addEventListener('DOMContentLoaded', alignAnnotations);
+window.addEventListener('resize', alignAnnotations);
+
+function replay(){
+  document.body.classList.remove('go');
+  void document.body.offsetHeight;
+  document.body.classList.add('go');
+  setTimeout(alignAnnotations, 50);
+}
+window.addEventListener('message', function(e){
+  if      (e.data === 'replay')   replay();
+  else if (e.data === 'bg-open')  document.body.classList.add('dezoom');
+  else if (e.data === 'bg-close') document.body.classList.remove('dezoom');
+});
+window.addEventListener('mousemove', function(e){
+  try { parent.postMessage({ type:'gleeden-mouse', x:e.clientX, y:e.clientY }, '*'); } catch(err){}
+}, { passive: true });
+/* Double-click / double-tap n'importe où dans l'iframe → toggle réduc/full sur le parent */
+window.addEventListener('dblclick', function(){
+  try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+});
+let _lastTap4 = 0;
+window.addEventListener('touchend', function(e){
+  const now = Date.now();
+  if (now - _lastTap4 < 300) {
+    try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+    e.preventDefault();
+    _lastTap4 = 0;
+  } else {
+    _lastTap4 = now;
+  }
+}, { passive: false });
+</script>
+</body>
+</html>

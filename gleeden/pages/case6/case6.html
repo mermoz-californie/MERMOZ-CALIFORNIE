@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleeden — Section 6</title>
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{ overflow:hidden; margin:0; width:100%; height:100%; cursor:none; background: transparent; }
+body{
+  width: 100vw; height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+*{ cursor:none !important; }
+
+/* Visuel 4x3_1 centré, scale-fit la viewport (mode full) */
+.visu{
+  display: block;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.4s ease;
+}
+.visu.full{
+  max-width: 75vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+/* Mockup : remplit tout le layout en réduc (zoom + descente) */
+.visu.mockup{
+  width: 100%;
+  height: 100%;
+  top: 0; left: 0;
+  transform: translateY(8%) scale(1.55);
+  transform-origin: center center;
+  object-fit: cover;
+  opacity: 0;
+}
+body.dezoom .visu.full{ opacity: 0; }
+body.dezoom .visu.mockup{ opacity: 1; }
+</style>
+</head>
+<body>
+
+<img class="visu full"   src="../../assets/visuels/4x3_1.png"        alt="Gleeden visuel 4x3">
+<img class="visu mockup" src="../../assets/visuels/4x3_1_mockup.jpg" alt="Gleeden visuel 4x3 mockup">
+
+<script>
+function replay(){
+  document.body.classList.remove('go');
+  void document.body.offsetHeight;
+  document.body.classList.add('go');
+}
+window.addEventListener('message', function(e){
+  if (e.data === 'replay') replay();
+});
+
+/* Sync immédiate body.dezoom avec body.bg-open du parent */
+(function syncDezoom(){
+  try {
+    const parentBody = window.parent.document.body;
+    const apply = () => document.body.classList.toggle('dezoom', parentBody.classList.contains('bg-open'));
+    apply();
+    new MutationObserver(apply).observe(parentBody, { attributes: true, attributeFilter: ['class'] });
+  } catch(err) {
+    window.addEventListener('message', function(e){
+      if      (e.data === 'bg-open')  document.body.classList.add('dezoom');
+      else if (e.data === 'bg-close') document.body.classList.remove('dezoom');
+    });
+  }
+})();
+
+/* Relai mousemove au parent (curseur custom) */
+window.addEventListener('mousemove', function(e){
+  try { parent.postMessage({ type:'gleeden-mouse', x:e.clientX, y:e.clientY }, '*'); } catch(err){}
+}, { passive: true });
+/* Double-click / double-tap → toggle réduc/full */
+window.addEventListener('dblclick', function(){
+  try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+});
+let _lastTap6 = 0;
+window.addEventListener('touchend', function(e){
+  const now = Date.now();
+  if (now - _lastTap6 < 300) {
+    try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+    e.preventDefault();
+    _lastTap6 = 0;
+  } else {
+    _lastTap6 = now;
+  }
+}, { passive: false });
+</script>
+</body>
+</html>
