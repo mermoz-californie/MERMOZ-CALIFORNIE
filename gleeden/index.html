@@ -103,8 +103,8 @@
     }
     body.bg-open nav,
     body.on-case0 nav,
+    body.on-case0b nav,
     body.on-gleeden nav,
-    body.on-case2 nav,
     body.on-case3 nav,
     body.on-case4 nav,
     body.on-case5 nav,
@@ -212,7 +212,9 @@
        Empêche le double dézoom perçu (panel-inner inset + iframe scale en duos désynchronisés).
        !important pour passer outre la règle générique `.panel-inner > *:not(...)` qui a 5 :not() (specificité élevée). */
     body.bg-open #case0 .panel-inner > iframe,
-    #case0 .panel-inner > iframe {
+    #case0 .panel-inner > iframe,
+    body.bg-open #case0b .panel-inner > iframe,
+    #case0b .panel-inner > iframe {
       transform: none !important;
       transition: none !important;   /* coupe aussi la transition (1s + 0.12s delay) qui pourrait causer une motion résiduelle */
     }
@@ -830,8 +832,8 @@
        ║   6. Ajouter dans enter/exit + observer dédié (cf. JS)          ║
        ╚══════════════════════════════════════════════════════════════════╝ */
     #case0,
+    #case0b,
     #gleeden,
-    #case2,
     #case3,
     #case4,
     #case5,
@@ -869,6 +871,32 @@
     body.on-case0 .nav-logo,
     body.on-case0 .nav-link { color: #c880ea; }
     body.on-case0 .nav-menu-btn::after { background: #c880ea; }
+
+    /* ─── CAS CLIENT 0b — Accroche home (accroche_home.svg) ─── */
+    #case0b .panel-inner {
+      background: transparent;
+      padding: 0;
+      overflow: hidden;
+      transition: background 0.2s ease,
+                  inset 0.4s ease,
+                  border-radius 0.4s ease;
+    }
+    body.bg-open #case0b .panel-inner {
+      background: #280F37;
+      transition: background 0.4s ease,
+                  inset 0.4s ease,
+                  border-radius 0.4s ease;
+    }
+    #case0b iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      border: none;
+      background: transparent;
+    }
+    body.on-case0b .nav-logo,
+    body.on-case0b .nav-link { color: #c880ea; }
+    body.on-case0b .nav-menu-btn::after { background: #c880ea; }
     #gleeden .panel-inner {
       background: #551565;        /* ← couleur de fond identique à --bg dans gleeden.html */
       padding: 0;
@@ -885,23 +913,6 @@
     body.on-gleeden .nav-logo,
     body.on-gleeden .nav-link { color: #c880ea; }   /* ← --accent du cas client */
     body.on-gleeden .nav-menu-btn::after { background: #c880ea; }
-
-    /* ─── CAS CLIENT 2 (duplique de Gleeden — à customiser) ─── */
-    /* Le fond de #case2 est défini en bloc partagé avec #gleeden plus haut */
-    #case2 .panel-inner {
-      background: #551565;        /* ← couleur de fond identique à --bg dans case2.html */
-      padding: 0;
-      overflow: hidden;
-    }
-    #case2 iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      border: none;
-    }
-    body.on-case2 .nav-logo,
-    body.on-case2 .nav-link { color: #c880ea; }   /* ← --accent du cas client 2 */
-    body.on-case2 .nav-menu-btn::after { background: #c880ea; }
 
     /* ─── CAS CLIENT 3 — Gamme couleurs (palette) ─── */
     /* Le fond de #case3 est défini en bloc partagé avec #gleeden/#case2 plus haut */
@@ -1169,6 +1180,13 @@
   </div>
 </div>
 
+<!-- ════════ CAS CLIENT 0b — Accroche home (accroche_home.svg) ════════ -->
+<div id="case0b" class="panel">
+  <div class="panel-inner">
+    <iframe src="pages/case0b/case0b.html" title="Gleeden — Accroche" scrolling="no" loading="eager"></iframe>
+  </div>
+</div>
+
 <!-- ════════ CAS CLIENT 3 — Gamme couleurs (palette) ════════ -->
 <div id="case3" class="panel">
   <div class="panel-inner">
@@ -1204,13 +1222,6 @@
 <div id="gleeden" class="panel">
   <div class="panel-inner">
     <iframe src="pages/gleeden/gleeden.html" title="Gleeden — Cas client" scrolling="no" loading="eager"></iframe>
-  </div>
-</div>
-
-<!-- ════════ CAS CLIENT 2 (duplique de Gleeden — à customiser) ════════ -->
-<div id="case2" class="panel">
-  <div class="panel-inner">
-    <iframe src="pages/case2/case2.html" title="Cas client 2" scrolling="no" loading="eager"></iframe>
   </div>
 </div>
 
@@ -1397,7 +1408,7 @@
      L'iframe émettrice est identifiée via e.source (générique pour Gleeden, Case2, etc.) */
   window.addEventListener('message', e => {
     if (e.data?.type === 'gleeden-mouse') {
-      const allFrames = document.querySelectorAll('#case0 iframe, #gleeden iframe, #case2 iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe');
+      const allFrames = document.querySelectorAll('#case0 iframe, #case0b iframe, #gleeden iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe');
       let gf = null;
       for (const f of allFrames) { if (f.contentWindow === e.source) { gf = f; break; } }
       if (!gf) return;
@@ -1606,12 +1617,12 @@
   const panels = [
     document.getElementById('hero'),
     document.getElementById('case0'),      /* ← intro Gleeden */
+    document.getElementById('case0b'),     /* ← accroche home */
     document.getElementById('case3'),      /* ← cas client 3 (palette couleurs) */
     document.getElementById('case4'),      /* ← cas client 4 (typo PP Acma) */
     document.getElementById('case5'),      /* ← cas client 5 (typo PP Object Sans) */
     document.getElementById('case6'),      /* ← cas client 6 (poster MERCI) */
-    document.getElementById('gleeden'),    /* ← cas client */
-    document.getElementById('case2'),      /* ← cas client 2 */
+    document.getElementById('gleeden'),    /* ← post-Rs (défilement horizontal) */
     document.getElementById('manifeste'),
     document.getElementById('services'),
     document.getElementById('outils'),
@@ -1895,7 +1906,7 @@
     document.body.classList.toggle('bg-open');
     navDotBtn.classList.toggle('is-open');
     const isOpen = document.body.classList.contains('bg-open');
-    document.querySelectorAll('#case0 iframe, #gleeden iframe, #case2 iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe').forEach(f => {
+    document.querySelectorAll('#case0 iframe, #case0b iframe, #gleeden iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe').forEach(f => {
       f.contentWindow?.postMessage(isOpen ? 'bg-open' : 'bg-close', '*');
     });
   }
@@ -1965,11 +1976,12 @@
       document.querySelector('.js-tagline')?.classList.remove('is-visible');
     } else if (id === 'case0') {
       document.body.classList.remove('on-case0');
+    } else if (id === 'case0b') {
+      document.body.classList.remove('on-case0b');
     } else if (id === 'gleeden') {
       /* SORTIE cas client — retire la classe qui colore le nav */
       document.body.classList.remove('on-gleeden');
-    } else if (id === 'case2') {
-      document.body.classList.remove('on-case2');
+
     } else if (id === 'case3') {
       document.body.classList.remove('on-case3');
     } else if (id === 'case4') {
@@ -2020,12 +2032,13 @@
       setTimeout(() => document.querySelector('.hero-services')?.classList.add('is-visible'), 700);
     } else if (id === 'case0') {
       document.body.classList.add('on-case0');
+    } else if (id === 'case0b') {
+      document.body.classList.add('on-case0b');
     } else if (id === 'gleeden') {
       /* ENTRÉE cas client — ajoute la classe qui colore le nav. */
       /* L'animation du contenu iframe est déclenchée par l'observer dédié ci-dessous. */
       document.body.classList.add('on-gleeden');
-    } else if (id === 'case2') {
-      document.body.classList.add('on-case2');
+
     } else if (id === 'case3') {
       document.body.classList.add('on-case3');
     } else if (id === 'case4') {
@@ -2152,6 +2165,33 @@
     case0EarlyObs.observe(case0PanelEl);
   }
 
+  /* Observer dédié à Case0b (accroche home) */
+  const case0bPanelEl = document.getElementById('case0b');
+  if (case0bPanelEl) {
+    const case0bEarlyObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !window._case0bPlayed) {
+          window._case0bPlayed = true;
+          const gf = document.querySelector('#case0b iframe');
+          if (!gf) return;
+          const trigger = () => {
+            try { gf.contentWindow?.replay?.(); } catch (err) {}
+            try { gf.contentWindow?.postMessage('replay', '*'); } catch (err) {}
+          };
+          let ready = false;
+          try { ready = gf.contentDocument?.readyState === 'complete'; } catch (err) {}
+          if (ready) trigger();
+          else {
+            gf.addEventListener('load', trigger, { once: true });
+            setTimeout(trigger, 300);
+          }
+          case0bEarlyObs.disconnect();
+        }
+      });
+    }, { threshold: 0.01 });
+    case0bEarlyObs.observe(case0bPanelEl);
+  }
+
   const gleedenPanelEl = document.getElementById('gleeden');
   if (gleedenPanelEl) {
     const gleedenEarlyObs = new IntersectionObserver((entries) => {
@@ -2177,33 +2217,6 @@
       });
     }, { threshold: 0.01 });
     gleedenEarlyObs.observe(gleedenPanelEl);
-  }
-
-  /* Observer dédié à Case2 (duplique de Gleeden) */
-  const case2PanelEl = document.getElementById('case2');
-  if (case2PanelEl) {
-    const case2EarlyObs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting && !window._case2Played) {
-          window._case2Played = true;
-          const gf = document.querySelector('#case2 iframe');
-          if (!gf) return;
-          const trigger = () => {
-            try { gf.contentWindow?.replay?.(); } catch (err) {}
-            try { gf.contentWindow?.postMessage('replay', '*'); } catch (err) {}
-          };
-          let ready = false;
-          try { ready = gf.contentDocument?.readyState === 'complete'; } catch (err) {}
-          if (ready) trigger();
-          else {
-            gf.addEventListener('load', trigger, { once: true });
-            setTimeout(trigger, 300);
-          }
-          case2EarlyObs.disconnect();
-        }
-      });
-    }, { threshold: 0.01 });
-    case2EarlyObs.observe(case2PanelEl);
   }
 
   /* Observer dédié à Case3 (palette couleurs) */

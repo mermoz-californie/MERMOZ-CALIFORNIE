@@ -78,41 +78,84 @@ body.go .logo-g   { animation: spinIn    .85s cubic-bezier(.34,1.4,.64,1) forwar
 @keyframes slideUp{ to{opacity:1;transform:translateY(0)} }
 @keyframes spinIn{ to{opacity:1;transform:rotate(0deg) scale(1)} }
 @keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+/* ─── DÉFILEMENT HORIZONTAL DES POSTS ─── */
+.post-scroll{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;}
+.post-scroll::-webkit-scrollbar{display:none;}
+.post-slide{flex:0 0 100%;height:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;scroll-snap-stop:always;}
 .replay{ position:fixed;bottom:16px;right:16px;background:#280F37;color:#E3DED8;border:none;border-radius:7px;padding:7px 15px;font-family:PPObjectSans,sans-serif;font-size:11px;letter-spacing:.1em;cursor:pointer;transition:background .2s; }
 .replay:hover{ background:#C880EA;color:#551565; }
 </style>
 </head>
 <body>
-<div class="stage">
-  <div class="outer" style="animation-delay:0s">
-    <div class="card" style="animation-delay:0.15s">
-      <div class="tag" style="animation-delay:0.45s">
-        <span>NOUVEAU</span><span>&middot;</span><span>DISPONIBLE</span><span>&middot;</span><span>MAINTENANT</span>
+<div class="post-scroll" id="postScroll">
+  <div class="post-slide">
+    <div class="stage">
+      <div class="outer" style="animation-delay:0s">
+        <div class="card" style="animation-delay:0.15s">
+          <div class="tag" style="animation-delay:0.45s">
+            <span>NOUVEAU</span><span>&middot;</span><span>DISPONIBLE</span><span>&middot;</span><span>MAINTENANT</span>
+          </div>
+          <div class="gap" style="flex:1.5"></div>
+          <div class="headline" style="animation-delay:0.55s">Qui a dit que<br><span style="white-space:nowrap">tous les partenaires</span><br>devaient &ecirc;tre<br><span class="italic" style="left:4px">officiels&nbsp;?</span></div>
+          <div class="spacer"></div>
+          <div class="footer" style="animation-delay:0.8s">
+            <span class="url">GLEEDEN.COM</span>
+            <div class="logo-float" id="floatG1">
+              <img class="logo-g" src="../../assets/visuels/picto_logo.svg" alt="" style="animation-delay:0.9s">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="gap" style="flex:1.5"></div>
-      <div class="headline" style="animation-delay:0.55s">Qui a dit que<br><span style="white-space:nowrap">tous les partenaires</span><br>devaient &ecirc;tre<br><span class="italic" style="left:4px">officiels&nbsp;?</span></div>
-      <div class="spacer"></div>
-      <div class="footer" style="animation-delay:0.8s">
-        <span class="url">GLEEDEN.COM</span>
-        <div class="logo-float" id="floatG1">
-          <img class="logo-g" src="../../assets/visuels/picto_logo.svg" alt="" style="animation-delay:0.9s">
+      <div class="outer" style="animation-delay:0.1s">
+        <div class="card" style="animation-delay:0.25s">
+          <div class="tag" style="animation-delay:0.55s">
+            <span>NOUVEAU</span><span>&middot;</span><span>DISPONIBLE</span><span>&middot;</span><span>MAINTENANT</span>
+          </div>
+          <div class="gap"></div>
+          <div class="headline" style="animation-delay:0.65s">Contrairement<br>&agrave; l&apos;antid&eacute;presseur<br><span class="italic" style="left:4px">l&apos;amant</span> ne co&ucirc;te<br>rien &agrave; la s&eacute;cu.</div>
+          <div class="spacer"></div>
+          <div class="footer" style="animation-delay:0.9s">
+            <span class="url">GLEEDEN.COM</span>
+            <div class="logo-float" id="floatG2">
+              <img class="logo-g" src="../../assets/visuels/picto_logo.svg" alt="" style="animation-delay:1.0s">
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="outer" style="animation-delay:0.1s">
-    <div class="card" style="animation-delay:0.25s">
-      <div class="tag" style="animation-delay:0.55s">
-        <span>NOUVEAU</span><span>&middot;</span><span>DISPONIBLE</span><span>&middot;</span><span>MAINTENANT</span>
+  <div class="post-slide">
+    <div class="stage">
+      <div class="outer" style="animation-delay:0s">
+        <div class="card" style="animation-delay:0.15s">
+          <div class="tag" style="animation-delay:0.45s">
+            <span>NOUVEAU</span><span>&middot;</span><span>DISPONIBLE</span><span>&middot;</span><span>MAINTENANT</span>
+          </div>
+          <div class="gap" style="flex:1.5"></div>
+          <div class="headline" style="animation-delay:0.55s">C&apos;est parfois<br>en restant&nbsp;<span class="italic" style="left:4px">fid&egrave;le</span><br>qu&apos;on se trompe<br>le plus.</div>
+          <div class="spacer"></div>
+          <div class="footer" style="animation-delay:0.8s">
+            <span class="url">GLEEDEN.COM</span>
+            <div class="logo-float" id="floatG3">
+              <img class="logo-g" src="../../assets/visuels/picto_logo.svg" alt="" style="animation-delay:0.9s">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="gap"></div>
-      <div class="headline" style="animation-delay:0.65s">Contrairement<br>&agrave; l&apos;antid&eacute;presseur<br><span class="italic" style="left:4px">l&apos;amant</span> ne co&ucirc;te<br>rien &agrave; la s&eacute;cu.</div>
-      <div class="spacer"></div>
-      <div class="footer" style="animation-delay:0.9s">
-        <span class="url">GLEEDEN.COM</span>
-        <div class="logo-float" id="floatG2">
-          <img class="logo-g" src="../../assets/visuels/picto_logo.svg" alt="" style="animation-delay:1.0s">
+      <div class="outer" style="animation-delay:0.1s">
+        <div class="card" style="animation-delay:0.25s">
+          <div class="tag" style="animation-delay:0.55s">
+            <span>NOUVEAU</span><span>&middot;</span><span>DISPONIBLE</span><span>&middot;</span><span>MAINTENANT</span>
+          </div>
+          <div class="gap"></div>
+          <div class="headline" style="animation-delay:0.65s">Par principe,<br>nous ne<br>proposons pas<br>de carte de&nbsp;<span class="italic" style="left:4px">fid&eacute;lit&eacute;.</span></div>
+          <div class="spacer"></div>
+          <div class="footer" style="animation-delay:0.9s">
+            <span class="url">GLEEDEN.COM</span>
+            <div class="logo-float" id="floatG4">
+              <img class="logo-g" src="../../assets/visuels/picto_logo.svg" alt="" style="animation-delay:1.0s">
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -123,11 +166,12 @@ body.go .logo-g   { animation: spinIn    .85s cubic-bezier(.34,1.4,.64,1) forwar
 </div>
 <script>
 var timers=[];
-var floats=[['floatG1',(0.9+0.85)*1000],['floatG2',(1.0+0.85)*1000]];
+var floats=[['floatG1',(0.9+0.85)*1000],['floatG2',(1.0+0.85)*1000],['floatG3',(0.9+0.85)*1000],['floatG4',(1.0+0.85)*1000]];
 function startAll(){
   floats.forEach(function(f){
     timers.push(setTimeout(function(){
-      document.getElementById(f[0]).classList.add('floating');
+      var el = document.getElementById(f[0]);
+      if (el) el.classList.add('floating');
     },f[1]));
   });
 }
@@ -139,6 +183,8 @@ function replay(){
   void document.body.offsetHeight;
   document.body.classList.add('go');
   startAll();
+  var ps = document.getElementById('postScroll');
+  if (ps) ps.scrollTo({ left: 0, behavior: 'instant' });
 }
 window.addEventListener('message', function(e){
   if (e.data === 'replay') replay();

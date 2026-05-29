@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleeden — Accroche</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   ACCROCHE HOME — affiche accroche_home.svg centré avec fade-in.
+   Même mécanique que case0 : body.go déclenche l'apparition,
+   body.dezoom applique un léger zoom (le panel-inner se réduit autour).
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:     #551565;
+  --accent: #C880EA;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{ overflow:hidden; margin:0; width:100%; height:100%; cursor:none; background:transparent; }
+body{
+  background: transparent;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  width: 100vw; height: 100vh;
+}
+*{ cursor:none !important; }
+
+/* ─── Wrapper — se réduit légèrement en dezoom (inverse du shrink du panel) ─── */
+.accroche-wrap{
+  width: min(calc(72 * var(--lvh, 1vh)), 80vw);
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform 0.4s ease;
+}
+body.dezoom .accroche-wrap{ transform: scale(1.08); }
+
+/* ─── Image — fade + monte à l'entrée, déclenché par body.go ─── */
+.accroche{
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0;
+  transform: translateY(12px) scale(.92);
+  transition: transform 0.65s cubic-bezier(.16,1,.3,1),
+              opacity   0.55s ease;
+}
+body.go .accroche{ opacity: 1; transform: translateY(0) scale(1); }
+</style>
+</head>
+<body>
+<div class="accroche-wrap">
+  <img class="accroche" src="../../assets/visuels/accroche_home.svg" alt="">
+</div>
+
+<script>
+/* ─── Lock vh sur la viewport du parent (même logique que case0) ─── */
+function setLockedVh(){
+  let h, w;
+  try { h = window.parent.innerHeight; w = window.parent.innerWidth; }
+  catch(e){ h = window.innerHeight; w = window.innerWidth; }
+  if (h) document.documentElement.style.setProperty('--lvh', (h / 100) + 'px');
+  if (w) document.documentElement.style.setProperty('--lvw', (w / 100) + 'px');
+}
+setLockedVh();
+try { window.parent.addEventListener('resize', setLockedVh); }
+catch(e){ window.addEventListener('resize', setLockedVh); }
+
+/* ─── Replay : remet à zéro et relance l'animation ─── */
+function replay(){
+  document.body.classList.remove('go');
+  void document.body.offsetHeight;
+  document.body.classList.add('go');
+}
+window.addEventListener('message', function(e){
+  if (e.data === 'replay') replay();
+});
+
+/* ─── Sync dezoom avec body.bg-open du parent ─── */
+(function syncDezoomWithParent(){
+  try {
+    const parentBody = window.parent.document.body;
+    const apply = () => {
+      document.body.classList.toggle('dezoom', parentBody.classList.contains('bg-open'));
+    };
+    apply();
+    new MutationObserver(apply).observe(parentBody, { attributes:true, attributeFilter:['class'] });
+  } catch(err){
+    window.addEventListener('message', function(e){
+      if      (e.data === 'bg-open')  document.body.classList.add('dezoom');
+      else if (e.data === 'bg-close') document.body.classList.remove('dezoom');
+    });
+  }
+})();
+
+/* ─── Relai curseur custom + double-tap toggle-bg ─── */
+window.addEventListener('mousemove', function(e){
+  try { parent.postMessage({ type:'gleeden-mouse', x:e.clientX, y:e.clientY }, '*'); } catch(err){}
+}, { passive: true });
+window.addEventListener('dblclick', function(){
+  try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+});
+let _lastTap0b = 0;
+window.addEventListener('touchend', function(e){
+  const now = Date.now();
+  if (now - _lastTap0b < 300){
+    try { parent.postMessage('toggle-bg', '*'); } catch(err){}
+    e.preventDefault();
+    _lastTap0b = 0;
+  } else {
+    _lastTap0b = now;
+  }
+}, { passive: false });
+</script>
+</body>
+</html>
