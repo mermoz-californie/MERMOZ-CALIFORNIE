@@ -3,58 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gleeden — Section 6</title>
+<title>Gleeden — Section 6 (annonces 4x3 + abribus)</title>
 <style>
+/* ═══════════════════════════════════════════════════════════════════════
+   CAS CLIENT 4 — Annonces 4x3 + Abribus
+   - Full  : scroll horizontal des posters sur bg1_gleeden.jpg (bg parent
+             en background-attachment: fixed → reste fixe).
+   - Réduc : MÊME scroll horizontal, mais ce sont les mockups en situation
+             qui apparaissent (au sein de la zone arrondie du panel-inner).
+   - Une seule liste de slides : chaque slide contient à la fois son poster
+     (visible en full) et son mockup (visible en réduc). Le défilement
+     fonctionne et est visible dans les deux modes.
+   ─────────────────────────────────────────────────────────────────────── */
 *{ margin:0; padding:0; box-sizing:border-box; }
 html, body{ overflow:hidden; margin:0; width:100%; height:100%; cursor:none; background: transparent; }
 body{
   width: 100vw; height: 100vh;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: background 0.4s ease;
 }
 *{ cursor:none !important; }
 
-/* Visuel 4x3_1 centré, scale-fit la viewport (mode full) */
-.visu{
-  display: block;
+/* ─── Scroll horizontal (commun full + réduc) ─── */
+.page-scroll{
   position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  transition: opacity 0.4s ease;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
 }
-.visu.full{
+.page-scroll::-webkit-scrollbar{ display: none; }
+
+.page-slide{
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;          /* clip les mockups en cover+scale aux bords du slide */
+  transition: background 0.4s ease;
+}
+
+/* ─── Poster (visible en mode FULL, masqué en réduc) ─── */
+.poster{
+  display: block;
   max-width: 75vw;
   max-height: 80vh;
   width: auto;
   height: auto;
   object-fit: contain;
+  transition: opacity 0.4s ease;
+  position: relative;
+  z-index: 1;
 }
-/* Mockup : remplit tout le layout en réduc (zoom + descente) */
-.visu.mockup{
+.poster.half{
+  max-width: 38vw;
+  max-height: 80vh;
+}
+.pair-wrap{
+  display: flex;
+  gap: 4vw;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.4s ease;
+}
+body.dezoom .poster,
+body.dezoom .pair-wrap{ opacity: 0; }
+
+/* ─── Mockup (masqué en full, visible en réduc) — fill cover style des
+       autres mockups (translateY 8% + scale 1.55). ─── */
+.mockup{
+  position: absolute;
+  top: 0; left: 0;
   width: 100%;
   height: 100%;
-  top: 0; left: 0;
+  object-fit: cover;
   transform: translateY(8%) scale(1.55);
   transform-origin: center center;
-  object-fit: cover;
   opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 2;
+  pointer-events: none;
 }
-body.dezoom .visu.full{ opacity: 0; }
-body.dezoom .visu.mockup{ opacity: 1; }
+body.dezoom .mockup{ opacity: 1; }
+
+/* Mockup4 spécifique : image plus petite (contain) + remontée légère,
+   fond opaque sur le slide pour que la "carte" arrondie reste visible. */
+.mockup.small{
+  object-fit: contain;
+  transform: translateY(-5%) scale(1.55);
+}
+body.dezoom .slide-mockup4{
+  background: #280F37;            /* violet foncé Gleeden */
+}
 </style>
 </head>
 <body>
 
-<img class="visu full"   src="../../assets/visuels/4x3_1.svg"        alt="Gleeden visuel 4x3">
-<img class="visu mockup" src="../../assets/visuels/4x3_1_mockup.jpg" alt="Gleeden visuel 4x3 mockup">
+<div class="page-scroll" id="pageScroll">
+  <!-- Slide 1 — 4x3 visuel 1 -->
+  <div class="page-slide">
+    <img class="poster" src="../../assets/visuels/4x3_1.svg"        alt="Gleeden 4x3 — visuel 1">
+    <img class="mockup" src="../../assets/visuels/4x3_1_mockup.jpg" alt="Gleeden 4x3 — mockup visuel 1">
+  </div>
+  <!-- Slide 2 — 4x3 visuel 2 -->
+  <div class="page-slide">
+    <img class="poster" src="../../assets/visuels/4x3_2.svg"        alt="Gleeden 4x3 — visuel 2">
+    <img class="mockup" src="../../assets/visuels/4x3_2_mockup.jpg" alt="Gleeden 4x3 — mockup visuel 2">
+  </div>
+  <!-- Slide 3 — 4x3 visuel 3 -->
+  <div class="page-slide">
+    <img class="poster" src="../../assets/visuels/4x3_3.svg"        alt="Gleeden 4x3 — visuel 3">
+    <img class="mockup" src="../../assets/visuels/4x3_3_mockup.jpg" alt="Gleeden 4x3 — mockup visuel 3">
+  </div>
+  <!-- Slide 4 — 4x3 visuel 4 (mockup plus petit + carte violet foncé en réduc) -->
+  <div class="page-slide slide-mockup4">
+    <img class="poster"       src="../../assets/visuels/4x3_4.svg"        alt="Gleeden 4x3 — visuel 4">
+    <img class="mockup small" src="../../assets/visuels/4x3_4_mockup.jpg" alt="Gleeden 4x3 — mockup visuel 4">
+  </div>
+  <!-- Slide 5 — Abribus pair (full : 2 SVG côte à côte / réduc : 1 mockup) -->
+  <div class="page-slide pair">
+    <div class="pair-wrap">
+      <img class="poster half" src="../../assets/visuels/abribus_1.svg" alt="Gleeden abribus — visuel 1">
+      <img class="poster half" src="../../assets/visuels/abribus_2.svg" alt="Gleeden abribus — visuel 2">
+    </div>
+    <img class="mockup" src="../../assets/visuels/abrisbus_1_mockup.jpg" alt="Gleeden abribus — mockup en situation">
+  </div>
+</div>
 
 <script>
 function replay(){
   document.body.classList.remove('go');
   void document.body.offsetHeight;
   document.body.classList.add('go');
+  /* Reset du scroll horizontal au début à chaque entrée de panel */
+  const ps = document.getElementById('pageScroll');
+  if (ps) ps.scrollTo({ left: 0, behavior: 'instant' });
 }
 window.addEventListener('message', function(e){
   if (e.data === 'replay') replay();

@@ -52,23 +52,60 @@ body{
   align-items: stretch;   /* annot prend la même largeur que le logo */
 }
 
-/* ─── LOGO GIF — visible en mode FULL uniquement (remplace le logo statique).
-   Taille forcée >> viewport : le gif déborde et est rogné par body { overflow: hidden },
-   centré via le flex de .stage → effet "plein écran zoomé". ─── */
+/* ─── MASQUE GIF — rectangle inset 67px + radius 16px (taille d'un layout réduc) ─── */
+.gif-mask{
+  position: absolute;
+  top: 67px; left: 67px; right: 67px; bottom: 67px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 0;                  /* derrière la tagline overlay */
+}
+body.go .gif-mask{ opacity: 1; transition-delay: 0.05s; }
+body.dezoom .gif-mask{ display: none; }
+
 .logo-gif{
   display: block;
-  height: 170vh;
+  height: 170vh;             /* gif zoomé, déborde de la viewport */
   width: auto;
   max-width: none;
   object-fit: contain;
-  align-self: center;
-  flex-shrink: 0;            /* ne pas se laisser shrink par .logo-block */
-  opacity: 0;
-  transition: opacity 0.6s ease;
+  flex-shrink: 0;
+  transform: translateY(-8vh);   /* gif remonté à l'intérieur du masque */
 }
-body.go .logo-gif{ opacity: 1; transition-delay: 0.05s; }
-/* En réduc : on cache le gif et on affiche le logo statique typographique */
-body.dezoom .logo-gif{ display: none; }
+
+/* ─── Tagline — masquée en mode FULL, placée sous le logo en RÉDUC ─── */
+.gif-tagline{
+  display: none;
+  /* font-family hérité du body = 'PPObjectSans' */
+  font-size: 2.2vh;
+  font-weight: 400;
+  color: #F8F1E6;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+}
+body.dezoom .gif-tagline{
+  display: block;
+  align-self: center;        /* override align-items:stretch du parent .logo-block */
+  margin-top: 5vh;           /* gap sous le logo (compense le scale 1.25) */
+}
+.gif-tagline .tag-italic{
+  font-style: italic;
+  color: var(--accent);                        /* rose lavande #C880EA */
+  font-weight: 400;
+}
+.gif-tagline sup{ font-size: 0.55em; vertical-align: super; line-height: 0; }
+/* Chars : opacity 0 par défaut, contrôlée explicitement par JS via setTimeout
+   pour pouvoir re-jouer la séquence à chaque entrée en réduc. La transition
+   fait un fade-in court par caractère pour adoucir l'effet typewriter. */
+.gif-tagline .ch{
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
 
 /* ─── LOGO Gleeden statique — visible en mode RÉDUC uniquement ─── */
 .logo{
@@ -76,7 +113,7 @@ body.dezoom .logo-gif{ display: none; }
   align-items: flex-end;
   --gap: 0;
 }
-body.dezoom .logo{ display: flex; }
+body.dezoom .logo{ display: flex; transform: scale(1.25); transform-origin: center center; }
 .picto-wrap{
   position: relative;
   left: 2px;
@@ -191,36 +228,70 @@ body.dezoom .annot{ opacity: 1; }
 
 <div class="stage">
   <div class="logo-block">
-    <!-- Mode FULL : gif animé -->
-    <img class="logo-gif" src="../../assets/visuels/anim_logo_2027.gif" alt="Gleeden — logo animé">
-    <!-- Mode RÉDUC : logo statique typographique -->
+    <!-- Mode FULL : gif animé en fond (rien d'autre) -->
+    <div class="gif-mask"><img class="logo-gif" src="../../assets/visuels/anim_logo_2027.gif" alt="Gleeden — logo animé"></div>
+    <!-- Mode RÉDUC : logo statique typographique + tagline en dessous -->
     <div class="logo">
       <div class="picto-wrap"><img class="picto" src="../../assets/visuels/picto_logo.svg" alt="G"></div>
       <div class="letters">
         <span class="letter">l</span><span class="letter">e</span><span class="letter">e</span><span class="letter">d</span><span class="letter">e</span><span class="letter">n</span>
       </div>
     </div>
-    <div class="annot">
-      <div class="annot-line"></div>
-      <div class="annot-label">PP Object Sans bold</div>
-    </div>
-
-    <div class="showcase">
-      <div class="row">
-        <span class="row-text">L&rsquo;app de rencontre extra-conjugale</span>
-        <span class="row-line"></span>
-        <span class="row-label">PP Object Sans Regular</span>
-      </div>
-      <div class="row">
-        <span class="row-text bold">pens&eacute;e par les femmes.</span>
-        <span class="row-line"></span>
-        <span class="row-label">PP Object Sans Bold</span>
-      </div>
-    </div>
+    <div class="gif-tagline">Le 1<sup>er</sup> site de rencontres extra-conjugales, <em class="tag-italic">pens&eacute; par des femmes,</em> pour les femmes.</div>
   </div>
 </div>
 
 <script>
+/* ─── Split de la gif-tagline en chars (1 span par caractère) ─── */
+function splitGifTagline(){
+  const tag = document.querySelector('.gif-tagline');
+  if (!tag || tag.dataset.split) return;
+  tag.dataset.split = '1';
+  function walk(node){
+    if (node.nodeType === Node.TEXT_NODE){
+      const frag = document.createDocumentFragment();
+      for (const ch of node.textContent){
+        const span = document.createElement('span');
+        span.className = 'ch';
+        span.textContent = ch;
+        frag.appendChild(span);
+      }
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === Node.ELEMENT_NODE){
+      Array.from(node.childNodes).forEach(walk);
+    }
+  }
+  Array.from(tag.childNodes).forEach(walk);
+}
+splitGifTagline();
+
+/* ─── Typewriter contrôlé en JS — rejouable à chaque passage en réduc ─── */
+const TW_START_DELAY      = 0.35;   /* attente avant le 1er char (s) */
+const TW_CHAR_STEP        = 0.04;   /* gap entre chars (s) */
+const TW_PAUSE_AFTER_PART = 0.32;   /* pause supplémentaire après une virgule (s) */
+let _twTimers = [];
+function clearTagline(){
+  _twTimers.forEach(t => clearTimeout(t));
+  _twTimers = [];
+  document.querySelectorAll('.gif-tagline .ch').forEach(c => { c.style.opacity = '0'; });
+}
+function playTagline(){
+  const chars = document.querySelectorAll('.gif-tagline .ch');
+  if (!chars.length) return;
+  clearTagline();
+  /* Force reflow pour que les transitions repartent du nouvel état (opacity 0). */
+  void document.body.offsetHeight;
+  let extraPause = 0;
+  let i = 0;
+  for (const ch of chars) {
+    const text = ch.textContent;
+    const delayMs = (TW_START_DELAY + i * TW_CHAR_STEP + extraPause) * 1000;
+    _twTimers.push(setTimeout(() => { ch.style.opacity = '1'; }, delayMs));
+    i++;
+    if (text === ',') extraPause += TW_PAUSE_AFTER_PART;
+  }
+}
+
 function replay(){
   document.body.classList.remove('go');
   void document.body.offsetHeight;
@@ -230,17 +301,25 @@ window.addEventListener('message', function(e){
   if (e.data === 'replay') replay();
 });
 
-/* Sync immédiate body.dezoom avec body.bg-open du parent */
+/* Sync immédiate body.dezoom avec body.bg-open du parent + rejoue le typewriter
+   à chaque entrée en réduc, le reset à chaque sortie. */
 (function syncDezoom(){
+  let _wasDezoom = false;
+  const handle = (isDz) => {
+    document.body.classList.toggle('dezoom', isDz);
+    if (isDz && !_wasDezoom) playTagline();
+    else if (!isDz && _wasDezoom) clearTagline();
+    _wasDezoom = isDz;
+  };
   try {
     const parentBody = window.parent.document.body;
-    const apply = () => document.body.classList.toggle('dezoom', parentBody.classList.contains('bg-open'));
+    const apply = () => handle(parentBody.classList.contains('bg-open'));
     apply();
     new MutationObserver(apply).observe(parentBody, { attributes: true, attributeFilter: ['class'] });
   } catch(err) {
     window.addEventListener('message', function(e){
-      if      (e.data === 'bg-open')  document.body.classList.add('dezoom');
-      else if (e.data === 'bg-close') document.body.classList.remove('dezoom');
+      if      (e.data === 'bg-open')  handle(true);
+      else if (e.data === 'bg-close') handle(false);
     });
   }
 })();

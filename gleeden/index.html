@@ -108,7 +108,8 @@
     body.on-case3 nav,
     body.on-case4 nav,
     body.on-case5 nav,
-    body.on-case6 nav {
+    body.on-case6 nav,
+    body.on-case7 nav {
       mix-blend-mode: normal;
     }
     .nav-logo {
@@ -277,8 +278,7 @@
       width: 0;
       transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .hero-services.is-visible .svc-sub-line:nth-of-type(2) { width: 2.5rem; transition-delay: 0.22s; }
-    .hero-services.is-visible .svc-sub-line:nth-of-type(4) { width: 2.5rem; transition-delay: 0.62s; }
+    .hero-services.is-visible .svc-sub-line:first-of-type { width: 2.5rem; transition-delay: 0.42s; }
 
     /* Lettres des items : fade + translateY, stagger par --char-delay */
     .hero-services .char-wrap { display: inline-block; vertical-align: bottom; }
@@ -842,7 +842,9 @@
       background: #000 url('assets/backgrounds/bg1_gleeden.jpg') center/cover no-repeat fixed;
     }
 
-    /* ─── CAS CLIENT 0 — Intro Gleeden (picto → mot → tagline) ─── */
+    /* ─── CAS CLIENT 0 — Intro Gleeden — MASQUÉ ─── */
+    #case0 { display: none !important; }
+
     #case0 .panel-inner {
       background: transparent;
       padding: 0;
@@ -915,17 +917,16 @@
     body.on-gleeden .nav-menu-btn::after { background: #c880ea; }
 
     /* ─── CAS CLIENT 3 — Gamme couleurs (palette) ─── */
-    /* Le fond de #case3 est défini en bloc partagé avec #gleeden/#case2 plus haut */
-    /* IMPORTANT : panel-inner figé à la taille dézoom (calque violet permanent).
-       Aucune animation de shrink quand on clique sur le bouton dézoom. */
-    #case3 .panel-inner,
-    body.bg-open #case3 .panel-inner {
-      inset: 67px !important;
-      border-radius: 16px !important;
-      background: #280F37 !important;
+    /* Full : panel-inner inset 0, fond violet #280F37 — l'iframe affiche le bloc intro (picto + titre + texte)
+       Réduc : panel-inner inset 67px + radius 16px — l'iframe affiche le tableau palette qui remplit tout */
+    #case3 .panel-inner {
+      background: #280F37;
       padding: 0;
       overflow: hidden;
-      transition: none !important;
+      transition: inset 0.4s ease, border-radius 0.4s ease;
+    }
+    body.bg-open #case3 .panel-inner {
+      background: #280F37;
     }
     #case3 iframe {
       position: absolute;
@@ -933,6 +934,13 @@
       width: 100%; height: 100%;
       border: none;
       background: #280F37;       /* fallback si le body iframe a un délai de chargement transparent */
+    }
+    /* Override du scale(0.88) global appliqué aux enfants de .panel-inner en bg-open —
+       sinon l'iframe rétrécit en réduc et laisse une bande violette autour de la palette */
+    body.bg-open #case3 .panel-inner > iframe,
+    #case3 .panel-inner > iframe {
+      transform: none !important;
+      transition: none !important;
     }
     body.on-case3 .nav-logo,
     body.on-case3 .nav-link { color: #c880ea; }
@@ -962,16 +970,15 @@
        Réduc: panel-inner violet clair arrondi + showcase 4-weights apparaît
        Même mécanique smooth que case0 pour éviter snap/rebond. */
     #case5 .panel-inner {
-      background: #551565;
+      background: transparent;          /* full : laisse passer le bg1_gleeden.jpg du parent */
       padding: 0;
       overflow: hidden;
-      /* Fermeture : bg fade 0.2s + inset/border-radius smooth 0.4s = pas de snap */
       transition: background 0.2s ease,
                   inset 0.4s ease,
                   border-radius 0.4s ease;
     }
     body.bg-open #case5 .panel-inner {
-      background: #280F37;
+      background: #280F37;              /* réduc : violet foncé Gleeden */
       transition: background 0.4s ease,
                   inset 0.4s ease,
                   border-radius 0.4s ease;
@@ -1017,6 +1024,32 @@
       transform: none !important;
       transition: none !important;
     }
+    /* ─── CAS CLIENT 7 — App (appstore + smartphone côte à côte sur fond violet clair) ─── */
+    #case7 .panel-inner {
+      background: #551565;             /* violet clair Gleeden */
+      padding: 0;
+      overflow: hidden;
+      transition: background 0.4s ease, inset 0.4s ease, border-radius 0.4s ease;
+    }
+    body.bg-open #case7 .panel-inner {
+      background: #551565;             /* même fond en réduc */
+    }
+    #case7 iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      border: none;
+      background: transparent;
+    }
+    body.bg-open #case7 .panel-inner > iframe,
+    #case7 .panel-inner > iframe {
+      transform: none !important;
+      transition: none !important;
+    }
+    body.on-case7 .nav-logo,
+    body.on-case7 .nav-link { color: #c880ea; }
+    body.on-case7 .nav-menu-btn::after { background: #c880ea; }
+
     body.on-case6 .nav-logo,
     body.on-case6 .nav-link { color: #c880ea; }
     body.on-case6 .nav-menu-btn::after { background: #c880ea; }
@@ -1157,11 +1190,8 @@
       <span class="hl-wrap"><span class="hl js-hl">Mermoz</span></span>
       <span class="hl-wrap"><span class="hl js-hl">Californie</span></span>
     </div>
-    <div class="hero-baseline js-baseline">Picture it.</div>
     <div class="hero-services">
-      <span class="svc-sub-item">Logotype</span>
-      <span class="svc-sub-line"></span>
-      <span class="svc-sub-item">Branding</span>
+      <span class="svc-sub-item">Brand design</span>
       <span class="svc-sub-line"></span>
       <span class="svc-sub-item">Conception rédaction</span>
     </div>
@@ -1173,17 +1203,10 @@
   </div>
 </div>
 
-<!-- ════════ CAS CLIENT 0 — Intro Gleeden (picto → mot → tagline) ════════ -->
-<div id="case0" class="panel">
+<!-- ════════ CAS CLIENT 5 — Typographie PP Object Sans ════════ -->
+<div id="case5" class="panel">
   <div class="panel-inner">
-    <iframe src="pages/case0/case0.html" title="Gleeden — Intro" scrolling="no" loading="eager"></iframe>
-  </div>
-</div>
-
-<!-- ════════ CAS CLIENT 0b — Accroche home (accroche_home.svg) ════════ -->
-<div id="case0b" class="panel">
-  <div class="panel-inner">
-    <iframe src="pages/case0b/case0b.html" title="Gleeden — Accroche" scrolling="no" loading="eager"></iframe>
+    <iframe src="pages/case5/case5.html" title="Typographie Object Sans" scrolling="no" loading="eager"></iframe>
   </div>
 </div>
 
@@ -1201,13 +1224,6 @@
   </div>
 </div>
 
-<!-- ════════ CAS CLIENT 5 — Typographie PP Object Sans ════════ -->
-<div id="case5" class="panel">
-  <div class="panel-inner">
-    <iframe src="pages/case5/case5.html" title="Typographie Object Sans" scrolling="no" loading="eager"></iframe>
-  </div>
-</div>
-
 <!-- ════════ CAS CLIENT 6 — MERCI de votre fidélité (poster) ════════ -->
 <div id="case6" class="panel">
   <div class="panel-inner">
@@ -1215,13 +1231,17 @@
   </div>
 </div>
 
-<!-- ════════ CAS CLIENT — GLEEDEN (panel duplicable) ════════
-     Pour dupliquer : copier ce bloc, changer l'id, le src et le title.
-     L'iframe doit pointer vers un fichier pages/<nom>/<nom>.html avec
-     la même structure (variables CSS au début + .stage > 2× .outer). -->
+<!-- ════════ CAS CLIENT — GLEEDEN (post — duo cards défilement horizontal) ════════ -->
 <div id="gleeden" class="panel">
   <div class="panel-inner">
     <iframe src="pages/gleeden/gleeden.html" title="Gleeden — Cas client" scrolling="no" loading="eager"></iframe>
+  </div>
+</div>
+
+<!-- ════════ CAS CLIENT 7 — App (appstore + smartphone) ════════ -->
+<div id="case7" class="panel">
+  <div class="panel-inner">
+    <iframe src="pages/case7/case7.html" title="Gleeden — App" scrolling="no" loading="eager"></iframe>
   </div>
 </div>
 
@@ -1408,13 +1428,18 @@
      L'iframe émettrice est identifiée via e.source (générique pour Gleeden, Case2, etc.) */
   window.addEventListener('message', e => {
     if (e.data?.type === 'gleeden-mouse') {
-      const allFrames = document.querySelectorAll('#case0 iframe, #case0b iframe, #gleeden iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe');
+      const allFrames = document.querySelectorAll('#gleeden iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe, #case7 iframe');
       let gf = null;
       for (const f of allFrames) { if (f.contentWindow === e.source) { gf = f; break; } }
       if (!gf) return;
       const r = gf.getBoundingClientRect();
-      mx = r.left + e.data.x;
-      my = r.top + e.data.y;
+      /* En reduc, .panel-inner enfants reçoivent scale(0.88). On compare
+         taille visuelle (r.width) à taille interne (offsetWidth) pour scaler
+         les coords. Sans ça le curseur custom dérive du vrai pointeur. */
+      const sx = (gf.offsetWidth  ? r.width  / gf.offsetWidth  : 1) || 1;
+      const sy = (gf.offsetHeight ? r.height / gf.offsetHeight : 1) || 1;
+      mx = r.left + e.data.x * sx;
+      my = r.top  + e.data.y * sy;
     }
     else if (e.data?.type === 'cursor-hide') {
       cur.style.opacity = '0';
@@ -1616,13 +1641,14 @@
   let isAnimating = false;
   const panels = [
     document.getElementById('hero'),
-    document.getElementById('case0'),      /* ← intro Gleeden */
-    document.getElementById('case0b'),     /* ← accroche home */
+    document.getElementById('case5'),      /* ← cas client 5 (typo PP Object Sans — gif) [DÉPLACÉ EN 1er] */
+    /* document.getElementById('case0'),   ← intro Gleeden [SUPPRIMÉ] */
+    /* document.getElementById('case0b'),  ← accroche home (svg "C'est parfois...") [SUPPRIMÉ] */
     document.getElementById('case3'),      /* ← cas client 3 (palette couleurs) */
-    document.getElementById('case4'),      /* ← cas client 4 (typo PP Acma) */
-    document.getElementById('case5'),      /* ← cas client 5 (typo PP Object Sans) */
-    document.getElementById('case6'),      /* ← cas client 6 (poster MERCI) */
-    document.getElementById('gleeden'),    /* ← post-Rs (défilement horizontal) */
+    document.getElementById('case4'),      /* ← cas 3 client : typo PP Acma */
+    document.getElementById('case6'),      /* ← cas 4 client : annonces 4x3 (poster MERCI) */
+    document.getElementById('gleeden'),    /* ← cas 5 client : post RS (duo cards défilement horizontal) */
+    document.getElementById('case7'),      /* ← cas 6 client : App store (appstore + smartphone) */
     document.getElementById('manifeste'),
     document.getElementById('services'),
     document.getElementById('outils'),
@@ -1906,7 +1932,7 @@
     document.body.classList.toggle('bg-open');
     navDotBtn.classList.toggle('is-open');
     const isOpen = document.body.classList.contains('bg-open');
-    document.querySelectorAll('#case0 iframe, #case0b iframe, #gleeden iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe').forEach(f => {
+    document.querySelectorAll('#gleeden iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe, #case7 iframe').forEach(f => {
       f.contentWindow?.postMessage(isOpen ? 'bg-open' : 'bg-close', '*');
     });
   }
@@ -1990,6 +2016,8 @@
       document.body.classList.remove('on-case5');
     } else if (id === 'case6') {
       document.body.classList.remove('on-case6');
+    } else if (id === 'case7') {
+      document.body.classList.remove('on-case7');
     } else if (id === 'services') {
       closeAllSubs(true);
       exitEl(svcDisplay);
@@ -2047,6 +2075,8 @@
       document.body.classList.add('on-case5');
     } else if (id === 'case6') {
       document.body.classList.add('on-case6');
+    } else if (id === 'case7') {
+      document.body.classList.add('on-case7');
     } else if (id === 'services') {
       svcDisplay.querySelectorAll('.char').forEach(ch =>
         ch.style.setProperty('--char-delay', (Math.random() * 0.45) + 's'));
@@ -2322,6 +2352,33 @@
       });
     }, { threshold: 0.01 });
     case6EarlyObs.observe(case6PanelEl);
+  }
+
+  /* Observer dédié à Case7 (app — appstore + smartphone) */
+  const case7PanelEl = document.getElementById('case7');
+  if (case7PanelEl) {
+    const case7EarlyObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !window._case7Played) {
+          window._case7Played = true;
+          const gf = document.querySelector('#case7 iframe');
+          if (!gf) return;
+          const trigger = () => {
+            try { gf.contentWindow?.replay?.(); } catch (err) {}
+            try { gf.contentWindow?.postMessage('replay', '*'); } catch (err) {}
+          };
+          let ready = false;
+          try { ready = gf.contentDocument?.readyState === 'complete'; } catch (err) {}
+          if (ready) trigger();
+          else {
+            gf.addEventListener('load', trigger, { once: true });
+            setTimeout(trigger, 300);
+          }
+          case7EarlyObs.disconnect();
+        }
+      });
+    }, { threshold: 0.01 });
+    case7EarlyObs.observe(case7PanelEl);
   }
 
   /* ─── FIT OUTRO TITLE — calibre la font-size pour la taille pleine page,

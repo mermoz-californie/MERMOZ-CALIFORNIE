@@ -113,10 +113,18 @@ body.go:not(.go-letters) .picto-wrap:active .picto { transform: scale(1.40); tra
 .tagline{
   margin-top: calc(5 * var(--lvh, 1vh));
   font-size: calc(2.3 * var(--lvh, 1vh));
-  color: var(--accent);
+  color: #F8F1E6;                          /* crème : "Le 1er site de rencontres..." + "pour les femmes." */
   letter-spacing: 0.01em;
+  font-weight: 400;
+  transform: translateX(8px);     /* très léger décalage à droite (recalé un peu à gauche) */
 }
 .tagline strong{ font-weight: 700; }
+.tagline .tag-italic{
+  font-style: italic;
+  color: var(--accent);                    /* rose lavande Gleeden #C880EA */
+  font-weight: 400;
+}
+.tagline sup{ font-size: 0.55em; vertical-align: super; line-height: 0; }
 .tagline .ch{
   opacity: 0;
   transition: opacity 0.06s linear;
@@ -141,7 +149,7 @@ body.go-letters .letter:nth-child(6){ transition-delay: 0.90s; }
     <span class="letter">l</span><span class="letter">e</span><span class="letter">e</span><span class="letter">d</span><span class="letter">e</span><span class="letter">n</span>
   </div>
 </div>
-<div class="tagline">L&rsquo;app de rencontre extra-conjugale&nbsp; <strong>pens&eacute;e par les femmes.</strong></div>
+<div class="tagline">Le 1<sup>er</sup> site de rencontres extra-conjugales, <em class="tag-italic">pens&eacute; par des femmes,</em> pour les femmes.</div>
 
 <script>
 /* ─── Lock vh : on fige les tailles sur la viewport du PARENT, pas de l'iframe.
@@ -169,8 +177,12 @@ function splitTagline(){
   tagline.dataset.split = '1';
 
   let charIndex = 0;
-  const START_DELAY = 0.45;
-  const CHAR_STEP   = 0.038;
+  let extraPause = 0;
+  /* Anim logo : letters body.go-letters → delays 0→0.90s + transition 0.4s = fin ≈ 1.30s.
+     On démarre la tagline juste après pour qu'elle apparaisse APRÈS la fin du mot Gleeden. */
+  const START_DELAY      = 1.35;
+  const CHAR_STEP        = 0.038;
+  const PAUSE_AFTER_PART = 0.30;   /* petite pause après chaque virgule */
 
   function walk(node){
     if (node.nodeType === Node.TEXT_NODE){
@@ -180,9 +192,10 @@ function splitTagline(){
         const span = document.createElement('span');
         span.className = 'ch';
         span.textContent = ch;
-        span.style.transitionDelay = (START_DELAY + charIndex * CHAR_STEP) + 's';
+        span.style.transitionDelay = (START_DELAY + charIndex * CHAR_STEP + extraPause) + 's';
         frag.appendChild(span);
         charIndex++;
+        if (ch === ',') extraPause += PAUSE_AFTER_PART;   /* pause cumulative après chaque virgule */
       }
       node.parentNode.replaceChild(frag, node);
     } else if (node.nodeType === Node.ELEMENT_NODE){
@@ -193,49 +206,23 @@ function splitTagline(){
 }
 splitTagline();
 
+/* Cette section ne montre QUE la partie réduce : lettres + tagline visibles d'office.
+   Plus de click handler sur le picto, plus de cursor hide. */
 function replay(){
   document.body.classList.remove('go');
   document.body.classList.remove('go-letters');
+  document.body.classList.remove('dezoom');
   void document.body.offsetHeight;
   document.body.classList.add('go');
+  document.body.classList.add('go-letters');   /* lettres révélées d'office */
+  document.body.classList.add('dezoom');       /* tagline + word scale 1.1 d'office */
 }
 window.addEventListener('message', function(e){
   if (e.data === 'replay') replay();
 });
 
-/* Sync immédiate body.dezoom avec body.bg-open du parent */
-(function syncDezoomWithParent(){
-  try {
-    const parentBody = window.parent.document.body;
-    const apply = () => {
-      const open = parentBody.classList.contains('bg-open');
-      document.body.classList.toggle('dezoom', open);
-    };
-    apply();
-    new MutationObserver(apply).observe(parentBody, {
-      attributes: true, attributeFilter: ['class']
-    });
-  } catch(err) {
-    window.addEventListener('message', function(e){
-      if      (e.data === 'bg-open')  document.body.classList.add('dezoom');
-      else if (e.data === 'bg-close') document.body.classList.remove('dezoom');
-    });
-  }
-})();
-
-/* Clic sur le picto → lance l'animation des lettres + tagline */
-const pictoWrap = document.querySelector('.picto-wrap');
-pictoWrap.addEventListener('click', function(){
-  document.body.classList.add('go-letters');
-  try { parent.postMessage({ type:'cursor-show' }, '*'); } catch(err){}
-});
-pictoWrap.addEventListener('mouseenter', function(){
-  if (document.body.classList.contains('go-letters')) return;
-  try { parent.postMessage({ type:'cursor-hide' }, '*'); } catch(err){}
-});
-pictoWrap.addEventListener('mouseleave', function(){
-  try { parent.postMessage({ type:'cursor-show' }, '*'); } catch(err){}
-});
+/* Le sync parent est désactivé : c'est replay() qui ajoute dezoom au bon moment.
+   Si replay n'est jamais déclenché (cas edge), on garde un fallback minime. */
 /* Relai mousemove au parent (curseur custom) */
 window.addEventListener('mousemove', function(e){
   try { parent.postMessage({ type:'gleeden-mouse', x:e.clientX, y:e.clientY }, '*'); } catch(err){}

@@ -17,67 +17,100 @@
    --w pilote la taille de toute la palette ; tous les enfants dérivent
    de cette valeur via calc() → zéro reflow au resize / dézoom.
    ═══════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   PARAMÈTRES — Gamme couleurs (palette).
+   --w pilote la taille de toute la palette ; tous les enfants dérivent
+   de cette valeur via calc() → zéro reflow au resize / dézoom.
+   ═══════════════════════════════════════════════════════════════════════ */
 :root{
-  --bg:        #280F37;   /* fond global de la page (autour de la palette) */
+  --bg:        #280F37;   /* fond global */
   --c1:        #280F37;   /* swatch 1 : VIOLET COULEUR 01 */
   --c2:        #551565;   /* swatch 2 : VIOLET COULEUR 02 */
   --c3:        #C880EA;   /* swatch 3 : LIGHT VIOLET COULEUR 03 */
   --c4:        #E3DED8;   /* swatch 4 : GRIS COULEUR 04 */
   --c5:        #FFFFFF;   /* swatch 5 : BLANC COULEUR 05 */
-  --text-light:#E3DED8;   /* texte sur swatches foncés */
-  --text-dark: #551565;   /* texte sur swatches clairs */
+  --text-light:#E3DED8;
+  --text-dark: #551565;
+  --gris:      #E3DED8;   /* gris Gleeden pour titre + texte intro */
+  --rose:      #C880EA;
 }
 
 *{ margin:0;padding:0;box-sizing:border-box; }
 html,body{ overflow:hidden;margin:0;width:100%;height:100%;cursor:none; }
-body{ background:transparent;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh; }
+body{
+  background: var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  width:100vw; height:100vh;
+  font-family: PPObjectSans, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
 *{ cursor:none !important; }
-.sw-label,.sw-codes{ user-select:text; -webkit-user-select:text; cursor:text !important; }
+.sw-label,.sw-codes,.intro h2,.intro p{ user-select:text; -webkit-user-select:text; cursor:text !important; }
 
-/* ─── PALETTE — remplit le calque violet dézoom permanent ─── */
+/* ─── INTRO (mode FULL) — "Couleurs" (haut) / paragraphe (centre) / picto G (bas) ─── */
+.intro{
+  position: absolute;
+  inset: 0;
+  display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+  text-align:center;
+  padding: 32vh 0;          /* éléments resserrés au centre */
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.16,1,.3,1);
+}
+body.go .intro{ opacity:1; transform: translateY(0); }
+.intro .picto{
+  width: 2.4vh;              /* picto G un poil plus petit, placé en bas */
+  height: auto;
+  display: block;
+  margin: 0;
+}
+/* "Couleurs" en rose, style "──── LOGOTYPE ────" (uppercase + letter-spacing + lignes flanquant le texte) */
+.intro h2{
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2vh;
+  font-family: PPObjectSans, sans-serif;
+  font-weight: 500;
+  font-size: 1.3vh;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--rose);
+  margin: 0;
+}
+.intro h2::before,
+.intro h2::after{
+  content: '';
+  width: 2vh;
+  height: 1px;
+  background: var(--rose);
+  opacity: 0.6;
+}
+.intro p{
+  font-family: PPObjectSans, sans-serif;
+  font-weight: 300;            /* light */
+  font-size: 2.4vh;            /* un poil plus gros */
+  line-height: 1.55;
+  color: var(--gris);          /* gris Gleeden #E3DED8 */
+  margin: auto 0;              /* centré verticalement entre Couleurs et picto */
+  max-width: 56vw;
+  text-wrap: balance;
+  -webkit-hyphens: none;
+}
+
+/* ─── PALETTE (mode REDUC) — remplit tout le layout (panel-inner inset 67px) ─── */
 .palette{
   --w: 100vw;
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex; flex-direction: column;
+  inset: 0;                        /* remplit tout le layout */
+  display: none;                   /* caché en full */
+  flex-direction: column;
   transform-origin: center center;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid transparent;     /* contour totalement absent en full */
-  transition: top 0.55s cubic-bezier(.16,1,.3,1),
-              left 0.55s cubic-bezier(.16,1,.3,1),
-              right 0.55s cubic-bezier(.16,1,.3,1),
-              bottom 0.55s cubic-bezier(.16,1,.3,1),
-              border-color 0.4s ease;
 }
-/* Mode dézoom : palette étirée à gauche, mêmes marges haut/bas/gauche, texte à droite */
-body.dezoom .palette{
-  --w: 60vw;
-  top: 8vh; left: 8vh; bottom: 8vh;
-  right: 33vw;
-  border-color: #551565;
-}
+body.dezoom .intro{ display: none; }
+body.dezoom .palette{ display: flex; }
 
-/* ─── MODE DÉZOOM (envoyé par le parent quand bg-open est activé) ─── */
-.dezoom-text{
-  position: absolute;
-  bottom: 8vh; right: 2vw;
-  width: 28vw;
-  font-family: PPObjectSans, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 400;
-  font-size: calc(100vw * 0.0125);
-  line-height: 1.65;
-  color: #E3DED8;
-  opacity: 0;
-  pointer-events: none;
-  user-select: text;
-  transition: opacity 0.5s ease 0.2s;
-}
-body.dezoom .dezoom-text{
-  opacity: 1;
-  pointer-events: auto;
-}
-.dezoom-text *{ cursor: text !important; }
 .row{ flex: 1; display: flex; }
 .row-top .sw{ flex: 1; }
 .row-bot .sw:nth-child(1){ flex: 2; }
@@ -107,47 +140,49 @@ body.dezoom .dezoom-text{
 .sw-codes{ right: 3.2%; text-align: right; }
 .sw-label span, .sw-codes span{ display: block; }
 
-/* ─── ANIMATIONS — body.go déclenche tout ─── */
-body.go .sw       { animation: swIn   .9s cubic-bezier(.16,1,.3,1) forwards; }
-body.go .g-logo   { animation: logoIn .55s cubic-bezier(.34,1.4,.64,1) forwards; }
-body.go .sw-label,
-body.go .sw-codes { animation: textIn .5s ease forwards; }
+/* ─── ANIMATIONS palette — déclenchées par body.dezoom (au lieu de body.go) ─── */
+body.dezoom .sw       { animation: swIn   .9s cubic-bezier(.16,1,.3,1) forwards; }
+body.dezoom .g-logo   { animation: logoIn .55s cubic-bezier(.34,1.4,.64,1) forwards; }
+body.dezoom .sw-label,
+body.dezoom .sw-codes { animation: textIn .5s ease forwards; }
 @keyframes swIn   { to{opacity:1;transform:translateY(0) scale(1)} }
 @keyframes logoIn { to{opacity:1;transform:scale(1)} }
-@keyframes textIn { to{opacity:1;transform:translateY(0)} }
+@keyframes textIn { to{opacity:1;transform:translateY(0)} } }
 </style>
 </head>
 <body>
-<!-- ─── PALETTE COULEURS — 5 swatches en grille (2 rangées) ─── -->
+<!-- ─── INTRO (full) : picto rose + titre "Couleurs" + paragraphe ─── -->
+<div class="intro">
+  <h2>Couleurs</h2>
+  <p>Le violet Gleeden reste l'ancre de la palette Gleeden. Nous proposons d'ajouter un autre violet plus profond pour faire ressortir les messages.</p>
+  <img class="picto" src="../../assets/visuels/picto_logo.svg" alt="">
+</div>
+
+<!-- ─── PALETTE (reduc) : 5 swatches en grille (2 rangées) ─── -->
 <div class="palette">
   <div class="row row-top">
-    <!-- VIOLET COULEUR 01 -->
     <div class="sw" style="background:var(--c1);color:var(--text-light);animation-delay:0s">
       <img class="g-logo" src="../../assets/visuels/picto_logo.svg" alt="" style="animation-delay:0.35s">
       <div class="sw-label" style="animation-delay:0.45s"><span>VIOLET</span><span>COULEUR 01</span></div>
-      <div class="sw-codes" style="animation-delay:0.45s"><span>HEX</span><span>551565</span><span>RVB</span><span>85/21/120</span></div>
+      <div class="sw-codes" style="animation-delay:0.45s"><span>HEX</span><span>280F37</span><span>RVB</span><span>40/15/55</span></div>
     </div>
-    <!-- VIOLET COULEUR 02 -->
     <div class="sw" style="background:var(--c2);color:var(--text-light);animation-delay:0.08s">
       <img class="g-logo" src="../../assets/visuels/picto_logo.svg" alt="" style="animation-delay:0.43s">
       <div class="sw-label" style="animation-delay:0.53s"><span>VIOLET</span><span>COULEUR 02</span></div>
-      <div class="sw-codes" style="animation-delay:0.53s"><span>HEX</span><span>280F37</span><span>RVB</span><span>40/15/55</span></div>
+      <div class="sw-codes" style="animation-delay:0.53s"><span>HEX</span><span>551565</span><span>RVB</span><span>85/21/120</span></div>
     </div>
   </div>
   <div class="row row-bot">
-    <!-- LIGHT VIOLET COULEUR 03 -->
     <div class="sw" style="background:var(--c3);color:var(--text-dark);animation-delay:0.16s">
       <img class="g-logo" src="../../assets/visuels/picto_logo_dark.svg" alt="" style="animation-delay:0.51s">
       <div class="sw-label" style="animation-delay:0.61s"><span>LIGHT VIOLET</span><span>COULEUR 03</span></div>
       <div class="sw-codes" style="animation-delay:0.61s"><span>HEX</span><span>C880EA</span><span>RVB</span><span>200/128/234</span></div>
     </div>
-    <!-- GRIS COULEUR 04 -->
     <div class="sw" style="background:var(--c4);color:var(--text-dark);animation-delay:0.24s">
       <img class="g-logo" src="../../assets/visuels/picto_logo_dark.svg" alt="" style="animation-delay:0.59s">
       <div class="sw-label" style="animation-delay:0.69s"><span>GRIS</span><span>COULEUR 04</span></div>
       <div class="sw-codes" style="animation-delay:0.69s"><span>HEX</span><span>E3DED8</span><span>RVB</span><span>227/222/216</span></div>
     </div>
-    <!-- BLANC COULEUR 05 -->
     <div class="sw" style="background:var(--c5);color:var(--text-dark);animation-delay:0.32s">
       <img class="g-logo" src="../../assets/visuels/picto_logo_dark.svg" alt="" style="animation-delay:0.67s">
       <div class="sw-label" style="animation-delay:0.77s"><span>BLANC</span><span>COULEUR 05</span></div>
@@ -155,9 +190,7 @@ body.go .sw-codes { animation: textIn .5s ease forwards; }
     </div>
   </div>
 </div>
-<div class="dezoom-text">
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-</div>
+
 <script>
 function replay(){
   document.body.classList.remove('go');

@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gleeden — App</title>
+<style>
+
+/* ═══════════════════════════════════ FONTS ═══════════════════════════════════ */
+@font-face { font-family:'PPAcma'; src:url('assets/fonts/PPAcma/PPAcma-Light.otf') format('opentype'); font-weight:300; }
+@font-face { font-family:'PPAcma'; src:url('assets/fonts/PPAcma/PPAcma-Book.otf') format('opentype'); font-weight:400; }
+@font-face { font-family:'PPAcma'; src:url('assets/fonts/PPAcma/PPAcma-Medium.otf') format('opentype'); font-weight:500; }
+@font-face { font-family:'PPObjectSans'; src:url('assets/fonts/PPObjectSans/PPObjectSans-Regular.woff') format('woff'); font-weight:400; }
+@font-face { font-family:'PPObjectSans'; src:url('assets/fonts/PPObjectSans/PPObjectSans-Bold.woff') format('woff'); font-weight:700; }
+@font-face { font-family:'PPObjectSans'; src:url('assets/fonts/PPObjectSans/PPObjectSans-Heavy.woff') format('woff'); font-weight:900; }
+
+/* ═══════════════════════════════════ RESET & ROOT ═══════════════════════════ */
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --purple-deep:  #3B0B47;
+  --purple-mid:   #551565;
+  --purple-light: #C880EA;
+  --cream:        #E3DED8;
+  --white:        #FFFFFF;
+  --bg-app:       #F5F1F9;
+  --text:         #1a0a22;
+  --text-muted:   #917fa0;
+  --online:       #48bb78;
+  --serif:        'PPAcma', Georgia, serif;
+  --sans:         'PPObjectSans', system-ui, sans-serif;
+  --r:            16px;
+  --r-sm:         10px;
+  --logo-svg:     url('assets/visuels/GLEEDEN_2027.svg');
+}
+
+html, body {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  background:#120619;
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+
+/* ═══════════════════════════════════ PHONE SHELL ════════════════════════════ */
+.phone {
+  width:  min(390px, 100vw);
+  height: min(844px, 100dvh);
+  position:relative;
+  overflow:hidden;
+  border-radius: clamp(0px, 3vw, 44px);
+  box-shadow: 0 48px 120px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06);
+  background: var(--purple-deep);
+}
+
+/* ═══════════════════════════════════ SCREEN SYSTEM ═════════════════════════ */
+.screen {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  opacity:0; pointer-events:none;
+  transition: opacity .28s ease, transform .32s cubic-bezier(.4,0,.2,1);
+  will-change: transform, opacity;
+}
+.screen.active  { opacity:1; pointer-events:all; transform:translateX(0) !important; }
+.screen.from-right { transform:translateX(100%); }
+.screen.to-left    { transform:translateX(-28%); opacity:0; pointer-events:none; }
+
+/* ═══════════════════════════════════ SPLASH ════════════════════════════════ */
+#s-splash {
+  background: var(--purple-deep);
+  align-items:center;
+  justify-content:space-between;
+  padding: 64px 32px 52px;
+}
+.splash-logo {
+  width:160px; height:34px; position:relative; display:block;
+}
+.splash-logo::before {
+  content:''; position:absolute; inset:0;
+  background:var(--purple-light);
+  -webkit-mask: var(--logo-svg) center/contain no-repeat;
+          mask: var(--logo-svg) center/contain no-repeat;
+}
+.splash-center {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:20px;
+}
+.splash-apple {
+  font-size:96px; line-height:1;
+  filter: drop-shadow(0 12px 32px rgba(200,128,234,.35));
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100%{ transform:translateY(0); }
+  50%    { transform:translateY(-10px); }
+}
+.splash-tagline {
+  font-family:var(--serif);
+  font-size:24px; font-weight:300;
+  color:var(--cream); opacity:.85;
+  letter-spacing:.01em;
+  font-style:italic;
+}
+.splash-sub {
+  font-family:var(--sans);
+  font-size:12px; font-weight:400;
+  color:var(--purple-light); opacity:.6;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.splash-actions { width:100%; display:flex; flex-direction:column; gap:12px; }
+
+/* ═══════════════════════════════════ BUTTONS ══════════════════════════════ */
+.btn-fill {
+  width:100%; padding:18px;
+  background:var(--purple-light); color:var(--purple-deep);
+  font-family:var(--sans); font-size:14px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  border:none; border-radius:var(--r); cursor:pointer;
+  transition:opacity .2s, transform .15s;
+}
+.btn-fill:active { opacity:.85; transform:scale(.98); }
+.btn-ghost {
+  width:100%; padding:17px;
+  background:transparent; color:var(--cream);
+  font-family:var(--sans); font-size:14px; font-weight:400;
+  letter-spacing:.1em; text-transform:uppercase;
+  border:1.5px solid rgba(227,222,216,.22); border-radius:var(--r); cursor:pointer;
+  transition:opacity .2s;
+}
+.btn-ghost:active { opacity:.6; }
+
+/* ═══════════════════════════════════ ONBOARDING ═══════════════════════════ */
+#s-onboarding { background:var(--white); }
+
+.onb-track {
+  display:flex; transition:transform .4s cubic-bezier(.4,0,.2,1);
+  flex:1; overflow:hidden;
+}
+.onb-slide {
+  flex:0 0 100%; display:flex; flex-direction:column;
+  align-items:center; padding:48px 32px 24px; text-align:center;
+}
+.onb-emoji { font-size:72px; line-height:1; margin-bottom:20px; }
+.onb-title {
+  font-family:var(--serif); font-size:28px; font-weight:400;
+  color:var(--purple-deep); letter-spacing:-.02em; margin-bottom:28px;
+}
+.onb-list { list-style:none; width:100%; text-align:left; display:flex; flex-direction:column; gap:18px; }
+.onb-item { display:flex; align-items:flex-start; gap:14px; }
+.onb-bullet {
+  width:28px; height:28px; border-radius:50%;
+  background:var(--purple-mid);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
+}
+.onb-bullet svg { width:13px; height:13px; }
+.onb-item-title { font-family:var(--sans); font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; }
+.onb-item-desc  { font-size:12px; color:var(--text-muted); }
+
+.onb-footer {
+  padding:20px 32px 36px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+}
+.onb-dots { display:flex; gap:8px; }
+.onb-dot {
+  height:8px; border-radius:4px; background:rgba(59,11,71,.12);
+  transition:all .3s; width:8px;
+}
+.onb-dot.on { background:var(--purple-mid); width:24px; }
+.onb-btn-next {
+  width:52px; height:52px; border-radius:50%;
+  background:var(--purple-mid); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .15s;
+}
+.onb-btn-next:active { transform:scale(.91); }
+.onb-btn-next svg { width:20px; height:20px; }
+
+/* ═══════════════════════════════════ TOPBAR ════════════════════════════════ */
+.topbar {
+  height:60px; flex-shrink:0;
+  background:var(--purple-mid);
+  display:flex; align-items:center;
+  padding:0 8px 0 12px;
+  position:relative;
+}
+.tb-logo {
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:104px; height:22px;
+}
+.tb-logo::before {
+  content:''; position:absolute; inset:0;
+  background:var(--white);
+  -webkit-mask:var(--logo-svg) center/contain no-repeat;
+          mask:var(--logo-svg) center/contain no-repeat;
+}
+.tb-icon {
+  width:40px; height:40px; border-radius:50%;
+  background:none; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  color:rgba(255,255,255,.85); flex-shrink:0;
+}
+.tb-icon svg { width:22px; height:22px; }
+.tb-right { margin-left:auto; display:flex; }
+.tb-badge-wrap { position:relative; }
+.tb-badge {
+  position:absolute; top:5px; right:5px;
+  width:17px; height:17px; border-radius:50%;
+  background:#e53e3e;
+  font-size:10px; font-weight:700; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+
+/* Sub-header (screen title + back) */
+.sub-header {
+  height:52px; flex-shrink:0;
+  background:var(--purple-mid);
+  display:flex; align-items:center; padding:0 12px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.sub-header-title {
+  flex:1; text-align:center;
+  font-family:var(--sans); font-size:15px; font-weight:500;
+  color:white; margin-left:-40px;
+}
+.back-btn {
+  background:none; border:none; cursor:pointer;
+  width:40px; height:40px;
+  display:flex; align-items:center; justify-content:center;
+  color:white;
+}
+.back-btn svg { width:22px; height:22px; }
+
+/* ═══════════════════════════════════ BOTTOM NAV ═══════════════════════════ */
+.bottom-nav {
+  height:70px; flex-shrink:0;
+  background:var(--white);
+  display:flex; align-items:stretch;
+  border-top:1px solid rgba(59,11,71,.07);
+}
+.nav-tab {
+  flex:1; background:none; border:none; cursor:pointer;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:4px;
+  color:var(--text-muted); position:relative;
+  transition:color .2s;
+}
+.nav-tab svg { width:22px; height:22px; }
+.nav-tab span { font-size:10px; font-weight:500; letter-spacing:.02em; }
+.nav-tab.on { color:var(--purple-mid); }
+.nav-tab .pip {
+  position:absolute; top:8px; left:calc(50% + 7px);
+  width:16px; height:16px; border-radius:50%;
+  background:var(--purple-light);
+  font-size:9px; font-weight:700; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ═══════════════════════════════════ HOME FEED ════════════════════════════ */
+#s-home { background:var(--bg-app); }
+.feed-scroll {
+  flex:1; overflow-y:auto; padding:14px;
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  align-content:start;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.feed-scroll::-webkit-scrollbar { display:none; }
+
+.pcard {
+  background:var(--white); border-radius:16px;
+  overflow:hidden; cursor:pointer;
+  box-shadow:0 2px 14px rgba(59,11,71,.07);
+  transition:transform .15s, box-shadow .15s;
+}
+.pcard:active { transform:scale(.96); box-shadow:0 1px 6px rgba(59,11,71,.08); }
+.pcard-img {
+  width:100%; aspect-ratio:3/4;
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+.pcard-silhouette { width:52%; opacity:.22; }
+.pcard-online {
+  position:absolute; bottom:9px; right:9px;
+  width:11px; height:11px; border-radius:50%;
+  background:var(--online); border:2px solid white;
+}
+.pcard-info { padding:9px 12px 12px; }
+.pcard-name { font-size:13px; font-weight:700; color:var(--text); }
+.pcard-meta { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+/* ═══════════════════════════════════ PROFILE DETAIL ═══════════════════════ */
+#s-profile { background:var(--white); }
+.ptabs {
+  display:flex; border-bottom:1px solid rgba(59,11,71,.08); flex-shrink:0;
+}
+.ptab {
+  flex:1; padding:14px 0; text-align:center;
+  font-family:var(--sans); font-size:13px; font-weight:500;
+  color:var(--text-muted); background:none; border:none; cursor:pointer;
+  border-bottom:2px solid transparent; transition:color .2s, border-color .2s;
+}
+.ptab.on { color:var(--purple-mid); border-bottom-color:var(--purple-mid); }
+
+.pbody { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.pbody::-webkit-scrollbar { display:none; }
+
+.p-hero {
+  width:100%; height:210px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.p-hero-silhouette { width:84px; opacity:.22; }
+.p-info-row {
+  padding:16px; display:flex; align-items:center; gap:14px;
+  border-bottom:1px solid rgba(59,11,71,.06);
+}
+.p-avatar {
+  width:62px; height:62px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--sans); font-size:22px; font-weight:700;
+  color:rgba(255,255,255,.55);
+}
+.p-name  { font-size:18px; font-weight:700; color:var(--text); }
+.p-loc   { font-size:13px; color:var(--text-muted); margin-top:2px; }
+.p-stat  {
+  display:flex; justify-content:space-between;
+  padding:13px 16px; font-size:13px; color:var(--text-muted);
+  border-bottom:1px solid rgba(59,11,71,.06);
+}
+.p-stat strong { color:var(--text); }
+.p-actions { padding:14px 16px; display:flex; gap:10px; }
+.p-btn {
+  flex:1; padding:14px 0; border:none; border-radius:12px;
+  font-family:var(--sans); font-size:13px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  transition:transform .15s;
+}
+.p-btn:active { transform:scale(.95); }
+.p-btn.prim { background:var(--purple-mid); color:white; }
+.p-btn.sec  { background:rgba(85,21,101,.09); color:var(--purple-mid); }
+
+/* Photos tab */
+.p-private-box {
+  margin:20px 16px; border-radius:16px;
+  border:2px dashed rgba(85,21,101,.18);
+  background:rgba(85,21,101,.04);
+  padding:40px 20px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+}
+.p-private-box svg { width:44px; height:44px; }
+.p-private-box p  { font-family:var(--serif); font-size:16px; color:var(--purple-mid); }
+.p-private-box small { font-size:13px; color:var(--text-muted); }
+
+/* Details tab */
+.p-section {
+  padding:16px; border-bottom:1px solid rgba(59,11,71,.06);
+}
+.p-section-label {
+  display:flex; align-items:center; gap:9px;
+  font-family:var(--sans); font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:var(--purple-mid); margin-bottom:12px;
+}
+.p-section-label svg { width:16px; height:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:7px; }
+.tag {
+  padding:5px 12px; border-radius:20px;
+  background:rgba(85,21,101,.08);
+  font-size:12px; color:var(--purple-deep); font-weight:500;
+}
+
+/* ═══════════════════════════════════ MESSAGES ═════════════════════════════ */
+#s-messages { background:var(--bg-app); }
+.msg-scroll { flex:1; overflow-y:auto; padding:14px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+.msg-scroll::-webkit-scrollbar { display:none; }
+
+.msg-group { background:var(--white); border-radius:16px; overflow:hidden; margin-bottom:12px; box-shadow:0 2px 10px rgba(59,11,71,.06); }
+.msg-group-hd {
+  background:var(--purple-mid); padding:13px 16px;
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+}
+.msg-group-hd svg { width:18px; height:18px; color:rgba(255,255,255,.7); }
+.msg-group-label { font-size:14px; font-weight:500; color:white; flex:1; }
+.msg-group-empty { padding:20px 16px; text-align:center; font-size:13px; color:var(--text-muted); font-style:italic; }
+
+.msg-row {
+  display:flex; align-items:center; gap:12px;
+  padding:13px 16px; border-bottom:1px solid rgba(59,11,71,.06); cursor:pointer;
+}
+.msg-row:last-child { border-bottom:none; }
+.msg-av {
+  width:44px; height:44px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; font-weight:700; color:rgba(255,255,255,.8);
+}
+.msg-name { font-size:14px; font-weight:700; color:var(--text); }
+.msg-preview { font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+.msg-time { font-size:11px; color:var(--text-muted); flex-shrink:0; }
+
+/* ═══════════════════════════════════ CRUSHES ══════════════════════════════ */
+#s-crushes { background:var(--bg-app); }
+.crush-grid {
+  flex:1; overflow-y:auto; padding:14px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  align-content:start; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.crush-grid::-webkit-scrollbar { display:none; }
+.crush-card {
+  aspect-ratio:1; border-radius:13px; overflow:hidden;
+  display:flex; align-items:flex-end; position:relative; cursor:pointer;
+  transition:transform .15s;
+}
+.crush-card:active { transform:scale(.94); }
+.crush-name {
+  font-size:11px; font-weight:700; color:white;
+  padding:6px 8px; width:100%;
+  background:linear-gradient(to top,rgba(0,0,0,.55),transparent);
+}
+.crush-icon {
+  position:absolute; top:7px; right:7px;
+  width:26px; height:26px; border-radius:50%;
+  background:rgba(200,128,234,.9);
+  display:flex; align-items:center; justify-content:center;
+}
+.crush-icon svg { width:13px; height:13px; }
+
+/* ═══════════════════════════════════ ACCOUNT ══════════════════════════════ */
+#s-account { background:var(--bg-app); }
+.acc-scroll { flex:1; overflow-y:auto; scrollbar-width:none; }
+.acc-scroll::-webkit-scrollbar { display:none; }
+.acc-hero {
+  background:var(--purple-mid); padding:32px 20px 24px;
+  display:flex; align-items:center; gap:16px;
+}
+.acc-avatar {
+  width:72px; height:72px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--sans); font-size:26px; font-weight:700;
+  color:rgba(255,255,255,.6);
+}
+.acc-name { font-size:20px; font-weight:700; color:white; }
+.acc-meta { font-size:13px; color:rgba(255,255,255,.65); margin-top:2px; }
+.acc-bar-wrap { margin-top:10px; height:4px; background:rgba(255,255,255,.2); border-radius:2px; width:160px; overflow:hidden; }
+.acc-bar { height:100%; background:var(--online); border-radius:2px; }
+.acc-bar-label { font-size:11px; color:rgba(255,255,255,.5); margin-top:4px; }
+
+.acc-card { background:white; margin:0 0 8px; }
+.acc-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:13px 16px; border-bottom:1px solid rgba(59,11,71,.06);
+  font-size:13px; color:var(--text-muted);
+}
+.acc-row strong { color:var(--text); }
+.acc-actions { padding:14px 16px; display:flex; flex-direction:column; gap:10px; background:var(--bg-app); }
+
+/* ═══════════════════════════════════ DRAWER ═══════════════════════════════ */
+.drawer-overlay {
+  position:absolute; inset:0;
+  background:rgba(0,0,0,0); pointer-events:none;
+  transition:background .3s; z-index:200;
+}
+.drawer-overlay.open { background:rgba(0,0,0,.52); pointer-events:all; }
+
+.drawer {
+  position:absolute; top:0; left:0; bottom:0; width:280px;
+  background:#170b1f;
+  transform:translateX(-100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  z-index:201; display:flex; flex-direction:column;
+}
+.drawer.open { transform:translateX(0); }
+
+.dr-profile {
+  background:var(--purple-mid); padding:36px 20px 20px;
+  display:flex; align-items:center; gap:14px;
+}
+.dr-avatar {
+  width:54px; height:54px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:700; color:rgba(255,255,255,.65);
+}
+.dr-name { font-size:16px; font-weight:700; color:white; }
+.dr-meta { font-size:12px; color:rgba(255,255,255,.6); margin-top:2px; }
+.dr-progress { margin-top:8px; height:4px; background:rgba(255,255,255,.18); border-radius:2px; width:140px; overflow:hidden; }
+.dr-progress-bar { height:100%; background:var(--online); border-radius:2px; }
+.dr-progress-label { font-size:11px; color:rgba(255,255,255,.45); margin-top:4px; }
+
+.dr-nav { flex:1; overflow-y:auto; padding:8px 0; scrollbar-width:none; }
+.dr-nav::-webkit-scrollbar { display:none; }
+.dr-item {
+  display:flex; align-items:center; gap:16px;
+  padding:14px 20px; cursor:pointer;
+  color:rgba(255,255,255,.78); font-size:14px; font-weight:400;
+  transition:background .15s;
+  position:relative;
+}
+.dr-item:hover { background:rgba(255,255,255,.05); }
+.dr-item svg { width:18px; height:18px; opacity:.65; flex-shrink:0; }
+.dr-badge {
+  margin-left:auto; background:#e53e3e; color:white;
+  font-size:10px; font-weight:700;
+  width:20px; height:20px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+}
+.dr-footer {
+  border-top:1px solid rgba(255,255,255,.08);
+  padding:16px 20px; display:flex; justify-content:space-around;
+}
+.dr-footer-item {
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  color:rgba(255,255,255,.5); font-size:10px; cursor:pointer;
+  transition:color .2s;
+}
+.dr-footer-item:hover { color:rgba(255,255,255,.85); }
+.dr-footer-item svg { width:20px; height:20px; }
+
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ SPLASH ━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="screen active" id="s-splash" style="transform:none">
+  <div style="display:flex;flex-direction:column;height:100%;padding:64px 32px 52px;align-items:center;background:var(--purple-deep);">
+    <div class="splash-logo"></div>
+    <div class="splash-center">
+      <div class="splash-apple">🍎</div>
+      <p class="splash-tagline">Prendre une bouchée</p>
+      <p class="splash-sub">gleeden.com</p>
+    </div>
+    <div class="splash-actions">
+      <button class="btn-fill" onclick="go('s-onboarding')">S'inscrire gratuitement</button>
+      <button class="btn-ghost" onclick="go('s-home')">Se connecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ ONBOARDING ━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="screen from-right" id="s-onboarding">
+  <div class="onb-track" id="onbTrack">
+
+    <!-- Slide 1 : Discrétion & Sécurité -->
+    <div class="onb-slide">
+      <div class="onb-emoji">🔒</div>
+      <h2 class="onb-title">Discrétion &amp; Sécurité</h2>
+      <ul class="onb-list">
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Protection des données</p><p class="onb-item-desc">Vos secrets restent secrets</p></div>
+        </li>
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Photos privées</p><p class="onb-item-desc">Choisissez qui voit votre profil</p></div>
+        </li>
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Code PIN</p><p class="onb-item-desc">Pour encore plus de sécurité</p></div>
+        </li>
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Mode discret</p><p class="onb-item-desc">Changez le thème pour passer inaperçu</p></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Slide 2 : Brisez la glace -->
+    <div class="onb-slide">
+      <div class="onb-emoji">💬</div>
+      <h2 class="onb-title">Brisez la glace !</h2>
+      <ul class="onb-list">
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Envoyez un message</p><p class="onb-item-desc">Engagez la conversation</p></div>
+        </li>
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Chat en temps réel</p><p class="onb-item-desc">Discutez instantanément</p></div>
+        </li>
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Envoyez un crush</p><p class="onb-item-desc">Exprimez votre intérêt</p></div>
+        </li>
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Cadeaux virtuels</p><p class="onb-item-desc">Démarquez-vous avec un gift</p></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Slide 3 : Communauté -->
+    <div class="onb-slide">
+      <div class="onb-emoji">✨</div>
+      <h2 class="onb-title">Une communauté unique</h2>
+      <ul class="onb-list">
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Pensé par des femmes</p><p class="onb-item-desc">Un espace sûr et respectueux</p></div>
+        </li>
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">9 millions de membres</p><p class="onb-item-desc">La plus grande communauté d'Europe</p></div>
+        </li>
+        <li class="onb-item">
+          <span class="onb-bullet"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><p class="onb-item-title">Inscription gratuite</p><p class="onb-item-desc">Pour les femmes, toujours gratuit</p></div>
+        </li>
+      </ul>
+    </div>
+
+  </div><!-- /onb-track -->
+  <div class="onb-footer">
+    <div class="onb-dots" id="onbDots">
+      <div class="onb-dot on"></div>
+      <div class="onb-dot"></div>
+      <div class="onb-dot"></div>
+    </div>
+    <button class="onb-btn-next" id="onbBtn" onclick="onbNext()">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ HOME ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="screen from-right" id="s-home">
+  <div class="topbar">
+    <button class="tb-icon" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="tb-logo"></div>
+    <div class="tb-right">
+      <div class="tb-badge-wrap">
+        <button class="tb-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+        <div class="tb-badge">3</div>
+      </div>
+      <button class="tb-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="white" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+  <div class="feed-scroll" id="homeGrid"></div>
+  <nav class="bottom-nav" id="nav-home"></nav>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ MESSAGES ━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="screen from-right" id="s-messages">
+  <div class="topbar">
+    <button class="tb-icon" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="tb-logo"></div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="msg-scroll">
+
+    <div class="msg-group">
+      <div class="msg-group-hd">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" fill="rgba(255,255,255,.15)"/></svg>
+        <span class="msg-group-label">Favoris en ligne</span>
+        <svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;opacity:.6"><path d="M18 15l-6-6-6 6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="msg-group-empty">Cette liste est vide</div>
+    </div>
+
+    <div class="msg-group">
+      <div class="msg-group-hd">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2"/></svg>
+        <span class="msg-group-label">Conversations actives</span>
+        <svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;opacity:.6"><path d="M18 15l-6-6-6 6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="msg-row" onclick="openProfile('Sophie_L','32 ans · Paris','S','#8a2a9a,#3B0B47')">
+        <div class="msg-av" style="background:linear-gradient(135deg,#8a2a9a,#3B0B47)">S</div>
+        <div style="flex:1;min-width:0">
+          <div class="msg-name">Sophie_L</div>
+          <div class="msg-preview">Bonsoir, comment s'est passée ta journée ?</div>
+        </div>
+        <div class="msg-time">14 min</div>
+      </div>
+      <div class="msg-row" onclick="openProfile('Marie_Px','28 ans · Lyon','M','#C880EA,#551565')">
+        <div class="msg-av" style="background:linear-gradient(135deg,#C880EA,#551565)">M</div>
+        <div style="flex:1;min-width:0">
+          <div class="msg-name">Marie_Px</div>
+          <div class="msg-preview">Tu es disponible ce week-end ?</div>
+        </div>
+        <div class="msg-time">1 h</div>
+      </div>
+    </div>
+
+    <div class="msg-group">
+      <div class="msg-group-hd">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.5" fill="white"/></svg>
+        <span class="msg-group-label">En attente de réponse</span>
+        <svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;opacity:.6"><path d="M18 15l-6-6-6 6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="msg-group-empty">Cette liste est vide</div>
+    </div>
+
+  </div>
+  <nav class="bottom-nav" id="nav-messages"></nav>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ CRUSHES ━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="screen from-right" id="s-crushes">
+  <div class="topbar">
+    <button class="tb-icon" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="tb-logo"></div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="crush-grid" id="crushGrid"></div>
+  <nav class="bottom-nav" id="nav-crushes"></nav>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ VISITEURS ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="screen from-right" id="s-visitors">
+  <div class="topbar">
+    <button class="tb-icon" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="tb-logo"></div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="feed-scroll" id="visitorsGrid"></div>
+  <nav class="bottom-nav" id="nav-visitors"></nav>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ COMPTE ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="screen from-right" id="s-account">
+  <div class="topbar">
+    <button class="tb-icon" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="tb-logo"></div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="acc-scroll">
+    <div class="acc-hero">
+      <div class="acc-avatar" style="background:linear-gradient(135deg,#8a2a9a,#3B0B47)">M</div>
+      <div style="flex:1">
+        <div class="acc-name">Misusu</div>
+        <div class="acc-meta">35 ans · Paris, France</div>
+        <div class="acc-bar-wrap"><div class="acc-bar" style="width:20%"></div></div>
+        <div class="acc-bar-label">Profil complété à 20%</div>
+      </div>
+    </div>
+    <div class="acc-card">
+      <div class="acc-row"><span>Situation conjugale</span><strong>Marié·e</strong></div>
+      <div class="acc-row"><span>Dernière activité</span><strong>Maintenant</strong></div>
+      <div class="acc-row"><span>Visiteurs</span><strong>47</strong></div>
+      <div class="acc-row"><span>Crushes reçus</span><strong>12</strong></div>
+      <div class="acc-row"><span>Messages non lus</span><strong>3</strong></div>
+    </div>
+    <div class="acc-actions">
+      <button class="btn-fill" style="border-radius:12px">Compléter mon profil</button>
+      <button class="btn-ghost" style="border-radius:12px;border-color:rgba(85,21,101,.2);color:var(--purple-mid)">Ajouter des photos</button>
+    </div>
+    <div class="acc-card" style="margin-top:8px">
+      <div class="p-section">
+        <div class="p-section-label">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2"/></svg>
+          Je recherche
+        </div>
+        <div class="tags">
+          <span class="tag">Complicité</span>
+          <span class="tag">Discrétion</span>
+          <span class="tag">Romanesque</span>
+          <span class="tag">Sans engagement</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav" id="nav-account"></nav>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ PROFIL DÉTAIL ━━━━━━━━━━━━━━━━━━━━ -->
+<div class="screen from-right" id="s-profile">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="tb-logo"></div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="ptabs">
+    <button class="ptab on" onclick="pTab('general',this)">Général</button>
+    <button class="ptab"    onclick="pTab('photos',this)">Photos</button>
+    <button class="ptab"    onclick="pTab('details',this)">Détails</button>
+  </div>
+  <div class="pbody">
+
+    <!-- GÉNÉRAL -->
+    <div id="pt-general">
+      <div class="p-hero" id="pHero" style="background:linear-gradient(160deg,#8a2a9a,#3B0B47)">
+        <svg class="p-hero-silhouette" viewBox="0 0 100 120" fill="rgba(255,255,255,1)">
+          <ellipse cx="50" cy="37" rx="22" ry="22"/>
+          <path d="M10 114 Q10 77 50 77 Q90 77 90 114"/>
+        </svg>
+      </div>
+      <div class="p-info-row">
+        <div class="p-avatar" id="pAvatar" style="background:linear-gradient(135deg,#8a2a9a,#3B0B47)">S</div>
+        <div>
+          <div class="p-name" id="pName">Sophie_L</div>
+          <div class="p-loc" id="pLoc">32 ans · France / Paris</div>
+        </div>
+      </div>
+      <div class="p-stat"><span>Profil complété</span><strong>95%</strong></div>
+      <div class="p-stat"><span>Dernière activité</span><strong>Il y a 2 min</strong></div>
+      <div class="p-stat"><span>Situation conjugale</span><strong>Marié·e</strong></div>
+      <div class="p-actions">
+        <button class="p-btn prim">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="white" stroke-width="2"/></svg>
+          Message
+        </button>
+        <button class="p-btn sec">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="var(--purple-mid)" stroke-width="2"/></svg>
+          Crush
+        </button>
+        <button class="p-btn sec">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="var(--purple-mid)" stroke-width="2"/></svg>
+          Favori
+        </button>
+      </div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div id="pt-photos" style="display:none">
+      <div class="p-private-box">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="var(--purple-light)" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="var(--purple-light)"/><path d="M21 15l-5-5L5 21" stroke="var(--purple-light)" stroke-width="2" stroke-linecap="round"/></svg>
+        <p>Album privé</p>
+        <small>2 photos disponibles</small>
+        <button class="btn-fill" style="max-width:200px;padding:14px;font-size:13px">Ouvrir l'album</button>
+      </div>
+    </div>
+
+    <!-- DÉTAILS -->
+    <div id="pt-details" style="display:none">
+      <div class="p-section">
+        <div class="p-section-label">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
+          Ma personnalité
+        </div>
+        <div class="tags">
+          <span class="tag">Ambitieuse</span><span class="tag">Cultivée</span><span class="tag">Indépendante</span><span class="tag">Curieuse</span><span class="tag">Sensible</span><span class="tag">Sociable</span><span class="tag">Honnête</span>
+        </div>
+      </div>
+      <div class="p-section">
+        <div class="p-section-label">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Je recherche
+        </div>
+        <div class="tags">
+          <span class="tag">Complicité</span><span class="tag">Discrétion</span><span class="tag">Romanesque</span><span class="tag">Court terme</span><span class="tag">Sans engagement</span>
+        </div>
+      </div>
+      <div class="p-section">
+        <div class="p-section-label">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2"/></svg>
+          Type de relation
+        </div>
+        <div class="tags">
+          <span class="tag">Long terme</span><span class="tag">Ouvert à tout</span><span class="tag">Excitant</span>
+        </div>
+      </div>
+      <div class="p-section">
+        <div class="p-section-label">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="3" stroke="currentColor" stroke-width="2"/><path d="M6.5 8a5.5 5.5 0 0 0-1 3.5h13a5.5 5.5 0 0 0-1-3.5" stroke="currentColor" stroke-width="2"/><path d="M12 11.5V22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Pratiques sexuelles
+        </div>
+        <div class="tags">
+          <span class="tag">Envie d'expérimenter</span><span class="tag">Romantique</span><span class="tag">Lieux insolites</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pbody -->
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━ DRAWER ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="dr-profile">
+    <div class="dr-avatar" style="background:linear-gradient(135deg,#8a2a9a,#3B0B47)">M</div>
+    <div style="flex:1">
+      <div class="dr-name">Misusu</div>
+      <div class="dr-meta">35 ans · Paris</div>
+      <div class="dr-progress"><div class="dr-progress-bar" style="width:20%"></div></div>
+      <div class="dr-progress-label">20% complété</div>
+    </div>
+  </div>
+  <nav class="dr-nav">
+    <div class="dr-item" onclick="closeDrawer();switchTab('s-home')">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Recherche
+    </div>
+    <div class="dr-item" onclick="closeDrawer();switchTab('s-messages')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2"/></svg>
+      Boîte de réception
+      <div class="dr-badge">3</div>
+    </div>
+    <div class="dr-item">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Messages Gleeden
+    </div>
+    <div class="dr-item" onclick="closeDrawer();switchTab('s-visitors')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+      Visiteurs
+      <div class="dr-badge">1</div>
+    </div>
+    <div class="dr-item" onclick="closeDrawer();switchTab('s-crushes')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2"/></svg>
+      Crushes
+    </div>
+    <div class="dr-item">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2"/></svg>
+      Favoris
+    </div>
+    <div class="dr-item">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2"/></svg>
+      Carnet
+    </div>
+    <div class="dr-item">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M20 12V22H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M22 7H2v5h20V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Cadeaux
+    </div>
+    <div class="dr-item">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" stroke="currentColor" stroke-width="2"/><path d="M9 13h6M9 17h4M14 2v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Actualités
+    </div>
+  </nav>
+  <div class="dr-footer">
+    <div class="dr-footer-item" onclick="closeDrawer();switchTab('s-account')">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20v-1a8 8 0 0 1 16 0v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Mon compte
+    </div>
+    <div class="dr-footer-item">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Carnet
+    </div>
+    <div class="dr-footer-item">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Feedback
+    </div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+
+<script>
+/* ═══════════════════════ DATA ═══════════════════════ */
+const profiles = [
+  {n:'Sophie_L',   a:32, c:'Paris',      i:'S', g:'#8a2a9a,#3B0B47', online:true},
+  {n:'Marie_Px',   a:28, c:'Lyon',       i:'M', g:'#C880EA,#551565', online:true},
+  {n:'Élodie_R',   a:35, c:'Bordeaux',   i:'É', g:'#3B0B47,#6B1680', online:false},
+  {n:'Camille_D',  a:41, c:'Nantes',     i:'C', g:'#6B1680,#8a2a9a', online:true},
+  {n:'Juliette_M', a:27, c:'Lille',      i:'J', g:'#551565,#6B1680', online:false},
+  {n:'Isabelle_T', a:38, c:'Nice',       i:'I', g:'#3B0B47,#551565', online:true},
+  {n:'Aurélie_V',  a:33, c:'Toulouse',   i:'A', g:'#6B1680,#C880EA', online:false},
+  {n:'Charlotte',  a:30, c:'Marseille',  i:'C', g:'#551565,#3B0B47', online:true},
+  {n:'Nathalie_B', a:44, c:'Rennes',     i:'N', g:'#8a2a9a,#3B0B47', online:false},
+  {n:'Virginie_L', a:36, c:'Strasbourg', i:'V', g:'#3B0B47,#C880EA', online:true},
+];
+
+/* ═══════════════════════ NAV CONFIG ═══════════════════════ */
+const navItems = [
+  { id:'home',     label:'Accueil',  screen:'s-home',
+    svg:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' },
+  { id:'messages', label:'Messages', screen:'s-messages', pip:2,
+    svg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' },
+  { id:'crushes',  label:'Crushes',  screen:'s-crushes',
+    svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2"/>' },
+  { id:'visitors', label:'Visiteurs',screen:'s-visitors', pip:1,
+    svg:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>' },
+  { id:'account',  label:'Profil',   screen:'s-account',
+    svg:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>' },
+];
+
+/* Render all bottom navs */
+navItems.forEach(function(item){
+  const navEl = document.getElementById('nav-'+item.id);
+  if (!navEl) return;
+  navItems.forEach(function(ni){
+    const btn = document.createElement('button');
+    btn.className = 'nav-tab' + (ni.id===item.id ? ' on' : '');
+    btn.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none">'+ni.svg+'</svg>'+
+      '<span>'+ni.label+'</span>'+
+      (ni.pip ? '<div class="pip">'+ni.pip+'</div>' : '');
+    btn.onclick = function(){ switchTab(ni.screen); };
+    navEl.appendChild(btn);
+  });
+});
+
+/* ═══════════════════════ RENDER GRIDS ═══════════════════════ */
+function makeCard(p, onclick){
+  const div = document.createElement('div');
+  div.className = 'pcard';
+  div.innerHTML =
+    '<div class="pcard-img" style="background:linear-gradient(160deg,'+p.g+')">'+
+      '<svg class="pcard-silhouette" viewBox="0 0 100 120" fill="rgba(255,255,255,1)">'+
+        '<ellipse cx="50" cy="37" rx="22" ry="22"/>'+
+        '<path d="M10 114 Q10 77 50 77 Q90 77 90 114"/>'+
+      '</svg>'+
+      (p.online ? '<div class="pcard-online"></div>' : '')+
+    '</div>'+
+    '<div class="pcard-info">'+
+      '<div class="pcard-name">'+p.n+'</div>'+
+      '<div class="pcard-meta">'+p.a+' ans · '+p.c+'</div>'+
+    '</div>';
+  div.onclick = onclick;
+  return div;
+}
+
+const homeGrid = document.getElementById('homeGrid');
+profiles.forEach(function(p){
+  homeGrid.appendChild(makeCard(p, function(){ openProfile(p.n, p.a+' ans · '+p.c, p.i, p.g); }));
+});
+
+const visitorsGrid = document.getElementById('visitorsGrid');
+profiles.slice(2).forEach(function(p){
+  visitorsGrid.appendChild(makeCard(p, function(){ openProfile(p.n, p.a+' ans · '+p.c, p.i, p.g); }));
+});
+
+const crushGrid = document.getElementById('crushGrid');
+profiles.slice(0,9).forEach(function(p){
+  const div = document.createElement('div');
+  div.className = 'crush-card';
+  div.style.background = 'linear-gradient(160deg,'+p.g+')';
+  div.innerHTML =
+    '<div class="crush-icon"><svg viewBox="0 0 24 24" fill="white"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>'+
+    '<div class="crush-name">'+p.n+'</div>';
+  div.onclick = function(){ openProfile(p.n, p.a+' ans · '+p.c, p.i, p.g); };
+  crushGrid.appendChild(div);
+});
+
+/* ═══════════════════════ ROUTING ═══════════════════════ */
+let current = 's-splash';
+let previous = 's-home';
+
+function go(id){
+  const from = document.getElementById(current);
+  const to   = document.getElementById(id);
+  from.classList.remove('active');
+  to.classList.remove('from-right','to-left');
+  to.classList.add('active');
+  current = id;
+}
+
+function switchTab(id){
+  previous = id;
+  go(id);
+}
+
+function openProfile(name, loc, initial, gradient){
+  previous = current;
+  document.getElementById('pName').textContent     = name;
+  document.getElementById('pLoc').textContent      = loc;
+  document.getElementById('pAvatar').textContent   = initial;
+  document.getElementById('pAvatar').style.background = 'linear-gradient(135deg,'+gradient+')';
+  document.getElementById('pHero').style.background   = 'linear-gradient(160deg,'+gradient+')';
+  // reset tabs
+  document.querySelectorAll('.ptab').forEach(function(t){ t.classList.remove('on'); });
+  document.querySelectorAll('.ptab')[0].classList.add('on');
+  ['general','photos','details'].forEach(function(t){
+    document.getElementById('pt-'+t).style.display = t==='general'?'':'none';
+  });
+  go('s-profile');
+}
+
+function goBack(){
+  go(previous);
+}
+
+/* ═══════════════════════ PROFILE TABS ═══════════════════════ */
+function pTab(tab, btn){
+  document.querySelectorAll('.ptab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  ['general','photos','details'].forEach(function(t){
+    document.getElementById('pt-'+t).style.display = t===tab?'':'none';
+  });
+}
+
+/* ═══════════════════════ ONBOARDING ═══════════════════════ */
+let onbIdx = 0;
+const onbTrack = document.getElementById('onbTrack');
+const onbDots  = document.querySelectorAll('.onb-dot');
+const onbBtn   = document.getElementById('onbBtn');
+
+function onbNext(){
+  if (onbIdx < 2){
+    onbIdx++;
+    onbTrack.style.transform = 'translateX(-'+onbIdx*100+'%)';
+    onbDots.forEach(function(d,i){ d.classList.toggle('on', i===onbIdx); });
+    if (onbIdx===2) onbBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  } else {
+    go('s-home');
+  }
+}
+
+/* ═══════════════════════ DRAWER ═══════════════════════ */
+function openDrawer(){
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+</script>
+</body>
+</html>
