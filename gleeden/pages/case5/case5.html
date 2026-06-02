@@ -91,7 +91,7 @@ body.dezoom .gif-mask{ display: none; }
 body.dezoom .gif-tagline{
   display: block;
   align-self: center;        /* override align-items:stretch du parent .logo-block */
-  margin-top: 5vh;           /* gap sous le logo (compense le scale 1.25) */
+  margin-top: 12vh;          /* gap sous le logo (compense le scale 1.25) */
 }
 .gif-tagline .tag-italic{
   font-style: italic;
@@ -113,7 +113,16 @@ body.dezoom .gif-tagline{
   align-items: flex-end;
   --gap: 0;
 }
-body.dezoom .logo{ display: flex; transform: scale(1.25); transform-origin: center center; }
+body.dezoom .logo{ display: flex; transform: scale(1.25) translateX(-1.6vh); transform-origin: center center; }
+
+/* Logo SVG complet (remplace l'ancien picto + lettres tapées). Hauteur calée
+   sur ce que faisaient les lettres (24vh) ; le scale 1.25 du parent .logo
+   gère le grossissement final. */
+.logo-svg{
+  display: block;
+  height: 20vh;
+  width: auto;
+}
 .picto-wrap{
   position: relative;
   left: 2px;
@@ -230,12 +239,9 @@ body.dezoom .annot{ opacity: 1; }
   <div class="logo-block">
     <!-- Mode FULL : gif animé en fond (rien d'autre) -->
     <div class="gif-mask"><img class="logo-gif" src="../../assets/visuels/anim_logo_2027.gif" alt="Gleeden — logo animé"></div>
-    <!-- Mode RÉDUC : logo statique typographique + tagline en dessous -->
+    <!-- Mode RÉDUC : logo Gleeden complet (SVG vectorisé) + tagline en dessous -->
     <div class="logo">
-      <div class="picto-wrap"><img class="picto" src="../../assets/visuels/picto_logo.svg" alt="G"></div>
-      <div class="letters">
-        <span class="letter">l</span><span class="letter">e</span><span class="letter">e</span><span class="letter">d</span><span class="letter">e</span><span class="letter">n</span>
-      </div>
+      <img class="logo-svg" src="../../assets/visuels/GLEEDEN_2027.svg" alt="Gleeden">
     </div>
     <div class="gif-tagline">Le 1<sup>er</sup> site de rencontres extra-conjugales, <em class="tag-italic">pens&eacute; par des femmes,</em> pour les femmes.</div>
   </div>

@@ -105,6 +105,7 @@
     body.on-case0 nav,
     body.on-case0b nav,
     body.on-gleeden nav,
+    body.on-intro-typo nav,
     body.on-case3 nav,
     body.on-case4 nav,
     body.on-case5 nav,
@@ -271,14 +272,18 @@
       display: flex; align-items: center; justify-content: center; gap: 1.25rem;
       font-family: var(--body); font-size: 0.6875rem; font-weight: 500;
       letter-spacing: 0.2em; text-transform: uppercase; color: #888;
-      margin-top: 1.375rem; white-space: nowrap;
+      margin-top: 3rem; white-space: nowrap;
     }
     /* Chaque ligne séparatrice : s'étend de 0 → 40px */
     .hero-services .svc-sub-line {
       width: 0;
       transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .hero-services.is-visible .svc-sub-line:first-of-type { width: 2.5rem; transition-delay: 0.42s; }
+    /* nth-of-type compte tous les <span> du parent .hero-services (items + lignes),
+       les lignes sont donc en positions impaires : 1 (avant Brand), 3 (milieu), 5 (après Conception). */
+    .hero-services.is-visible .svc-sub-line:nth-of-type(1) { width: 2.5rem; transition-delay: 0s; }
+    .hero-services.is-visible .svc-sub-line:nth-of-type(3) { width: 2.5rem; transition-delay: 0.42s; }
+    .hero-services.is-visible .svc-sub-line:nth-of-type(5) { width: 2.5rem; transition-delay: 0.88s; }
 
     /* Lettres des items : fade + translateY, stagger par --char-delay */
     .hero-services .char-wrap { display: inline-block; vertical-align: bottom; }
@@ -834,6 +839,7 @@
     #case0,
     #case0b,
     #gleeden,
+    #intro-typo,
     #case3,
     #case4,
     #case5,
@@ -964,6 +970,23 @@
     body.on-case4 .nav-logo,
     body.on-case4 .nav-link { color: #c880ea; }
     body.on-case4 .nav-menu-btn::after { background: #c880ea; }
+
+    /* ─── INTRO TYPOGRAPHIE — même config visuelle que #case4 (violet clair Gleeden) ─── */
+    #intro-typo .panel-inner {
+      background: #551565;
+      padding: 0;
+      overflow: hidden;
+    }
+    #intro-typo iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      border: none;
+      background: #551565;
+    }
+    body.on-intro-typo .nav-logo,
+    body.on-intro-typo .nav-link { color: #c880ea; }
+    body.on-intro-typo .nav-menu-btn::after { background: #c880ea; }
 
     /* ─── CAS CLIENT 5 — Typographie PP Object Sans ─── */
     /* Full : panel-inner violet sombre (logo+ligne+label visibles)
@@ -1191,15 +1214,24 @@
       <span class="hl-wrap"><span class="hl js-hl">Californie</span></span>
     </div>
     <div class="hero-services">
+      <span class="svc-sub-line"></span>
       <span class="svc-sub-item">Brand design</span>
       <span class="svc-sub-line"></span>
       <span class="svc-sub-item">Conception rédaction</span>
+      <span class="svc-sub-line"></span>
     </div>
     <!-- Bloc visible UNIQUEMENT en mobile (≤768px) : ligne + email cliquable -->
     <div class="mobile-contact">
       <div class="mobile-contact-line"></div>
       <a href="mailto:creation@mermoz-californie.com" class="mobile-contact-email">creation@mermoz-californie.com</a>
     </div>
+  </div>
+</div>
+
+<!-- ════════ INTRO TYPOGRAPHIE — duplicata du paragraphe "Pour la rédaction…" en pleine page ════════ -->
+<div id="intro-typo" class="panel">
+  <div class="panel-inner">
+    <iframe src="pages/intro-typo/intro-typo.html" title="Intro Typographie" scrolling="no" loading="eager"></iframe>
   </div>
 </div>
 
@@ -1428,7 +1460,7 @@
      L'iframe émettrice est identifiée via e.source (générique pour Gleeden, Case2, etc.) */
   window.addEventListener('message', e => {
     if (e.data?.type === 'gleeden-mouse') {
-      const allFrames = document.querySelectorAll('#gleeden iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe, #case7 iframe');
+      const allFrames = document.querySelectorAll('#gleeden iframe, #intro-typo iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe, #case7 iframe');
       let gf = null;
       for (const f of allFrames) { if (f.contentWindow === e.source) { gf = f; break; } }
       if (!gf) return;
@@ -1641,6 +1673,7 @@
   let isAnimating = false;
   const panels = [
     document.getElementById('hero'),
+    document.getElementById('intro-typo'), /* ← intro typographie (duplicata du paragraphe "Pour la rédaction…") */
     document.getElementById('case5'),      /* ← cas client 5 (typo PP Object Sans — gif) [DÉPLACÉ EN 1er] */
     /* document.getElementById('case0'),   ← intro Gleeden [SUPPRIMÉ] */
     /* document.getElementById('case0b'),  ← accroche home (svg "C'est parfois...") [SUPPRIMÉ] */
@@ -1932,7 +1965,7 @@
     document.body.classList.toggle('bg-open');
     navDotBtn.classList.toggle('is-open');
     const isOpen = document.body.classList.contains('bg-open');
-    document.querySelectorAll('#gleeden iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe, #case7 iframe').forEach(f => {
+    document.querySelectorAll('#gleeden iframe, #intro-typo iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe, #case7 iframe').forEach(f => {
       f.contentWindow?.postMessage(isOpen ? 'bg-open' : 'bg-close', '*');
     });
   }
@@ -2008,6 +2041,8 @@
       /* SORTIE cas client — retire la classe qui colore le nav */
       document.body.classList.remove('on-gleeden');
 
+    } else if (id === 'intro-typo') {
+      document.body.classList.remove('on-intro-typo');
     } else if (id === 'case3') {
       document.body.classList.remove('on-case3');
     } else if (id === 'case4') {
@@ -2067,6 +2102,8 @@
       /* L'animation du contenu iframe est déclenchée par l'observer dédié ci-dessous. */
       document.body.classList.add('on-gleeden');
 
+    } else if (id === 'intro-typo') {
+      document.body.classList.add('on-intro-typo');
     } else if (id === 'case3') {
       document.body.classList.add('on-case3');
     } else if (id === 'case4') {
@@ -2247,6 +2284,33 @@
       });
     }, { threshold: 0.01 });
     gleedenEarlyObs.observe(gleedenPanelEl);
+  }
+
+  /* Observer dédié à Intro-Typo (paragraphe "Pour la rédaction…") */
+  const introTypoPanelEl = document.getElementById('intro-typo');
+  if (introTypoPanelEl) {
+    const introTypoEarlyObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !window._introTypoPlayed) {
+          window._introTypoPlayed = true;
+          const gf = document.querySelector('#intro-typo iframe');
+          if (!gf) return;
+          const trigger = () => {
+            try { gf.contentWindow?.replay?.(); } catch (err) {}
+            try { gf.contentWindow?.postMessage('replay', '*'); } catch (err) {}
+          };
+          let ready = false;
+          try { ready = gf.contentDocument?.readyState === 'complete'; } catch (err) {}
+          if (ready) trigger();
+          else {
+            gf.addEventListener('load', trigger, { once: true });
+            setTimeout(trigger, 300);
+          }
+          introTypoEarlyObs.disconnect();
+        }
+      });
+    }, { threshold: 0.01 });
+    introTypoEarlyObs.observe(introTypoPanelEl);
   }
 
   /* Observer dédié à Case3 (palette couleurs) */

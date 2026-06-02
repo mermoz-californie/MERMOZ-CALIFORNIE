@@ -106,6 +106,17 @@ body.dezoom .mockup{ opacity: 1; }
 body.dezoom .slide-mockup4{
   background: #280F37;            /* violet foncé Gleeden */
 }
+
+/* Mockup5 spécifique : image réduite à l'intérieur de la carte arrondie,
+   le panel-inner (radius) garde sa forme/dimension. Fond opaque sur le slide
+   pour matérialiser la "carte" derrière l'image plus petite. */
+.slide-mockup5 .mockup{
+  object-fit: contain;
+  transform: scale(1.4);
+}
+body.dezoom .slide-mockup5{
+  background: #280F37;            /* même violet foncé Gleeden */
+}
 </style>
 </head>
 <body>
@@ -131,7 +142,12 @@ body.dezoom .slide-mockup4{
     <img class="poster"       src="../../assets/visuels/4x3_4.svg"        alt="Gleeden 4x3 — visuel 4">
     <img class="mockup small" src="../../assets/visuels/4x3_4_mockup.jpg" alt="Gleeden 4x3 — mockup visuel 4">
   </div>
-  <!-- Slide 5 — Abribus pair (full : 2 SVG côte à côte / réduc : 1 mockup) -->
+  <!-- Slide 5 — 4x3 visuel 5 (mockup réduit dans la carte arrondie) -->
+  <div class="page-slide slide-mockup5">
+    <img class="poster" src="../../assets/visuels/4x3_5.svg"        alt="Gleeden 4x3 — visuel 5">
+    <img class="mockup" src="../../assets/visuels/4x3_5_mockup.jpg" alt="Gleeden 4x3 — mockup visuel 5">
+  </div>
+  <!-- Slide 6 — Abribus pair (full : 2 SVG côte à côte / réduc : 1 mockup) -->
   <div class="page-slide pair">
     <div class="pair-wrap">
       <img class="poster half" src="../../assets/visuels/abribus_1.svg" alt="Gleeden abribus — visuel 1">
