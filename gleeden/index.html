@@ -50,11 +50,16 @@
       --ease: cubic-bezier(.9,0,.1,1);
     }
 
-    /* Scroll natif vertical avec snap mandatory + déceleration douce */
+    /* Scroll natif vertical avec snap mandatory.
+       ⚠️ PAS de `scroll-behavior: smooth` sur le conteneur : combiné au snap
+       `mandatory`, le scroll molette overshoot puis se cale EN DOUCEUR un poil
+       en dessous du point de snap → on voyait le bas du panneau précédent en
+       haut de la fenêtre (surtout sur viewport fractionnaire / zoom / scaling).
+       Le snap mandatory anime déjà le calage ; la nav programmatique (ticks,
+       flèches) garde un smooth explicite via scrollIntoView({behavior:'smooth'}). */
     html, body { height: 100%; }
     html {
       scroll-snap-type: y mandatory;
-      scroll-behavior: smooth;
       overflow-y: scroll;
       overflow-x: hidden;
       scrollbar-width: none; /* Firefox */
@@ -172,7 +177,12 @@
       position: relative;
       z-index: 1; /* au-dessus de bg-reveal/bg-grain */
       width: 100%;
-      height: 100vh;
+      /* Hauteur = 100% du conteneur de scroll (html/body, eux-mêmes height:100%)
+         → MÊME pixel entier que le snapport, ce qui évite le sliver sous-pixel du
+         100vh fractionnaire (HiDPI / scaling / zoom). Fallback 100vh si jamais
+         body n'a pas de hauteur résolue. */
+      height: 100vh;     /* fallback */
+      height: 100%;
       padding: 0;
       scroll-snap-align: start;
       scroll-snap-stop: always;
@@ -848,8 +858,7 @@
       background: #000 url('assets/backgrounds/bg1_gleeden.jpg') center/cover no-repeat fixed;
     }
 
-    /* ─── CAS CLIENT 0 — Intro Gleeden — MASQUÉ ─── */
-    #case0 { display: none !important; }
+    /* ─── CAS CLIENT 0 — Intro Gleeden (réintégré : picto seul → clic → letters s'écrivent) ─── */
 
     #case0 .panel-inner {
       background: transparent;
@@ -906,7 +915,7 @@
     body.on-case0b .nav-link { color: #c880ea; }
     body.on-case0b .nav-menu-btn::after { background: #c880ea; }
     #gleeden .panel-inner {
-      background: #551565;        /* ← couleur de fond identique à --bg dans gleeden.html */
+      background: transparent;    /* laisse passer bg1_gleeden.jpg du parent */
       padding: 0;
       overflow: hidden;
     }
@@ -915,6 +924,7 @@
       inset: 0;
       width: 100%; height: 100%;
       border: none;
+      background: transparent;
     }
 
     /* Couleur custom du nav quand on est sur le panel cas client (fond coloré) */
@@ -1235,12 +1245,14 @@
   </div>
 </div>
 
-<!-- ════════ CAS CLIENT 5 — Typographie PP Object Sans ════════ -->
-<div id="case5" class="panel">
+<!-- ════════ CAS CLIENT 0 — Intro Gleeden (picto seul → clic → "leeden" s'écrit) ════════ -->
+<div id="case0" class="panel">
   <div class="panel-inner">
-    <iframe src="pages/case5/case5.html" title="Typographie Object Sans" scrolling="no" loading="eager"></iframe>
+    <iframe src="pages/case0/case0.html?v=4" title="Gleeden — Intro (picto → clic → letters)" scrolling="no" loading="eager"></iframe>
   </div>
 </div>
+
+<!-- ════════ CAS CLIENT 5 — Typographie PP Object Sans (gif) — SUPPRIMÉ ════════ -->
 
 <!-- ════════ CAS CLIENT 3 — Gamme couleurs (palette) ════════ -->
 <div id="case3" class="panel">
@@ -1460,7 +1472,7 @@
      L'iframe émettrice est identifiée via e.source (générique pour Gleeden, Case2, etc.) */
   window.addEventListener('message', e => {
     if (e.data?.type === 'gleeden-mouse') {
-      const allFrames = document.querySelectorAll('#gleeden iframe, #intro-typo iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe, #case7 iframe');
+      const allFrames = document.querySelectorAll('#gleeden iframe, #intro-typo iframe, #case0 iframe, #case3 iframe, #case4 iframe, #case6 iframe, #case7 iframe');
       let gf = null;
       for (const f of allFrames) { if (f.contentWindow === e.source) { gf = f; break; } }
       if (!gf) return;
@@ -1674,8 +1686,8 @@
   const panels = [
     document.getElementById('hero'),
     document.getElementById('intro-typo'), /* ← intro typographie (duplicata du paragraphe "Pour la rédaction…") */
-    document.getElementById('case5'),      /* ← cas client 5 (typo PP Object Sans — gif) [DÉPLACÉ EN 1er] */
-    /* document.getElementById('case0'),   ← intro Gleeden [SUPPRIMÉ] */
+    document.getElementById('case0'),      /* ← intro Gleeden (picto seul → clic → letters s'écrivent) [RÉINTÉGRÉ] */
+    /* document.getElementById('case5'),   ← cas client 5 (typo PP Object Sans — gif) [SUPPRIMÉ] */
     /* document.getElementById('case0b'),  ← accroche home (svg "C'est parfois...") [SUPPRIMÉ] */
     document.getElementById('case3'),      /* ← cas client 3 (palette couleurs) */
     document.getElementById('case4'),      /* ← cas 3 client : typo PP Acma */
@@ -1965,7 +1977,7 @@
     document.body.classList.toggle('bg-open');
     navDotBtn.classList.toggle('is-open');
     const isOpen = document.body.classList.contains('bg-open');
-    document.querySelectorAll('#gleeden iframe, #intro-typo iframe, #case3 iframe, #case4 iframe, #case5 iframe, #case6 iframe, #case7 iframe').forEach(f => {
+    document.querySelectorAll('#gleeden iframe, #intro-typo iframe, #case0 iframe, #case3 iframe, #case4 iframe, #case6 iframe, #case7 iframe').forEach(f => {
       f.contentWindow?.postMessage(isOpen ? 'bg-open' : 'bg-close', '*');
     });
   }
@@ -2047,8 +2059,6 @@
       document.body.classList.remove('on-case3');
     } else if (id === 'case4') {
       document.body.classList.remove('on-case4');
-    } else if (id === 'case5') {
-      document.body.classList.remove('on-case5');
     } else if (id === 'case6') {
       document.body.classList.remove('on-case6');
     } else if (id === 'case7') {
@@ -2095,6 +2105,14 @@
       setTimeout(() => document.querySelector('.hero-services')?.classList.add('is-visible'), 700);
     } else if (id === 'case0') {
       document.body.classList.add('on-case0');
+      /* Sécurité : si l'observer a déjà disconnect, on déclenche quand même replay sur l'iframe */
+      try {
+        const gf = document.querySelector('#case0 iframe');
+        if (gf) {
+          gf.contentWindow?.replay?.();
+          gf.contentWindow?.postMessage('replay', '*');
+        }
+      } catch (err) {}
     } else if (id === 'case0b') {
       document.body.classList.add('on-case0b');
     } else if (id === 'gleeden') {
@@ -2108,8 +2126,6 @@
       document.body.classList.add('on-case3');
     } else if (id === 'case4') {
       document.body.classList.add('on-case4');
-    } else if (id === 'case5') {
-      document.body.classList.add('on-case5');
     } else if (id === 'case6') {
       document.body.classList.add('on-case6');
     } else if (id === 'case7') {
@@ -2366,31 +2382,7 @@
     case4EarlyObs.observe(case4PanelEl);
   }
 
-  const case5PanelEl = document.getElementById('case5');
-  if (case5PanelEl) {
-    const case5EarlyObs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting && !window._case5Played) {
-          window._case5Played = true;
-          const gf = document.querySelector('#case5 iframe');
-          if (!gf) return;
-          const trigger = () => {
-            try { gf.contentWindow?.replay?.(); } catch (err) {}
-            try { gf.contentWindow?.postMessage('replay', '*'); } catch (err) {}
-          };
-          let ready = false;
-          try { ready = gf.contentDocument?.readyState === 'complete'; } catch (err) {}
-          if (ready) trigger();
-          else {
-            gf.addEventListener('load', trigger, { once: true });
-            setTimeout(trigger, 300);
-          }
-          case5EarlyObs.disconnect();
-        }
-      });
-    }, { threshold: 0.01 });
-    case5EarlyObs.observe(case5PanelEl);
-  }
+  /* Observer dédié à Case5 (gif logo) supprimé en même temps que le panel. */
 
   const case6PanelEl = document.getElementById('case6');
   if (case6PanelEl) {

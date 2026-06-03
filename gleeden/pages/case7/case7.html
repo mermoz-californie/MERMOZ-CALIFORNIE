@@ -6,70 +6,141 @@
 <title>Gleeden — App</title>
 <style>
 /* ═══════════════════════════════════════════════════════════════════════
-   SECTION APP — appstore.png + smartphone.png côte à côte
-   Fond violet foncé fourni par le parent. Deux frames carrés arrondis
-   avec un léger fond plus clair, fade-in à l'entrée (body.go).
+   SECTION APP — appstore + smartphone (resserrés + grossis) + slides objets
+   - Full  : 2 frames côte à côte (slide 1) puis 4 objets en scroll latéral
+   - Réduc : fond bg1_gleeden.jpg + slide horizontal toujours utilisable
    ─────────────────────────────────────────────────────────────────────── */
 :root{
   --bg:        #551565;
-  --frame-bg:  #280F37;        /* violet foncé pour cadrer sur le fond violet clair */
+  --frame-bg:  #280F37;
   --accent:    #C880EA;
 }
 *{ margin:0; padding:0; box-sizing:border-box; }
 html, body{ overflow:hidden; margin:0; width:100%; height:100%; cursor:none; background: transparent; }
 body{
   background: transparent;
-  display: flex;
-  align-items: center; justify-content: center;
   width: 100vw; height: 100vh;
+  position: relative;
   font-family: 'PPObjectSans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  transition: background 0.4s ease;
 }
 *{ cursor:none !important; }
 
-/* ─── Stage : flex centré, 2 frames côte à côte ─── */
+/* En mode réduc → fond bg1_gleeden.jpg dans l'iframe */
+body.dezoom{
+  background: url('../../assets/backgrounds/bg1_gleeden.jpg') center/cover no-repeat fixed;
+}
+
+/* ─── Scroll horizontal des slides ─── */
+.page-scroll{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.page-scroll::-webkit-scrollbar{ display: none; }
+
+.page-slide{
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  display: flex;
+  align-items: center; justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+}
+
+/* ─── Stage slide 1 : 2 frames côte à côte (resserrés + grossis) ─── */
 .stage{
   display: flex;
   align-items: center; justify-content: center;
-  gap: 8vw;                                /* espace plus large entre les deux frames */
+  gap: 2vw;                                /* resserré : 8vw → 2vw */
   width: 100%; height: 100%;
-  padding: 0 4vw;
+  padding: 0 2vw;
 }
 
-/* ─── Frame : carré arrondi avec fond plus foncé, image dedans en object-fit:cover ─── */
+/* Frame plus gros + animation d'entrée */
 .frame{
-  --s: min(30vw, 56vh);                    /* frames réduites */
+  --s: min(40vw, 78vh);                    /* grossi : min(30vw, 56vh) → min(40vw, 78vh) */
   width: var(--s);
   height: var(--s);
   background: var(--frame-bg);
-  border-radius: 16px;             /* uniformisé avec le standard du deck (panel-inner reduce + case3/case5/etc.) */
+  border-radius: 16px;
   overflow: hidden;
   position: relative;
   opacity: 0;
   transform: translateY(18px) scale(.97);
   transition: opacity 0.7s ease, transform 0.7s cubic-bezier(.16,1,.3,1);
 }
-/* Frame appstore : image un peu plus petite à l'intérieur du cadre (padding) */
 .frame.left{ display: flex; align-items: center; justify-content: center; }
 .frame.left img{ width: 78%; height: 78%; }
 .frame img{
   width: 100%; height: 100%;
-  object-fit: contain;     /* image entière visible — pas de crop */
+  object-fit: contain;
   display: block;
 }
 
-/* ─── ENTRÉE — body.go déclenche le fade-in en cascade ─── */
+/* Entrée — body.go cascade fade-in */
 body.go .frame.left  { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.10s; }
 body.go .frame.right { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.25s; }
+
+/* ─── Slides objets — 2 frames par slide, même format que appstore/smartphone ─── */
+.frame.objet{
+  overflow: hidden;
+}
+.frame.objet img{
+  width: 100%; height: 100%;
+  object-fit: cover;            /* objet remplit la frame (carré) */
+  display: block;
+}
+body.go .frame.objet.left  { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.10s; }
+body.go .frame.objet.right { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.25s; }
 </style>
 </head>
 <body>
 
-<div class="stage">
-  <div class="frame left">
-    <img src="../../assets/visuels/appstore.png" alt="Gleeden sur l'App Store">
+<div class="page-scroll" id="pageScroll">
+  <!-- Slide 1 — App Store + Smartphone (resserrés + grossis) -->
+  <div class="page-slide">
+    <div class="stage">
+      <div class="frame left">
+        <img src="../../assets/visuels/appstore.png" alt="Gleeden sur l'App Store">
+      </div>
+      <div class="frame right">
+        <img src="../../assets/visuels/smartphone.png" alt="Gleeden sur l'écran d'accueil">
+      </div>
+    </div>
   </div>
-  <div class="frame right">
-    <img src="../../assets/visuels/smartphone.png" alt="Gleeden sur l'écran d'accueil">
+
+  <!-- Slide 2 — Objets 1 + 2 dans 2 frames (même format que App Store) -->
+  <div class="page-slide">
+    <div class="stage">
+      <div class="frame objet left">
+        <img src="../../assets/visuels/objets1.jpg" alt="Gleeden objet 1">
+      </div>
+      <div class="frame objet right">
+        <img src="../../assets/visuels/objets2.jpg" alt="Gleeden objet 2">
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3 — Objets 3 + 4 -->
+  <div class="page-slide">
+    <div class="stage">
+      <div class="frame objet left">
+        <img src="../../assets/visuels/objets3.jpg" alt="Gleeden objet 3">
+      </div>
+      <div class="frame objet right">
+        <img src="../../assets/visuels/objets4.jpg" alt="Gleeden objet 4">
+      </div>
+    </div>
   </div>
 </div>
 
@@ -78,12 +149,15 @@ function replay(){
   document.body.classList.remove('go');
   void document.body.offsetHeight;
   document.body.classList.add('go');
+  /* Reset scroll au début à chaque entrée */
+  const ps = document.getElementById('pageScroll');
+  if (ps) ps.scrollTo({ left: 0, behavior: 'instant' });
 }
 window.addEventListener('message', function(e){
   if (e.data === 'replay') replay();
 });
 
-/* Sync dezoom (pour cohérence du curseur custom etc.) */
+/* Sync dezoom avec body.bg-open du parent */
 (function syncDezoom(){
   try {
     const parentBody = window.parent.document.body;

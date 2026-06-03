@@ -101,10 +101,15 @@ body.dezoom .mockup{ opacity: 1; }
    fond opaque sur le slide pour que la "carte" arrondie reste visible. */
 .mockup.small{
   object-fit: contain;
-  transform: translateY(-5%) scale(1.55);
+  transform: translateY(-5%) scale(1.35);
 }
-body.dezoom .slide-mockup4{
+body.dezoom .slide-mockup4,
+body.dezoom .slide-abribus{
   background: #280F37;            /* violet foncé Gleeden */
+}
+/* Abribus : un peu plus bas et un peu plus grand que le réglage commun .mockup.small. */
+.slide-abribus .mockup.small{
+  transform: translateY(2%) scale(1.35);
 }
 
 /* Mockup5 spécifique : image réduite à l'intérieur de la carte arrondie,
@@ -147,13 +152,13 @@ body.dezoom .slide-mockup5{
     <img class="poster" src="../../assets/visuels/4x3_5.svg"        alt="Gleeden 4x3 — visuel 5">
     <img class="mockup" src="../../assets/visuels/4x3_5_mockup.jpg" alt="Gleeden 4x3 — mockup visuel 5">
   </div>
-  <!-- Slide 6 — Abribus pair (full : 2 SVG côte à côte / réduc : 1 mockup) -->
-  <div class="page-slide pair">
+  <!-- Slide 6 — Abribus pair (full : 2 SVG côte à côte / réduc : 1 mockup réduit) -->
+  <div class="page-slide pair slide-abribus">
     <div class="pair-wrap">
       <img class="poster half" src="../../assets/visuels/abribus_1.svg" alt="Gleeden abribus — visuel 1">
       <img class="poster half" src="../../assets/visuels/abribus_2.svg" alt="Gleeden abribus — visuel 2">
     </div>
-    <img class="mockup" src="../../assets/visuels/abrisbus_1_mockup.jpg" alt="Gleeden abribus — mockup en situation">
+    <img class="mockup small" src="../../assets/visuels/abrisbus_1_mockup.jpg" alt="Gleeden abribus — mockup en situation">
   </div>
 </div>
 

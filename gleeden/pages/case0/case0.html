@@ -6,6 +6,13 @@
 <title>Gleeden — Intro</title>
 <style>
 @font-face{
+  font-family: 'PPAcma';
+  src: url('../../assets/fonts/PPAcma/PPAcma-LightItalic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face{
   font-family: 'PPObjectSans';
   src: url('../../assets/fonts/PPObjectSans/PPObjectSans-Heavy.woff') format('woff');
   font-weight: 900;
@@ -59,30 +66,73 @@ body{
   display: flex;
   align-items: flex-end;
   --gap: 0;
-  transform: scale(1);
+  transform: scale(1.18);          /* logo grossi (full) */
   transform-origin: center center;
   transition: transform 0.4s ease;
 }
-body.dezoom .word{ transform: scale(1.1); }
+/* En réduc : MÊME scale qu'en full → taille strictement identique
+   (--lvh figé à la pleine hauteur, cf. JS, donc aucune réduction). */
+body.dezoom .word{ transform: scale(1.18); }
+/* Picto container : 2 SVG empilés (picto_G visible par défaut, picto_logo au hover).
+   Pas de padding : la zone interactive est gérée par .hit-zone (overlay circulaire). */
 .picto-wrap{
   position: relative;
   left: 2px;
-  padding: calc(2 * var(--lvh, 1vh));
-  margin: calc(-2 * var(--lvh, 1vh)) calc(-2 * var(--lvh, 1vh)) calc(2 * var(--lvh, 1vh)) calc(-2 * var(--lvh, 1vh));
+}
+/* ─── Hit zone CIRCULAIRE invisible — couvre la zone visible des pictos à scale 1.4.
+   Évite que le hover saute aux 4 coins de la bounding box rectangulaire quand le
+   curseur suit le bord rond du G. ─── */
+.hit-zone{
+  position: absolute;
+  top: 50%; left: 50%;
+  width:  calc(30 * var(--lvh, 1vh));
+  height: calc(30 * var(--lvh, 1vh));
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
   cursor: pointer;
+  z-index: 10;
+  /* invisible (pas de background) */
 }
 .picto{
   width: calc(19 * var(--lvh, 1vh));
   height: auto;
   display: block;
-  opacity: 0;
-  transform: scale(.5);
   pointer-events: auto;
-  transition: transform 0.4s cubic-bezier(.16,1,.3,1), opacity 0.5s ease;
+  transition: transform 0.4s cubic-bezier(.16,1,.3,1), opacity 0.4s ease;
 }
-body.go .picto{ opacity: 1; transform: scale(1); }
-body.go:not(.go-letters) .picto-wrap:hover  .picto { transform: scale(1.70); }
-body.go:not(.go-letters) .picto-wrap:active .picto { transform: scale(1.40); transition: transform 0.1s ease; }
+/* picto_G : en flow, donne la dimension au wrapper.
+   Base scale = 1.4 (les 2 pictos sont nettement grossis).
+   AUCUNE animation de scale ensuite : seuls les opacities changent au hover/click. */
+.picto-G{
+  position: relative;
+  opacity: 0;
+  transform: scale(1.4);
+}
+/* picto_logo : absolument empilé par-dessus picto_G (top/left = 0 maintenant que
+   le padding est retiré de .picto-wrap → ils se calent au même endroit).
+   Même base scale 1.4 que picto_G pour qu'aucun grossissement ne se produise au survol. */
+.picto-logo{
+  position: absolute;
+  top: 0; left: 0;
+  opacity: 0;
+  transform: scale(1.4);
+}
+
+/* ─── Step 1 : body.go → picto_G apparaît seul (fade-in pur, scale inchangé) ─── */
+body.go .picto-G{ opacity: 1; }
+
+/* ─── Step 2 : Hover sur la hit-zone CIRCULAIRE → cross-fade opacity uniquement,
+   AUCUN changement de scale. Les pictos sont des SIBLINGS de .hit-zone (dans .picto-wrap)
+   donc on cible via le combinator `~`. ─── */
+body.go:not(.go-letters) .picto-wrap .hit-zone:hover ~ .picto-G   { opacity: 0; }
+body.go:not(.go-letters) .picto-wrap .hit-zone:hover ~ .picto-logo{ opacity: 1; }
+
+/* ─── Step 3 : Après clic (go-letters) → picto_logo se cale légèrement plus haut
+   AVANT que les lettres ne commencent à s'écrire (settle motion). ─── */
+body.go-letters .picto-G   { opacity: 0; }
+/* Full ET réduc : MÊME transform → picto_logo à la position strictement identique
+   (le +2px descend le picto dans les deux modes, plus aucun décalage full/réduc). */
+body.go-letters .picto-logo{ opacity: 1; transform: translateY(calc(-4.2 * var(--lvh, 1vh) + 2px)) scale(1); }
 
 .letters{
   display: inline-flex;
@@ -110,41 +160,55 @@ body.go:not(.go-letters) .picto-wrap:active .picto { transform: scale(1.40); tra
 .letter:nth-child(6){ margin-left: calc(-2.625 * var(--lvh, 1vh)); }
 
 /* ─── Tagline (machine à écrire — visible UNIQUEMENT en dézoom) ─── */
+/* Mix typo : PPObjectSans Regular pour les parties "Le 1er site…" et "pour les femmes."
+   PPAcma Light Italic pour la portion centrale "pensé par des femmes". */
 .tagline{
   margin-top: calc(5 * var(--lvh, 1vh));
-  font-size: calc(2.3 * var(--lvh, 1vh));
-  color: #F8F1E6;                          /* crème : "Le 1er site de rencontres..." + "pour les femmes." */
+  font-family: 'PPObjectSans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: calc(2.0 * var(--lvh, 1vh));
+  font-weight: 400;
+  font-style: normal;
+  color: #F8F1E6;                       /* crème pour la base */
   letter-spacing: 0.01em;
-  font-weight: 400;
-  transform: translateX(8px);     /* très léger décalage à droite (recalé un peu à gauche) */
 }
-.tagline strong{ font-weight: 700; }
 .tagline .tag-italic{
+  font-family: 'PPAcma', Georgia, serif;
+  font-weight: 300;
   font-style: italic;
-  color: var(--accent);                    /* rose lavande Gleeden #C880EA */
-  font-weight: 400;
+  font-size: 1.12em;                    /* légèrement plus gros que le reste de la tagline */
+  color: var(--accent);                 /* rose lavande pour la portion italique */
 }
 .tagline sup{ font-size: 0.55em; vertical-align: super; line-height: 0; }
 .tagline .ch{
   opacity: 0;
   transition: opacity 0.06s linear;
 }
-body.dezoom .tagline .ch{ opacity: 1; }
-body:not(.dezoom) .tagline .ch{ transition-delay: 0s !important; }
+/* Tagline tape juste après la fin de l'écriture de "leeden" (Step 3),
+   pas en mode réduc. START_DELAY=1.35s côté JS aligne le début sur la fin
+   des letters (transition 0.4s + delay 0.90s ≈ 1.30s). */
+body.go-letters.dezoom .tagline .ch{ opacity: 1; }
+body.go-letters:not(.dezoom) .tagline .ch{ opacity: 0; transition-delay: 0s !important; }
+body:not(.go-letters) .tagline .ch{ transition-delay: 0s !important; }
 
-/* ─── Au clic : les lettres se révèlent une par une (expand width + fade), puis tagline ─── */
+/* ─── Au clic : d'abord picto_logo settle (0.4s de transform), PUIS les lettres
+   se révèlent une par une (expand width + fade), puis tagline. ─── */
 body.go-letters .letter   { max-width: 5em; opacity: 1; }
-body.go-letters .letter:nth-child(1){ transition-delay: 0.00s; }
-body.go-letters .letter:nth-child(2){ transition-delay: 0.18s; }
-body.go-letters .letter:nth-child(3){ transition-delay: 0.36s; }
-body.go-letters .letter:nth-child(4){ transition-delay: 0.54s; }
-body.go-letters .letter:nth-child(5){ transition-delay: 0.72s; }
-body.go-letters .letter:nth-child(6){ transition-delay: 0.90s; }
+body.go-letters .letter:nth-child(1){ transition-delay: 0.40s; }
+body.go-letters .letter:nth-child(2){ transition-delay: 0.58s; }
+body.go-letters .letter:nth-child(3){ transition-delay: 0.76s; }
+body.go-letters .letter:nth-child(4){ transition-delay: 0.94s; }
+body.go-letters .letter:nth-child(5){ transition-delay: 1.12s; }
+body.go-letters .letter:nth-child(6){ transition-delay: 1.30s; }
 </style>
 </head>
 <body>
 <div class="word">
-  <div class="picto-wrap"><img class="picto" src="../../assets/visuels/picto_logo.svg" alt="G"></div>
+  <div class="picto-wrap">
+    <!-- Hit zone circulaire invisible — DOIT être en premier pour que le combinator ~ atteigne les pictos suivants -->
+    <div class="hit-zone"></div>
+    <img class="picto picto-G"    src="../../assets/visuels/picto_G.svg"    alt="G">
+    <img class="picto picto-logo" src="../../assets/visuels/picto_logo.svg" alt="Logo Gleeden G">
+  </div>
   <div class="letters">
     <span class="letter">l</span><span class="letter">e</span><span class="letter">e</span><span class="letter">d</span><span class="letter">e</span><span class="letter">n</span>
   </div>
@@ -152,23 +216,28 @@ body.go-letters .letter:nth-child(6){ transition-delay: 0.90s; }
 <div class="tagline">Le 1<sup>er</sup> site de rencontres extra-conjugales, <em class="tag-italic">pens&eacute; par des femmes,</em> pour les femmes.</div>
 
 <script>
-/* ─── Lock vh : on fige les tailles sur la viewport du PARENT, pas de l'iframe.
-   Comme ça, quand le panel-inner shrink en dézoom, le logo et la tagline gardent leur taille fixe.
-   Le 2e "dézoom" (celui du logo) disparaît → un seul mouvement visible : le panel qui rétrécit. */
-function setLockedVh(){
-  let h, w;
-  try { h = window.parent.innerHeight; w = window.parent.innerWidth; }
-  catch(e) { h = window.innerHeight;  w = window.innerWidth; }
-  if (h) document.documentElement.style.setProperty('--lvh', (h / 100) + 'px');
-  if (w) document.documentElement.style.setProperty('--lvw', (w / 100) + 'px');
+/* ─── Lock vh : on fige les tailles sur la viewport PLEINE (parent), JAMAIS sur
+   l'iframe qui rétrécit en réduc (inset 67px).
+   ⚠️ Bug corrigé : avant, si l'accès parent échouait (cross-origin / file://), on
+   bindait le resize sur l'iframe elle-même → en réduc l'iframe rétrécit → resize →
+   --lvh chutait → le logo se réduisait de ~12%. On ne bind PLUS jamais le resize
+   de l'iframe : --lvh reste figé à la pleine hauteur, le logo garde une taille
+   pixel STRICTEMENT identique en full et en réduc. */
+function readViewport(){
+  try { return { h: window.parent.innerHeight, w: window.parent.innerWidth }; }
+  catch(e) { return { h: window.innerHeight, w: window.innerWidth }; }
 }
-setLockedVh();
-/* On écoute le resize du parent (pas de l'iframe) pour rester responsive aux vraies redimensions de fenêtre */
+function applyVh(v){
+  if (v.h) document.documentElement.style.setProperty('--lvh', (v.h / 100) + 'px');
+  if (v.w) document.documentElement.style.setProperty('--lvw', (v.w / 100) + 'px');
+}
+/* Valeur figée à l'init : à ce moment l'iframe est plein écran → == viewport parent. */
+applyVh(readViewport());
+/* Re-lecture UNIQUEMENT sur resize RÉEL de la fenêtre parent (jamais l'iframe).
+   En cross-origin on garde simplement la valeur figée. */
 try {
-  window.parent.addEventListener('resize', setLockedVh);
-} catch(e) {
-  window.addEventListener('resize', setLockedVh);
-}
+  window.parent.addEventListener('resize', function(){ applyVh(readViewport()); });
+} catch(e) { /* cross-origin : valeur figée conservée, pas de bind iframe */ }
 
 /* ─── Split de la tagline en chars (préserve <strong>) ─── */
 function splitTagline(){
@@ -178,11 +247,11 @@ function splitTagline(){
 
   let charIndex = 0;
   let extraPause = 0;
-  /* Anim logo : letters body.go-letters → delays 0→0.90s + transition 0.4s = fin ≈ 1.30s.
-     On démarre la tagline juste après pour qu'elle apparaisse APRÈS la fin du mot Gleeden. */
-  const START_DELAY      = 1.35;
-  const CHAR_STEP        = 0.038;
-  const PAUSE_AFTER_PART = 0.30;   /* petite pause après chaque virgule */
+  /* Tagline démarre AVANT la fin du mot Gleeden (overlap) et tape plus vite
+     pour un rythme plus dynamique. */
+  const START_DELAY      = 1.00;     /* démarre pendant l'écriture des lettres */
+  const CHAR_STEP        = 0.024;    /* ~37% plus rapide qu'avant (0.038) */
+  const PAUSE_AFTER_PART = 0.18;     /* pause après virgule également raccourcie */
 
   function walk(node){
     if (node.nodeType === Node.TEXT_NODE){
@@ -206,23 +275,58 @@ function splitTagline(){
 }
 splitTagline();
 
-/* Cette section ne montre QUE la partie réduce : lettres + tagline visibles d'office.
-   Plus de click handler sur le picto, plus de cursor hide. */
+/* Flow interactif en 3 étapes :
+   - Step 1 (replay) : body.go → picto_G apparaît seul, centré
+   - Step 2 (hover sur .picto-wrap)  : picto_logo apparaît + grossit (CSS pur),
+                                       curseur custom du parent caché via postMessage
+   - Step 3 (clic   sur .picto-wrap) : body.go-letters → "leeden" s'écrit lettre
+                                       par lettre, puis la tagline tape juste après
+   `body.dezoom` est piloté par le parent (synchronisé via syncDezoom ci-dessous),
+   pas auto-déclenché dans replay(). */
 function replay(){
   document.body.classList.remove('go');
   document.body.classList.remove('go-letters');
-  document.body.classList.remove('dezoom');
   void document.body.offsetHeight;
-  document.body.classList.add('go');
-  document.body.classList.add('go-letters');   /* lettres révélées d'office */
-  document.body.classList.add('dezoom');       /* tagline + word scale 1.1 d'office */
+  document.body.classList.add('go');     /* Step 1 uniquement — le clic ajoutera go-letters */
 }
 window.addEventListener('message', function(e){
   if (e.data === 'replay') replay();
 });
 
-/* Le sync parent est désactivé : c'est replay() qui ajoute dezoom au bon moment.
-   Si replay n'est jamais déclenché (cas edge), on garde un fallback minime. */
+/* ─── Listeners attachés à .hit-zone (cercle invisible) plutôt qu'à .picto-wrap
+   (rectangle). Hover/clic se déclenchent UNIQUEMENT dans le cercle, plus de saut
+   au coin de la bounding box. ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  const hitZone = document.querySelector('.hit-zone');
+  if (!hitZone) return;
+  hitZone.addEventListener('click', () => {
+    if (document.body.classList.contains('go-letters')) return;  /* no-op après step 3 */
+    document.body.classList.add('go-letters');
+  });
+  /* ─── Step 2 : hover → cache le curseur custom du parent pour ne pas
+     interférer visuellement avec le picto. ─── */
+  hitZone.addEventListener('mouseenter', () => {
+    try { parent.postMessage({ type: 'cursor-hide' }, '*'); } catch (err) {}
+  });
+  hitZone.addEventListener('mouseleave', () => {
+    try { parent.postMessage({ type: 'cursor-show' }, '*'); } catch (err) {}
+  });
+});
+
+/* ─── Sync body.dezoom avec body.bg-open du parent (pattern standard des cases) ─── */
+(function syncDezoom(){
+  try {
+    const parentBody = window.parent.document.body;
+    const apply = () => document.body.classList.toggle('dezoom', parentBody.classList.contains('bg-open'));
+    apply();
+    new MutationObserver(apply).observe(parentBody, { attributes: true, attributeFilter: ['class'] });
+  } catch(err) {
+    window.addEventListener('message', function(e){
+      if      (e.data === 'bg-open')  document.body.classList.add('dezoom');
+      else if (e.data === 'bg-close') document.body.classList.remove('dezoom');
+    });
+  }
+})();
 /* Relai mousemove au parent (curseur custom) */
 window.addEventListener('mousemove', function(e){
   try { parent.postMessage({ type:'gleeden-mouse', x:e.clientX, y:e.clientY }, '*'); } catch(err){}

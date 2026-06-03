@@ -38,6 +38,11 @@
       src: url('assets/fonts/PPEditorialNew/PPEditorialNew-Bold.woff') format('woff');
       font-weight: 700; font-style: normal; font-display: swap;
     }
+    @font-face {
+      font-family: 'ABC Diatype Mono';
+      src: url('assets/fonts/ABC - DIATYPE/abc-diatype-mono-regular.otf') format('opentype');
+      font-weight: 400; font-style: normal; font-display: swap;
+    }
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     :root {
@@ -268,14 +273,16 @@
       opacity: 1; transform: translateY(0);
     }
 
-    /* Baseline hero — typo 002 italique grise + mask-reveal mot par mot */
+    /* Baseline hero — ABC Diatype Mono Regular, capitales */
     .hero-baseline {
-      font-family: 'Editorial New', Georgia, serif;
-      font-style: italic; font-weight: 400;
-      font-size: clamp(28px, 3.5vw, 52px);
+      font-family: 'ABC Diatype Mono', 'Courier New', monospace;
+      font-style: normal; font-weight: 400;
+      font-size: clamp(14px, 1.4vw, 20px);
       color: #FB4D3D;
       text-align: center; line-height: 1.2;
       margin-top: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
     }
     .hero-baseline .word {
       display: inline-block;
