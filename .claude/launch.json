@@ -2,10 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "mermoz-californie",
+      "name": "mermoz-static",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "3456"],
-      "port": 3456
+      "runtimeArgs": ["-m", "http.server", "8742", "--directory", "/Users/maxco/MERMOZ-CALIFORNIE"],
+      "port": 8742
+    },
+    {
+      "name": "maxcolin-static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8734", "--directory", "/Users/maxco/MAXCOLIN"],
+      "port": 8734
     }
   ]
 }

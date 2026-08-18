@@ -48,7 +48,6 @@
     :root {
       --bg:   #EFEDEA;
       --black:#191919;
-      --bg-dark:#0f1312;   /* fond principal — vert-noir charbon */
       --white:#EFEDEA;
       --mid:  #888;
       --disp: 'Kumbh Sans', 'Helvetica Neue', Arial, sans-serif;
@@ -70,7 +69,7 @@
 
     /* html porte le fond noir, body reste transparent pour laisser apparaître
        l'image floutée derrière les panels quand ils scale-down (dézoom) */
-    html { background: var(--bg-dark); }
+    html { background: var(--black); }
     body {
       background: transparent;
       color: var(--white);
@@ -211,15 +210,12 @@
     /* Dot animé quand actif */
     .nav-menu-btn.is-open::after {
       transform: scale(1.6);
-      opacity: 1;
+      opacity: 0.5;
     }
 
     /* ─── HERO ─── */
     #hero { z-index: 2; }
-    #hero .panel-inner { background: var(--bg-dark); }
-
-    /* Hero : "PICTURE IT." reste d'un seul tenant, jamais coupé en plein mot */
-    #heroTitle { white-space: nowrap; }
+    #hero .panel-inner { background: var(--black); }
 
     /* 001 — Grands titres display (MERMOZ CALIFORNIE, CREATION PUBLICITE DESIGN) */
     .dark-brand-title {
@@ -229,15 +225,15 @@
       line-height: 0.84; letter-spacing: -0.05em;
       color: var(--white);
     }
+    /* Décale légèrement le premier "I" de CALIFORNIE vers la droite */
+    #heroTitle .hl-wrap:nth-child(2) .hl .char-wrap:nth-child(4) {
+      margin-left: 0.04em;
+    }
     /* Idem dans l'outro : "Mermoz Californie" sur une ligne — 11ᵉ char = premier I */
     #outroTitle .hl .char-wrap:nth-child(11) {
       margin-left: 0.04em;
     }
     .hl { display: block; }
-
-    /* ── GIF tigre entre MERMOZ et CALIFORNIE, sur une seule ligne ──
-       Chip 16:9 recadrée, calée sur la hauteur des capitales.
-       Reveal masqué synchronisé avec les classes chars-in/out du titre. */
 
     /* 004 — Petits titres gris (tagline hero, label mantra, sous-titres services, liste outils) */
     .dark-brand-meta {
@@ -262,9 +258,8 @@
       width: 0;
       transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .hero-services.is-visible .svc-sub-line { width: 40px; }
-    .hero-services.is-visible .svc-sub-line:first-child { transition-delay: 0.22s; }
-    .hero-services.is-visible .svc-sub-line:last-child  { transition-delay: 0.42s; }
+    .hero-services.is-visible .svc-sub-line:nth-of-type(2) { width: 40px; transition-delay: 0.22s; }
+    .hero-services.is-visible .svc-sub-line:nth-of-type(4) { width: 40px; transition-delay: 0.62s; }
 
     /* Lettres des items : fade + translateY, stagger par --char-delay */
     .hero-services .char-wrap { display: inline-block; vertical-align: bottom; }
@@ -313,7 +308,7 @@
 
     /* ─── MANIFESTE PANEL ─── */
     #manifeste { z-index: 1; }
-    #manifeste .panel-inner { background: var(--bg-dark); }
+    #manifeste .panel-inner { background: var(--black); }
 
     .mfst-label {
       font-family: var(--body); font-size: 11px; font-weight: 500;
@@ -626,7 +621,7 @@
 
     /* ─── OUTRO PANEL ─── */
     #outro { z-index: 1; }
-    #outro .panel-inner { background: var(--bg-dark); }
+    #outro .panel-inner { background: var(--black); }
 
     /* Override : titre outro — font-size calculé par fitOutroTitle() pour
        remplir la largeur entre 25px de marge gauche/droite */
@@ -862,8 +857,7 @@
         pointer-events: auto;
       }
 
-      /* Hero title : plus grand mais "CALIFORNIE" tient sur une ligne.
-         En mobile on revient à l'empilé : MERMOZ / gif / CALIFORNIE. */
+      /* Hero title : plus grand mais "CALIFORNIE" tient sur une ligne. */
       #heroTitle {
         font-size: clamp(50px, 15vw, 80px) !important;
         cursor: pointer;
@@ -872,9 +866,9 @@
       /* Pas de dezoom sur mobile (pas de bouton menu). */
       body.bg-open .panel-inner { inset: 0; border-radius: 0; }
 
-      /* Hero centré, fond vert plein écran. */
+      /* Hero centré, fond noir plein écran. */
       #hero .panel-inner {
-        background: var(--bg-dark);
+        background: var(--black);
         padding: 24px;
         justify-content: center;
         gap: 26px;
@@ -942,12 +936,16 @@
 <div id="hero" class="panel">
   <div class="panel-inner">
     <div class="dark-brand-title" id="heroTitle">
-      <span class="hl-wrap"><span class="hl js-hl">Picture it.</span></span>
+      <span class="hl-wrap"><span class="hl js-hl">Mermoz</span></span>
+      <span class="hl-wrap"><span class="hl js-hl">Californie</span></span>
     </div>
+    <div class="hero-baseline js-baseline">Picture it.</div>
     <div class="hero-services">
+      <span class="svc-sub-item">Logotype</span>
       <span class="svc-sub-line"></span>
-      <span class="svc-sub-item">Creative studio</span>
+      <span class="svc-sub-item">Branding</span>
       <span class="svc-sub-line"></span>
+      <span class="svc-sub-item">Conception rédaction</span>
     </div>
     <!-- Bloc visible UNIQUEMENT en mobile (≤768px) : ligne + email cliquable -->
     <div class="mobile-contact">
@@ -1175,80 +1173,6 @@
       });
       span.textContent = '';
       span.appendChild(frag);
-    });
-  }
-
-  /* ─── Espacement optique constant ───
-     Le letter-spacing CSS ajoute la même valeur partout, mais chaque glyphe a
-     ses propres approches (le "CT" se touchait, le "UR" bâillait). On relève
-     l'encre RÉELLE de chaque lettre puis on corrige la marge de chaque char-wrap
-     pour que l'écart VISIBLE soit identique entre toutes les lettres.
-
-     La mesure se fait en scannant les pixels du glyphe : les métriques
-     actualBoundingBox* de measureText ne suivent pas la même convention de
-     signe selon les navigateurs (Safari notamment), le scan est fiable partout. */
-  const _inkCanvas = document.createElement('canvas');
-  const _inkCtx = _inkCanvas.getContext('2d', { willReadFrequently: true });
-  const _inkCache = new Map();
-  const INK_REF = 100;   // taille de référence : résultats exprimés en em
-
-  function inkOf(ch, weight, family) {
-    const key = weight + '|' + family + '|' + ch;
-    if (_inkCache.has(key)) return _inkCache.get(key);
-
-    let res = { blank: true, lsb: 0, rsb: 0 };
-    try {
-      const font = `${weight} ${INK_REF}px ${family}`;
-      _inkCtx.font = font;
-      const adv = _inkCtx.measureText(ch).width;
-      const pad = INK_REF;
-      const w = Math.ceil(adv + pad * 2), h = INK_REF * 2;
-      _inkCanvas.width = w; _inkCanvas.height = h;
-      _inkCtx.font = font;              // le resize réinitialise le contexte
-      _inkCtx.textBaseline = 'alphabetic';
-      _inkCtx.fillStyle = '#fff';
-      _inkCtx.fillText(ch, pad, h * 0.75);
-
-      const data = _inkCtx.getImageData(0, 0, w, h).data;
-      let minX = Infinity, maxX = -Infinity;
-      for (let y = 0; y < h; y++) {
-        const row = y * w * 4;
-        for (let x = 0; x < w; x++) {
-          if (data[row + x * 4 + 3] > 10) {
-            if (x < minX) minX = x;
-            if (x > maxX) maxX = x;
-          }
-        }
-      }
-      if (minX !== Infinity) {
-        res = {
-          blank: false,
-          lsb: (minX - pad) / INK_REF,               // approche gauche, en em
-          rsb: (adv - (maxX + 1 - pad)) / INK_REF    // approche droite, en em
-        };
-      }
-    } catch (e) { /* mesure impossible : on laisse l'espacement natif */ }
-
-    _inkCache.set(key, res);
-    return res;
-  }
-
-  function evenTracking(container, targetEm) {
-    if (!container) return;
-    const cs = getComputedStyle(container);
-    const fs = parseFloat(cs.fontSize);
-    if (!fs) return;
-    const ls = parseFloat(cs.letterSpacing) || 0;
-    let prev = null;
-    container.querySelectorAll('.char-wrap').forEach(wrap => {
-      const cur = inkOf(wrap.textContent.toUpperCase(), cs.fontWeight, cs.fontFamily);
-      if (prev && !prev.blank && !cur.blank) {
-        const naturel = prev.rsb * fs + ls + cur.lsb * fs;
-        wrap.style.marginLeft = (targetEm * fs - naturel).toFixed(2) + 'px';
-      } else {
-        wrap.style.marginLeft = '';
-      }
-      prev = cur;
     });
   }
 
@@ -1870,13 +1794,11 @@
     document.fonts.ready.then(fitOutroTitle);
   }
   window.addEventListener('resize', fitOutroTitle);
-  window.addEventListener('resize', () => evenTracking(heroTitle, 0.0214));
 
   /* ─── HERO LOAD — déclenché dès que les fontes sont prêtes (n'attend PAS
      le chargement complet de l'image bg, qui pèse 7 Mo). ─── */
   function bootHero() {
     fitOutroTitle();
-    evenTracking(heroTitle, 0.0214);
     // Randomiser les délais d'entrée du hero (plus court qu'avant pour plus de snap).
     heroTitle.querySelectorAll('.char').forEach(ch => {
       ch.style.setProperty('--char-delay', (Math.random() * 0.22) + 's');
@@ -1892,13 +1814,6 @@
     document.fonts.ready.then(bootHero);
   } else {
     window.addEventListener('load', bootHero);
-  }
-  /* Filet de sécurité : la mesure au canvas n'est juste que si la fonte display
-     est réellement chargée. On recalcule une fois qu'elle l'est à coup sûr. */
-  if (document.fonts && document.fonts.load) {
-    document.fonts.load('700 200px "Kumbh Sans"')
-      .then(() => requestAnimationFrame(() => evenTracking(heroTitle, 0.0214)))
-      .catch(() => {});
   }
 
   /* ─── CLAVIER — flèches/PageUp/Down sautent au panel suivant/précédent ─── */
