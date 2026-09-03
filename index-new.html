@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mermoz Californie — Studio Créatif</title>
+<meta name="description" content="Mermoz Californie est un studio créatif. Identité visuelle, direction artistique, campagnes, digital." />
+<style>
+  @font-face { font-family:'PPObjectSans'; src:url('gleeden/assets/fonts/PPObjectSans/PPObjectSans-Thin.woff') format('woff'); font-weight:300; font-display:swap; }
+  @font-face { font-family:'PPObjectSans'; src:url('gleeden/assets/fonts/PPObjectSans/PPObjectSans-Regular.woff') format('woff'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'PPObjectSans'; src:url('gleeden/assets/fonts/PPObjectSans/PPObjectSans-Bold.woff') format('woff'); font-weight:700; font-display:swap; }
+  @font-face { font-family:'PPObjectSans'; src:url('gleeden/assets/fonts/PPObjectSans/PPObjectSans-Heavy.woff') format('woff'); font-weight:900; font-display:swap; }
+  *,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:   #000000;
+    --ink:  #FFFFFF;
+    --grey: #8a8a8a;
+    --line: #7c7c7c;
+    --sans: 'PPObjectSans', 'Helvetica Neue', Arial, sans-serif;
+  }
+  html,body{ height:100%; }
+  body{
+    background: var(--bg); color: var(--grey);
+    font-family: var(--sans);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; text-decoration:none; }
+  a:hover{ color: var(--ink); }
+  ul{ list-style:none; }
+
+  .container{ max-width: 1600px; margin:0 auto; padding: 0 32px; }
+
+  /* ─── header ─── */
+  header{
+    position: sticky; top:0; z-index:30; background: var(--bg);
+    padding: 24px 0 0;
+  }
+  .logo-row{
+    display:flex; align-items:center; gap: 16px;
+    font-weight:700; font-size: clamp(22px, 3vw, 36px); line-height:1;
+    letter-spacing:-0.01em; color: var(--ink);
+    padding-bottom: 22px;
+  }
+  .logo-row .bar{ flex:1 1 auto; height: 3px; background: currentColor; max-width: 320px; }
+  nav.primary{
+    display:flex; gap:28px; justify-content:flex-end;
+    font-size:13px; letter-spacing:0.02em; padding-bottom:22px;
+  }
+  nav.primary a{ color: var(--grey); }
+  nav.primary a:hover{ color: var(--ink); }
+
+  main{ padding: 130px 0 0; }
+
+  /* ─── about text ─── */
+  .about-text{
+    font-size: clamp(24px, 3.1vw, 40px);
+    line-height: 1.04;
+    color: var(--grey);
+    max-width: 100%;
+  }
+  .about-text a{ text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ─── services / references grid ─── */
+  .grid-2{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 32px;
+    margin: 96px 0;
+  }
+  .col h3{
+    font-size: 18px; font-weight:400; color: var(--ink); margin-bottom: 0;
+    line-height: 1.5;
+    -webkit-text-stroke: 0.3px currentColor;
+  }
+  .col ul li{
+    font-size: 18px; font-weight:400; color: var(--grey); padding: 0;
+    line-height: 1.5;
+    -webkit-text-stroke: 0.3px currentColor;
+  }
+  .col ul li a{ }
+
+  /* ─── contact ─── */
+  .contact-block{ margin: 96px 0; }
+  .contact-heading{
+    font-size: clamp(30px, 4vw, 48px); font-weight:700; color: var(--ink);
+    line-height:1; margin-bottom: 26px;
+  }
+  .contact-heading .rule{ display:block; color: var(--line); margin-top:10px; font-weight:400; }
+  .contact-details{ font-size:15px; }
+  .contact-details .role{ color: var(--grey); margin-bottom: 14px; }
+  .contact-details a{ text-decoration:underline; text-underline-offset:3px; color: var(--grey); }
+  .contact-details a:hover{ color: var(--ink); }
+
+  /* ─── footer ─── */
+  footer{
+    padding: 26px 0 40px;
+    border-top: 1px solid #262626;
+  }
+  .footer-row{
+    display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px;
+    margin-bottom: 60px;
+  }
+  .footer-logo{
+    display:flex; align-items:center; gap:10px;
+    font-weight:700; font-size: 22px; color: var(--ink);
+  }
+  .footer-logo .bar{ width: 60px; height:2px; background:currentColor; }
+  nav.footer-nav{ display:flex; gap:22px; font-size:13px; }
+  nav.footer-nav a{ color: var(--grey); }
+  nav.footer-nav a:hover{ color: var(--ink); }
+  .footer-bottom{
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    font-size:12px; color: var(--grey);
+  }
+
+  @media (max-width: 900px){
+    .grid-2{ grid-template-columns: 1fr; gap: 56px; }
+  }
+  @media (max-width: 640px){
+    .container{ padding: 0 20px; }
+    nav.primary{ justify-content:flex-start; flex-wrap:wrap; gap:16px; }
+    .logo-row{ font-size: 34px; }
+    .logo-row .bar{ max-width: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="logo-row">
+      <span>Mermoz</span><span class="bar"></span><span>Californie</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+
+    <p class="about-text">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam quis nostrud exercitation ullamco laboris.
+    </p>
+
+    <div class="grid-2">
+      <div class="col" id="services">
+        <h3>Services</h3>
+        <ul>
+          <li>Identité visuelle</li>
+          <li>Direction artistique</li>
+          <li>Motion</li>
+          <li>Campagnes</li>
+          <li>Print &amp; OOH</li>
+          <li>Digital</li>
+          <li>UI/UX</li>
+          <li>Editorial</li>
+          <li>Packaging</li>
+        </ul>
+      </div>
+      <div class="col" id="references">
+        <h3>Références</h3>
+        <ul>
+          <li>Lumen</li>
+          <li>Kaïros</li>
+          <li>Nectar</li>
+          <li>Solstice</li>
+          <li>Verano</li>
+          <li>Marbre</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="contact-block" id="contact">
+      <div class="contact-heading">
+        Mermoz Californie
+        <span class="rule">—</span>
+      </div>
+      <div class="contact-details">
+        <div class="role">Studio créatif</div>
+        <div><a href="mailto:creation@mermoz-californie.com">creation@mermoz-californie.com</a></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-row">
+      <div class="footer-logo"><span>Mermoz</span><span class="bar"></span><span>Californie</span></div>
+      <nav class="footer-nav">
+        <a href="#services">Services</a>
+        <a href="#references">Références</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span>© Mermoz Californie 2026</span>
+      <a href="mailto:creation@mermoz-californie.com">creation@mermoz-californie.com</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -942,7 +942,7 @@
 <div id="hero" class="panel">
   <div class="panel-inner">
     <div class="dark-brand-title" id="heroTitle">
-      <span class="hl-wrap"><span class="hl js-hl">Picture it.</span></span>
+      <span class="hl-wrap"><span class="hl js-hl">Picture it</span></span>
     </div>
     <div class="hero-services">
       <span class="svc-sub-line"></span>
@@ -1106,24 +1106,24 @@
     <form class="outro-form" id="outroForm" novalidate>
       <div class="outro-form-row">
         <input type="text" name="name" id="outroFormName" class="outro-form-input"
-               placeholder="Prénom / Nom" autocomplete="name" maxlength="120" required />
+               placeholder="First name / Last name" autocomplete="name" maxlength="120" required />
       </div>
       <div class="outro-form-row">
         <input type="email" name="email" id="outroFormEmail" class="outro-form-input"
-               placeholder="Adresse email" autocomplete="email" maxlength="120" required />
+               placeholder="Email address" autocomplete="email" maxlength="120" required />
       </div>
       <div class="outro-form-row">
         <textarea name="message" id="outroFormInput" class="outro-form-input outro-form-textarea"
-                  placeholder="Votre demande en deux mots" autocomplete="off" maxlength="500"
+                  placeholder="Your request" autocomplete="off" maxlength="500"
                   rows="1" required></textarea>
-        <button type="submit" class="outro-form-send" aria-label="Envoyer">
+        <button type="submit" class="outro-form-send" aria-label="Send">
           <svg width="26" height="14" viewBox="0 0 26 14" fill="none" aria-hidden="true">
             <path d="M0 7H24M24 7L18 1M24 7L18 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/>
           </svg>
         </button>
       </div>
     </form>
-    <div class="outro-form-confirm" id="outroFormConfirm">Merci, message envoyé.</div>
+    <div class="outro-form-confirm" id="outroFormConfirm">Thanks, message sent.</div>
     <div class="dark-brand-title" id="outroTitle">
       <span class="hl-wrap"><span class="hl js-outro-hl">Mermoz Californie</span></span>
     </div>
@@ -1626,7 +1626,7 @@
 
     // Affiche la confirmation immédiatement (UX optimiste)
     outroForm.classList.add('is-sent');
-    outroFormConfirm.textContent = 'Envoi en cours…';
+    outroFormConfirm.textContent = 'Sending…';
     outroFormConfirm.classList.add('is-shown');
 
     try {
@@ -1641,12 +1641,12 @@
         })
       });
       if (res.ok) {
-        outroFormConfirm.textContent = 'Merci, message envoyé.';
+        outroFormConfirm.textContent = 'Thanks, message sent.';
       } else {
-        outroFormConfirm.textContent = 'Erreur — réessayez plus tard.';
+        outroFormConfirm.textContent = 'Error — please try again later.';
       }
     } catch (err) {
-      outroFormConfirm.textContent = 'Erreur réseau — réessayez plus tard.';
+      outroFormConfirm.textContent = 'Network error — please try again later.';
     }
 
     // Reset après quelques secondes pour permettre un nouvel envoi
@@ -1658,7 +1658,7 @@
       outroForm.classList.remove('is-sent');
       outroFormConfirm.classList.remove('is-shown');
       // Restaure le texte par défaut après le fade-out
-      setTimeout(() => { outroFormConfirm.textContent = 'Merci, message envoyé.'; }, 600);
+      setTimeout(() => { outroFormConfirm.textContent = 'Thanks, message sent.'; }, 600);
     }, 4500);
   });
 
