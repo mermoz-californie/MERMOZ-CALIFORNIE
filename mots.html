@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mermoz Californie — Vocabulaire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    /* Propriété typée : sans le type <number>, le navigateur ne saurait pas
+       interpoler la valeur pendant le défilement. */
+    @property --scroll-percentage {
+      syntax: "<number>";
+      inherits: false;
+      initial-value: 0;
+    }
+
+    @keyframes liScroll {
+      to { --scroll-percentage: 1; }
+    }
+
+    :root {
+      --vert:  #F7FFF7;
+      --noir:  #181818;
+      --disp:  'Kumbh Sans', 'Helvetica Neue', Arial, sans-serif;
+      --body:  'Helvetica Neue', HelveticaNeue, Helvetica, Arial, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      /* 45vh de marge haut et bas : le premier et le dernier mot peuvent
+         atteindre le centre de l'écran, là où se trouve le repère. */
+      padding: 45vh 10vmin;
+      background: var(--noir);
+      color: var(--vert);
+      font-family: var(--disp);
+      font-weight: 700;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Repère fixe au centre ─── */
+    ul { list-style: none; }
+    ul::before {
+      content: '';
+      position: fixed;
+      top: 50vh;
+      left: 10vmin;
+      z-index: 0;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border-top: 1.6vmin solid transparent;
+      border-bottom: 1.6vmin solid transparent;
+      border-left: 2.2vmin solid currentcolor;
+    }
+
+    /* ─── Les mots ─── */
+    li {
+      --jump-max: 10vmin;      /* amplitude du décalage */
+      --jump-from: 0.28;       /* début de la poussée */
+      --jump-to: 0.72;         /* fin de la poussée */
+
+      /* Ramène la progression du mot dans la fenêtre (0 → 1) sur l'intervalle
+         utile, puis un sinus donne l'aller-retour : le mot s'écarte en
+         passant devant le repère et revient à sa place. */
+      --jump: clamp(
+        0,
+        (var(--scroll-percentage) - var(--jump-from)) / (var(--jump-to) - var(--jump-from)),
+        1
+      );
+
+      padding-left: calc(sin(var(--jump) * pi) * var(--jump-max));
+
+      text-transform: uppercase;
+      font-size: 10vmin;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      text-wrap: nowrap;
+    }
+
+    /* L'animation n'est branchée que si le navigateur sait la piloter au
+       défilement. Sinon la liste s'affiche normalement, simplement sans le
+       décalage — rien ne casse. */
+    @supports (animation-timeline: view()) {
+      li {
+        animation: liScroll linear both;
+        animation-timeline: view();
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      li { animation: none; padding-left: 0; }
+    }
+
+    /* ─── Retour à l'accueil ─── */
+    .retour {
+      position: fixed;
+      top: 28px; left: 10vmin;
+      z-index: 2;
+      font-family: var(--body);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--vert);
+      text-decoration: none;
+      opacity: 0.75;
+      transition: opacity 0.25s ease;
+    }
+    .retour:hover { opacity: 1; }
+
+    .signature {
+      position: fixed;
+      bottom: 24px; right: 10vmin;
+      z-index: 2;
+      font-family: var(--body);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--vert);
+      opacity: 0.55;
+    }
+
+    @media (max-width: 768px) {
+      li { font-size: 13vmin; }
+      .retour, .signature { left: 22px; right: 22px; }
+      .signature { text-align: right; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="retour" href="index.html">&larr; Mermoz Californie</a>
+
+  <ul>
+    <li>Idée</li>
+    <li>Signature</li>
+    <li>Territoire</li>
+    <li>Récit</li>
+    <li>Tension</li>
+    <li>Évidence</li>
+    <li>Rythme</li>
+    <li>Contraste</li>
+    <li>Justesse</li>
+    <li>Audace</li>
+    <li>Silence</li>
+    <li>Cadrage</li>
+    <li>Nuance</li>
+    <li>Impact</li>
+    <li>Matière</li>
+    <li>Ligne</li>
+    <li>Souffle</li>
+    <li>Densité</li>
+    <li>Angle</li>
+    <li>Instinct</li>
+    <li>Écriture</li>
+    <li>Geste</li>
+    <li>Lumière</li>
+    <li>Élan</li>
+    <li>Direction</li>
+    <li>Mémoire</li>
+    <li>Précision</li>
+    <li>Liberté</li>
+    <li>Désir</li>
+    <li>Picture it</li>
+  </ul>
+
+  <div class="signature">Studio MC</div>
+
+</body>
+</html>

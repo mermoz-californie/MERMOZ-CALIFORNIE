@@ -47,39 +47,15 @@
 
     :root {
       --bg:   #EFEDEA;
-      --black:#000000;
-      --bg-dark:#000000;   /* noir de référence du site */
+      --black:#181818;
+      --bg-dark:#181818;   /* noir de référence du site */
       --white:#EFEDEA;
       --mid:  #888;
-      --vert: #F7FFF7;
-      /* Couleur des éléments en mix-blend-mode: difference (nav, curseur).
-         Constante par thème : c'est la fusion qui les inverse. */
-      --sur-difference: #F7FFF7;
+      --vert: #A8F59A;
       --disp: 'Kumbh Sans', 'Helvetica Neue', Arial, sans-serif;
       --body: 'Helvetica Neue', HelveticaNeue, Helvetica, Arial, sans-serif;
       --ease: cubic-bezier(.9,0,.1,1);
     }
-
-    /* Couleurs typées : indispensable pour qu'elles s'interpolent au
-       changement de thème (voir la transition plus bas). */
-    @property --bg-dark { syntax: "<color>"; inherits: true; initial-value: #000000; }
-    @property --vert    { syntax: "<color>"; inherits: true; initial-value: #F7FFF7; }
-
-    /* ─── THÈME CLAIR ─── piloté par la pastille de la nav.
-       La classe est posée sur <html> et non <body> : c'est <html> qui porte
-       le fond de page, il doit basculer aussi. Tout le site suit, puisque
-       chaque couleur découle de ces deux jetons. */
-    html.clair {
-      --bg-dark: #F7FFF7;   /* les fonds passent au clair */
-      --vert:    #000000;   /* et la typo au sombre */
-      --white:   #000000;
-    }
-    /* Bascule instantanée, volontairement.
-       Une transition sur ces couleurs — que ce soit via background-color ou via
-       les variables typées — se fige dans certains moteurs et laisse le site
-       bloqué sur l'ancien thème. Pour un fondu, décommenter la ligne ci-dessous
-       et vérifier que la bascule aboutit bien dans les deux sens :
-       html { transition: --bg-dark 0.45s ease, --vert 0.45s ease; } */
 
     /* Scroll natif vertical avec snap mandatory + déceleration douce */
     html, body { height: 100%; }
@@ -106,14 +82,14 @@
     /* ─── CURSOR ─── */
     #cursor {
       position: fixed; width: 8px; height: 8px;
-      background: var(--sur-difference); border-radius: 50%;
+      background: var(--white); border-radius: 50%;
       pointer-events: none; z-index: 9999;
       transform: translate(-50%,-50%);
       mix-blend-mode: difference;
     }
     #cursor-ring {
       position: fixed; width: 36px; height: 36px;
-      border: 1px solid var(--sur-difference); border-radius: 50%;
+      border: 1px solid var(--white); border-radius: 50%;
       pointer-events: none; z-index: 9998;
       transform: translate(-50%,-50%);
       transition: all 0.1s linear;
@@ -135,13 +111,13 @@
     .nav-logo {
       font-family: var(--body); font-size: 13px; font-weight: 700;
       letter-spacing: normal; text-transform: uppercase;
-      color: var(--sur-difference); text-decoration: none;
+      color: var(--vert); text-decoration: none;
       margin-left: 10px;
     }
     .nav-right { display: flex; align-items: center; gap: 28px; }
     .nav-link {
       font-size: 10px; font-weight: 400; letter-spacing: normal;
-      text-transform: uppercase; color: var(--sur-difference);
+      text-transform: uppercase; color: var(--vert);
       text-decoration: none; opacity: 1; transition: opacity 0.15s;
     }
     .nav-link:hover { opacity: 0.55; }
@@ -152,7 +128,7 @@
     }
     .nav-menu-btn::after {
       content: ''; display: block; width: 7px; height: 7px;
-      background: var(--sur-difference); border-radius: 50%;
+      background: var(--vert); border-radius: 50%;
       transition: transform 0.3s var(--ease);
     }
     .nav-menu-btn:hover::after { transform: scale(1.4); }
@@ -162,71 +138,7 @@
       position: fixed; inset: 0; z-index: 0;
       /* Paysage Joshua Tree — version allégée (l'original 'bg 2.jpg' fait 6,7 Mo
          pour un rendu flouté : inutile de le charger en entier) */
-      background: url('assets/images/bg-paysage.jpg') center/cover no-repeat #000000;
-      filter: blur(7px) brightness(0.72);
-      transform: scale(1.04); /* compense le flou sur les bords */
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.75s ease;
-    }
-    /* Grain par-dessus — couche séparée pour ne PAS être floutée par le filter du #bg-reveal */
-    #bg-grain {
-      position: fixed; inset: 0; z-index: 0;
-      pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      background-size: 220px 220px;
-      mix-blend-mode: overlay;
-      opacity: 0;
-      transition: opacity 0.75s ease;
-    }
-    /* Dézoom : fond noir uni (le paysage reste disponible dans
-       assets/images/bg-paysage.jpg — passer l'opacité à 1 pour le réafficher) */
-    body.bg-open #bg-reveal { opacity: 0; }
-    /* Sur la section références : le paysage est masqué, fond noir, ref-images remplissent la zone */
-    body.on-references #bg-reveal { opacity: 0 !important; }
-    body.bg-open #bg-grain  { opacity: 0.85; }
-
-    /* ─── PANELS — dans le flux du document, scroll natif + snap ─── */
-    .panel {
-      position: relative;
-      z-index: 1; /* au-dessus de bg-reveal/bg-grain */
-      width: 100%;
-      height: 100vh;
-      padding: 0;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
-      overflow: hidden;
-    }
-    }
-
-    /* Scale des éléments À L'INTÉRIEUR de la zone (sauf le titre outro
-       et les éléments centrés en absolu qui ont déjà un translate). */
-    .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm):not(.ref-scroll):not(.ref-card) {
-      transform: scale(1);
-      transform-origin: center center;
-      transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    body.bg-open .panel-inner > *:not(#outroTitle):not(.outro-form):not(.outro-form-confirm):not(.ref-scroll):not(.ref-card) {
-      transform: scale(0.96);
-    }
-    /* Track de scroll des fonds : pas de scale, remplit la zone arrondie */
-    body.bg-open #references .ref-scroll { transform: none; }
-    /* Carte blanche : garde son centrage, ne scale pas */
-    body.bg-open #references .ref-card  { transform: translate(-50%, -50%); }
-    /* outro-form et outro-form-confirm : composer le scale avec leur translate. */
-    body.bg-open .outro-form,
-    body.bg-open .outro-form-confirm {
-      transform: translate(-50%, -50%) scale(0.96);
-    }
-
-    /* Pastille en thème clair : elle grossit pour marquer l'état */
-    .nav-menu-btn.is-clair::after { transform: scale(1.6); }
-
-    /* ─── BACKGROUND REVEAL ─── */
-    #bg-reveal {
-      position: fixed; inset: 0; z-index: 0;
-      /* Paysage Joshua Tree — version allégée (l'original 'bg 2.jpg' fait 6,7 Mo
-         pour un rendu flouté : inutile de le charger en entier) */
-      background: url('assets/images/bg-paysage.jpg') center/cover no-repeat #000000;
+      background: url('assets/images/bg-paysage.jpg') center/cover no-repeat #181818;
       filter: blur(7px) brightness(0.72);
       transform: scale(1.04); /* compense le flou sur les bords */
       opacity: 0; pointer-events: none;
@@ -272,14 +184,16 @@
       padding: 15px;
       border-radius: 0;
       overflow: hidden;
-      transition: border-radius 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-                  inset         0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: border-radius    0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  inset            0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  background-color 0.2s  ease-out;
     }
     body.bg-open .panel-inner {
       border-radius: 6px;
       inset: 67px;
-      transition: border-radius 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-                  inset         0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: border-radius    0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  inset            0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  background-color 0.65s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* Scale des éléments À L'INTÉRIEUR de la zone (sauf le titre outro
@@ -326,135 +240,22 @@
       .nav-menu-btn.is-loading::after { animation: none; }
     }
 
-    /* ─── SECTION MOTS — liste défilante sur fond vert ─── */
-    /* Propriété typée : sans le type <number>, le navigateur ne saurait pas
-       interpoler la valeur au fil du défilement. */
-    @property --scroll-percentage {
-      syntax: "<number>";
-      inherits: false;
-      initial-value: 0;
-    }
-    @keyframes motsScroll { to { --scroll-percentage: 1; } }
-
-    /* Section aimantée comme les autres : c'est la LISTE qui défile à
-       l'intérieur, pas la page. La ligne temporelle de l'animation prend
-       automatiquement ce conteneur comme référence. */
-    #mots .panel-inner { background: var(--bg-dark); color: var(--vert); padding: 0; }
-    #mots .mots-scroll {
-      position: absolute; inset: 0;
-      overflow-y: auto;
-      /* `auto` et non `contain` : arrivé en haut ou en bas de la liste, le
-         défilement s'enchaîne à la page pour remonter à la home ou continuer
-         vers les sections suivantes. Avec `contain`, on restait prisonnier. */
-      overscroll-behavior-y: auto;
-      padding: 45vh 10vmin;           /* 1er et dernier mot atteignent le centre */
-      scrollbar-width: none;
-    }
-    #mots .mots-scroll::-webkit-scrollbar { display: none; }
-    #mots ul { list-style: none; margin: 0; padding: 0; }
-    /* Ouverture et clôture : les deux mots sont plus grands que le reste et
-       restent seuls à l'écran. La marge est calée au plus juste — en dessous,
-       le mot suivant vient pointer au bas du cadre. */
-    #mots li:first-child,
-    #mots li:last-child { font-size: 16vmin; }
-    #mots li:first-child { margin-bottom: 45vh; }
-    #mots li:last-child  { margin-top: 45vh; }
-    #mots li {
-      --jump-max: 10vmin;
-      --jump-from: 0.28;
-      --jump-to: 0.72;
-      /* Progression du mot ramenée sur l'intervalle utile, puis un sinus
-         donne l'aller-retour : il s'écarte en passant le repère, puis revient. */
-      --jump: clamp(
-        0,
-        (var(--scroll-percentage) - var(--jump-from)) / (var(--jump-to) - var(--jump-from)),
-        1
-      );
-      /* --peak : 0 → 1 → 0, sommet quand le mot passe au centre de l'écran.
-         Tous les modes ci-dessous s'appuient dessus. */
-      --peak: sin(var(--jump) * pi);
-      font-family: var(--disp);
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 10vmin;
-      letter-spacing: -0.04em;
-      line-height: 0.9;
-      text-wrap: nowrap;
-    }
-    /* Branché uniquement si le navigateur pilote l'animation au défilement.
-       Sinon la liste s'affiche normalement, sans décalage — rien ne casse. */
-    @supports (animation-timeline: view()) {
-      #mots li {
-        animation: motsScroll linear both;
-        animation-timeline: view();
-      }
-
-      /* ─── Modes de motion — une classe sur #mots suffit à changer ─── */
-
-      /* 1. SAUT — le mot s'écarte vers la droite puis revient (défaut) */
-      #mots.m-saut li { padding-left: calc(var(--peak) * var(--jump-max)); }
-
-      /* 2. FOCUS — tout est flou et estompé sauf le mot au centre */
-      #mots.m-focus li {
-      opacity: calc(0.18 + var(--peak) * 0.82);
-      filter: blur(calc((1 - var(--peak)) * 5px));
-      }
-
-      /* 3. ÉCHELLE — le mot enfle en passant */
-      #mots.m-echelle li {
-      transform: scale(calc(1 + var(--peak) * 0.22));
-      transform-origin: left center;
-      }
-
-      /* 4. PISTE — l'interlettrage s'ouvre au centre */
-      #mots.m-piste li {
-      letter-spacing: calc(-0.04em + var(--peak) * 0.16em);
-      }
-
-      /* 5. BASCULE — rotation 3D, le mot se redresse face à nous au centre */
-      #mots.m-bascule li {
-      transform: perspective(80vmin)
-                 rotateX(calc((0.5 - var(--scroll-percentage)) * 80deg));
-      transform-origin: center center;
-      opacity: calc(0.3 + var(--peak) * 0.7);
-      }
-
-      /* 7. ÉCRITURE — les lettres s'allument une à une à l'approche du centre,
-         puis s'éteignent dans l'ordre inverse en s'éloignant.
-         Chaque lettre a son propre seuil : --i son rang, --n le total. */
-      #mots.m-ecriture li > .l {
-        display: inline-block;   /* requis pour que le découpage s'applique */
-        /* Les glyphes en pointe (A, V, Y) et l'interlettrage négatif font
-           déborder l'encre de la chasse : la découpe les rognait à droite.
-           On élargit la boîte et on compense par une marge négative — la
-           position des lettres reste rigoureusement identique. */
-        padding: 0 0.08em;
-        margin: 0 -0.08em;
-        /* seuil réparti sur 80 % de la montée : le mot est complet un peu
-           avant le centre exact */
-        --seuil: calc(var(--i) / var(--n) * 0.8);
-        /* Bascule franche : le facteur élevé fait passer la valeur de 0 à 1
-           sans état intermédiaire — la lettre est là ou elle n'est pas,
-           aucun fondu. */
-        --on: clamp(0, (var(--peak) - var(--seuil)) * 1000, 1);
-        clip-path: inset(0 calc((1 - var(--on)) * 100%) 0 0);
-      }
-
-      /* 6. VOLET — le mot se dévoile de la gauche */
-      #mots.m-volet li {
-      clip-path: inset(0 calc((1 - var(--peak)) * 100%) 0 0);
-      }
-
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #mots li { animation: none; padding-left: 0; }
-    }
-    @media (max-width: 768px) {
-      #mots li { font-size: 13vmin; }
-    }
-
     /* ─── HERO ─── */
     #hero { z-index: 2; }
+
+    /* Canvas de l'effet verre : sous le contenu HTML, masqué tant que la
+       scène 3D n'a pas démarré (si WebGL échoue, le titre HTML reste seul). */
+    #heroGlass {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: none;
+      z-index: 0;
+    }
+    body.glass-on #heroGlass { display: block; }
+    /* Le titre passe dans la scène 3D : on garde le HTML pour le référencement
+       et les lecteurs d'écran, mais on ne l'affiche plus en double. */
+    body.glass-on #heroTitle { opacity: 0; pointer-events: none; }
+    #hero .mobile-contact { position: relative; z-index: 1; }
     #hero .panel-inner { background: var(--bg-dark); }
     /* En dézoom : inversion — le panneau passe en vert, le titre en noir */
     body.bg-open #hero .panel-inner { background: var(--vert); }
@@ -784,7 +585,7 @@
 
     /* ─── RÉFÉRENCES PANEL ─── */
     #references { z-index: 1; }
-    #references .panel-inner { background: #000000; padding: 0; }
+    #references .panel-inner { background: #181818; padding: 0; }
 
     /* Track de scroll horizontal natif + snap (équivalent x du scroll vertical) */
     .ref-scroll {
@@ -953,7 +754,7 @@
 
     .outro-form-row {
       display: flex; align-items: center;
-      border-bottom: 1px solid var(--vert);
+      border-bottom: 1px solid rgba(239, 237, 234, 0.35);
       padding: 14px 0;
       transition: border-color 0.4s ease;
     }
@@ -969,7 +770,7 @@
       transition: color 0.4s ease;
     }
     .outro-form-input::placeholder {
-      color: var(--vert);
+      color: rgba(239, 237, 234, 0.4);
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
@@ -1174,7 +975,7 @@
         text-transform: uppercase;
         text-decoration: none;
         padding-bottom: 2px;
-        border-bottom: 1px solid var(--vert);
+        border-bottom: 1px solid rgba(239, 237, 234, 0.35);
         transition: opacity 0.3s ease, border-color 0.3s ease;
       }
       .mobile-contact-email:hover,
@@ -1202,6 +1003,9 @@
 
 <div id="bg-reveal"></div>
 <div id="bg-grain"></div>
+<!-- Piste audio lancée par la pastille de la nav -->
+<audio id="navTrack" preload="none" src="assets/musique/Aphex%20Twin%20-%20On.mp3"></audio>
+
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
 
@@ -1209,13 +1013,14 @@
   <a href="#" class="nav-logo">Mermoz Californie</a>
   <div class="nav-right">
     <a href="mailto:creation@mermoz-californie.com" class="nav-link">creation@mermoz-californie.com</a>
-    <button class="nav-menu-btn" aria-label="Changer de thème" aria-pressed="false"><span></span></button>
+    <button class="nav-menu-btn" aria-label="Menu"><span></span></button>
   </div>
 </nav>
 
 <!-- Panel 1 — Hero -->
 <div id="hero" class="panel">
   <div class="panel-inner">
+    <canvas id="heroGlass" aria-hidden="true"></canvas>
     <div class="dark-brand-title" id="heroTitle">
       <span class="hl-wrap"><span class="hl js-hl">Picture it</span></span>
     </div>
@@ -1225,43 +1030,6 @@
       <a href="mailto:creation@mermoz-californie.com" class="mobile-contact-email">creation@mermoz-californie.com</a>
     </div>
   </div>
-</div>
-
-<!-- Section MOTS — section aimantée ; la liste défile à l'intérieur -->
-<div id="mots" class="panel m-ecriture">
- <div class="panel-inner">
-  <div class="mots-scroll">
-   <ul>
-    <li>IDEA</li>
-    <li>SIGNATURE</li>
-    <li>TERRITORY</li>
-    <li>NARRATIVE</li>
-    <li>TENSION</li>
-    <li>RHYTHM</li>
-    <li>CONTRAST</li>
-    <li>ACCURACY</li>
-    <li>SILENCE</li>
-    <li>FRAMING</li>
-    <li>NUANCE</li>
-    <li>IMPACT</li>
-    <li>TEXTURE</li>
-    <li>LINE</li>
-    <li>BREATH</li>
-    <li>DENSITY</li>
-    <li>ANGLE</li>
-    <li>INSTINCT</li>
-    <li>WRITING</li>
-    <li>GESTURE</li>
-    <li>LIGHT</li>
-    <li>MOMENTUM</li>
-    <li>DIRECTION</li>
-    <li>MEMORY</li>
-    <li>PRECISION</li>
-    <li>FREEDOM</li>
-    <li>MERMOZ CALIFORNIE</li>
-   </ul>
-  </div>
- </div>
 </div>
 
 <!-- Panel 2 — Manifeste -->
@@ -1356,7 +1124,7 @@
   <div class="panel-inner">
     <!-- Fonds : remplis par le JS depuis le tableau REFS -->
     <div class="ref-scroll" id="refScroll">
-      <div class="ref-slide" style="background-color:#000000;"></div>
+      <div class="ref-slide" style="background-color:#181818;"></div>
       <div class="ref-slide" style="background-color:#222;"></div>
       <div class="ref-slide" style="background-color:#2a2a2a;"></div>
     </div>
@@ -1400,12 +1168,11 @@
 <!-- Section nav — graduations à droite pour accès direct -->
 <nav class="section-nav" id="sectionNav" aria-label="Sections">
   <button class="section-nav-tick is-active" data-idx="0" aria-label="Home"><span class="label">Home</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="1" aria-label="Mots"><span class="label">Mots</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="2" aria-label="Mantra"><span class="label">Mantra</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="3" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="4" aria-label="Outils"><span class="label">Outils</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="5" aria-label="Références"><span class="label">Références</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="6" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="1" aria-label="Mantra"><span class="label">Mantra</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="2" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="3" aria-label="Outils"><span class="label">Outils</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="4" aria-label="Références"><span class="label">Références</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="5" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
 </nav>
 
 <!-- Panel 5 — Outro -->
@@ -1709,7 +1476,6 @@
   let isAnimating = false;
   const panels = [
     document.getElementById('hero'),
-    document.getElementById('mots'),
     document.getElementById('manifeste'),
     document.getElementById('services'),
     document.getElementById('outils'),
@@ -1985,13 +1751,33 @@
     }, duration);
   }
 
-  /* ─── DOT TOGGLE — bascule le thème clair / sombre du site ─── */
+  /* ─── DOT TOGGLE — lecture / pause de la piste audio ─── */
   const navDotBtn = document.querySelector('.nav-menu-btn');
+  const navTrack  = document.getElementById('navTrack');
+
   navDotBtn.addEventListener('click', () => {
-    const clair = document.documentElement.classList.toggle('clair');
-    navDotBtn.classList.toggle('is-clair', clair);
-    navDotBtn.setAttribute('aria-pressed', clair ? 'true' : 'false');
+    if (!navTrack) return;
+    if (navTrack.paused) {
+      // La piste pèse 17 Mo et n'est pas préchargée : au premier clic il y a
+      // un temps de mise en mémoire tampon. On affiche l'attente tout de suite.
+      navDotBtn.classList.add('is-loading');
+      navTrack.play().catch(() => navDotBtn.classList.remove('is-loading'));
+    } else {
+      navTrack.pause();
+    }
   });
+
+  /* L'état de la pastille suit le lecteur lui-même, pas la promesse de play() :
+     celle-ci peut être rejetée pendant la mise en tampon alors que la lecture
+     démarre bien juste après. */
+  if (navTrack) {
+    navTrack.addEventListener('playing', () => {
+      navDotBtn.classList.remove('is-loading');
+      navDotBtn.classList.add('is-playing');
+    });
+    navTrack.addEventListener('pause', () => navDotBtn.classList.remove('is-playing', 'is-loading'));
+    navTrack.addEventListener('ended', () => navDotBtn.classList.remove('is-playing', 'is-loading'));
+  }
 
   /* ─── ACCORDÉON SOUS-TITRES ─── */
   let openSub = null;
@@ -2230,56 +2016,236 @@
   window.addEventListener('load', () => window.scrollTo(0, 0));
 </script>
 
-<script>
-  /* Essai des motions de la liste MOTS sans rééditer le fichier :
-     mcMots('focus')  → saut · focus · echelle · piste · bascule · volet     */
-  (function () {
-    const MODES = ['saut', 'focus', 'echelle', 'piste', 'bascule', 'volet', 'ecriture'];
-    const el = document.getElementById('mots');
-
-    /* Découpe chaque mot en lettres pour le mode ÉCRITURE. On garde le mot
-       entier dans aria-label : découpé, il serait épelé par les lecteurs
-       d'écran. Les autres modes animent le <li>, ce découpage ne les gêne pas. */
-    if (el) {
-      el.querySelectorAll('li').forEach(li => {
-        const texte = li.textContent.trim();
-        li.setAttribute('aria-label', texte);
-        const lettres = [...texte];
-        li.textContent = '';
-        li.style.setProperty('--n', lettres.length);
-        lettres.forEach((c, i) => {
-          const sp = document.createElement('span');
-          sp.className = 'l';
-          sp.setAttribute('aria-hidden', 'true');
-          sp.style.setProperty('--i', i);
-          sp.textContent = c === ' ' ? '\u00a0' : c;
-          li.appendChild(sp);
-        });
-      });
-    }
-    /* Certains navigateurs déclarent supporter les animations liées au
-       défilement sans les exécuter. Les modes qui atténuent le texte
-       (focus, bascule, volet) laisseraient alors la liste illisible.
-       On vérifie que la ligne temporelle progresse vraiment ; sinon on
-       retire le mode et la liste s'affiche nette. */
-    requestAnimationFrame(() => {
-      const li = el && el.querySelector('li');
-      const anim = li && li.getAnimations ? li.getAnimations()[0] : null;
-      const inactive = !anim || !anim.timeline || anim.timeline.currentTime === null;
-      if (inactive && el) {
-        MODES.forEach(m => el.classList.remove('m-' + m));
-        el.dataset.motionInactive = 'true';
-      }
-    });
-
-    window.mcMots = (nom) => {
-      if (!el) return 'section MOTS absente';
-      if (!MODES.includes(nom)) return 'modes : ' + MODES.join(' · ');
-      MODES.forEach(m => el.classList.remove('m-' + m));
-      el.classList.add('m-' + nom);
-      return nom;
-    };
-  })();
+<!-- ═══ EFFET VERRE SUR "PICTURE IT" ═══
+     Le titre est redessiné dans un canvas puis placé dans une scène 3D : c'est
+     la seule façon qu'un matériau à transmission puisse le RÉFRACTER (du HTML
+     posé derrière un canvas ne serait pas vu par le moteur de rendu). -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
 </script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const BG     = '#181818';
+const INK    = '#A8F59A';
+const TEXTE  = 'PICTURE IT';
+const FAMILY = '"Kumbh Sans", "Helvetica Neue", Arial, sans-serif';
+const POIDS  = 700;
+const GAP_EM = 0.0214;          // même écart optique que la version HTML
+const CAM_Z  = 5;
+
+/* Forme de l'objet en verre. Valeurs possibles :
+   'noeud' · 'sphere' · 'tore' · 'gemme' · 'capsule' · 'cube' · 'diamant'
+   Essai en direct depuis la console : mcForme('sphere') */
+const FORME = 'cube';
+
+function geometrie(nom) {
+  switch (nom) {
+    case 'sphere':  return new THREE.SphereGeometry(1.15, 96, 96);
+    case 'tore':    return new THREE.TorusGeometry(1, 0.38, 64, 160);
+    case 'gemme':   return new THREE.IcosahedronGeometry(1.3, 0);
+    case 'diamant': return new THREE.OctahedronGeometry(1.4, 0);
+    case 'capsule': return new THREE.CapsuleGeometry(0.7, 1.1, 32, 64);
+    case 'cube':    return new THREE.BoxGeometry(1.7, 1.7, 1.7);
+    default:        return new THREE.TorusKnotGeometry(1, 0.3, 300, 48, 2, 3);
+  }
+}
+
+const canvas = document.getElementById('heroGlass');
+const peuDeMouvement = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ─── Mesure de l'encre réelle de chaque lettre (scan de pixels) ───
+   Identique à evenTracking : les métriques actualBoundingBox* n'ont pas la
+   même convention de signe selon les navigateurs, le scan est fiable partout. */
+const mCanvas = document.createElement('canvas');
+const mCtx = mCanvas.getContext('2d', { willReadFrequently: true });
+const cache = new Map();
+const REF = 100;
+
+function encre(ch) {
+  if (cache.has(ch)) return cache.get(ch);
+  let r = { vide: true, lsb: 0, rsb: 0, adv: 0, haut: 0.72, bas: 0 };
+  try {
+    const font = `${POIDS} ${REF}px ${FAMILY}`;
+    mCtx.font = font;
+    const adv = mCtx.measureText(ch).width;
+    const pad = REF, w = Math.ceil(adv + pad * 2), h = REF * 2, base = h * 0.75;
+    mCanvas.width = w; mCanvas.height = h;
+    mCtx.font = font;
+    mCtx.textBaseline = 'alphabetic';
+    mCtx.fillStyle = '#fff';
+    mCtx.fillText(ch, pad, base);
+    const d = mCtx.getImageData(0, 0, w, h).data;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (let y = 0; y < h; y++) {
+      const row = y * w * 4;
+      for (let x = 0; x < w; x++) {
+        if (d[row + x * 4 + 3] > 10) {
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    r = minX === Infinity
+      ? { vide: true, lsb: 0, rsb: 0, adv: adv / REF, haut: 0, bas: 0 }
+      : { vide: false,
+          lsb: (minX - pad) / REF,
+          rsb: (adv - (maxX + 1 - pad)) / REF,
+          adv: adv / REF,
+          haut: (base - minY) / REF,
+          bas: (maxY + 1 - base) / REF };
+  } catch (e) { /* mesure impossible : on garde les valeurs par défaut */ }
+  cache.set(ch, r);
+  return r;
+}
+
+/* Position de chaque lettre pour un écart d'encre CONSTANT */
+function composer(taille) {
+  const lettres = [...TEXTE];
+  let x = 0, haut = 0, bas = 0;
+  const xs = [];
+  lettres.forEach((ch, i) => {
+    const m = encre(ch);
+    if (i > 0) {
+      const p = encre(lettres[i - 1]);
+      if (!p.vide && !m.vide) x += (GAP_EM - (p.rsb + m.lsb)) * taille;
+    }
+    xs.push(x);
+    x += m.adv * taille;
+    haut = Math.max(haut, m.haut * taille);
+    bas  = Math.max(bas,  m.bas  * taille);
+  });
+  return { xs, largeur: x, haut, bas };
+}
+
+const tCanvas = document.createElement('canvas');
+const tCtx = tCanvas.getContext('2d');
+let texture = null;
+
+const plan = new THREE.Mesh(
+  new THREE.PlaneGeometry(1, 1),
+  new THREE.MeshBasicMaterial({ toneMapped: false })
+);
+
+function dessinerTexte(w, h) {
+  const dpr = Math.min(devicePixelRatio, 2);
+  tCanvas.width = Math.round(w * dpr);
+  tCanvas.height = Math.round(h * dpr);
+  tCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  tCtx.fillStyle = BG;
+  tCtx.fillRect(0, 0, w, h);
+
+  // taille qui remplit la largeur, plafonnée par la hauteur
+  let taille = 100;
+  taille *= (w * 0.86) / composer(taille).largeur;
+  taille = Math.min(taille, h * 0.36);
+  const l = composer(taille);
+
+  tCtx.font = `${POIDS} ${taille}px ${FAMILY}`;
+  tCtx.textBaseline = 'alphabetic';
+  tCtx.fillStyle = INK;
+  const x0 = (w - l.largeur) / 2;
+  const base = h / 2 + (l.haut - l.bas) / 2;   // centrage optique des capitales
+  [...TEXTE].forEach((ch, i) => tCtx.fillText(ch, x0 + l.xs[i], base));
+
+  if (texture) texture.dispose();
+  texture = new THREE.CanvasTexture(tCanvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  plan.material.map = texture;
+  plan.material.needsUpdate = true;
+}
+
+/* ─── Scène ─── */
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+} catch (e) {
+  renderer = null;                       // WebGL indisponible : titre HTML conservé
+}
+
+if (renderer) {
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(BG);
+
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = CAM_Z;
+
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.add(plan);
+
+  const verre = new THREE.Mesh(
+    geometrie(FORME),
+    new THREE.MeshPhysicalMaterial({
+      color: 0xffffff, metalness: 0, roughness: 0,
+      transmission: 1, thickness: 0.7, ior: 1.45,
+      dispersion: 4, envMapIntensity: 1, toneMapped: false
+    })
+  );
+  verre.position.z = 2.2;
+  scene.add(verre);
+
+  function redimensionner() {
+    const w = canvas.clientWidth || innerWidth;
+    const h = canvas.clientHeight || innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+
+    const hVisible = 2 * CAM_Z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const wVisible = hVisible * camera.aspect;
+    plan.scale.set(wVisible, hVisible, 1);
+    verre.scale.setScalar(Math.min(wVisible, hVisible) * 0.09);
+    dessinerTexte(w, h);
+  }
+
+  const souris = new THREE.Vector2();
+  addEventListener('pointermove', (e) => {
+    souris.x = (e.clientX / innerWidth) * 2 - 1;
+    souris.y = (e.clientY / innerHeight) * 2 - 1;
+  });
+
+  const horloge = new THREE.Clock();
+  function rendre() {
+    const t = horloge.getElapsedTime();
+    if (peuDeMouvement) {
+      verre.rotation.set(0.6, 0.4, 0);
+    } else {
+      verre.rotation.x = t * 0.35 + souris.y * 0.15;
+      verre.rotation.y = t * 0.5  + souris.x * 0.2;
+    }
+    renderer.render(scene, camera);
+  }
+
+  /* Permet d'essayer une forme sans rééditer le fichier : mcForme('gemme') */
+  window.mcForme = (nom) => {
+    verre.geometry.dispose();
+    verre.geometry = geometrie(nom);
+    if (peuDeMouvement) rendre();
+    return nom;
+  };
+
+  const demarrer = () => {
+    redimensionner();
+    rendre();
+    document.body.classList.add('glass-on');   // le titre HTML s'efface une fois la 3D à l'écran
+    if (!peuDeMouvement) renderer.setAnimationLoop(rendre);
+    new ResizeObserver(redimensionner).observe(canvas.parentElement);
+  };
+
+  // On attend la police : sans elle le texte serait dessiné dans une fonte de repli
+  (document.fonts?.ready ?? Promise.resolve()).then(demarrer).catch(demarrer);
+}
+</script>
+
 </body>
 </html>
