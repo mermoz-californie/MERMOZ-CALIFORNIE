@@ -352,13 +352,7 @@
       scrollbar-width: none;
     }
     #mots .mots-scroll::-webkit-scrollbar { display: none; }
-    /* Chaque mot est centré sur son propre axe : drapeau des deux côtés. */
-    #mots ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
+    #mots ul { list-style: none; margin: 0; padding: 0; }
     /* Clôture : seul CREATIVITY se détache — plus grand que le reste et isolé
        par un vide. */
     #mots li:last-child {
@@ -382,7 +376,7 @@
       font-family: var(--disp);
       font-weight: 700;
       text-transform: uppercase;
-      font-size: 14vmin;
+      font-size: 12vmin;
       letter-spacing: -0.04em;
       line-height: 0.9;
       text-wrap: nowrap;
@@ -450,7 +444,7 @@
            une plus lentement. 0.115 est le maximum possible ici — au-delà,
            IDEA ne serait plus entièrement écrit à l'ouverture, puisque seuls
            ~0.10 de progression le séparent de SIGNATURE. */
-        --ecrit-in:  clamp(0, (var(--scroll-percentage) - 0.39) / 0.115, 1);
+        --ecrit-in:  clamp(0, (var(--scroll-percentage) - 0.42) / 0.115, 1);
         /* Effacement entamé à 68 % et achevé à 80 % de la traversée : le mot
            se défait dans le tiers haut de l'écran, donc bien visible, au lieu
            de disparaître une fois sorti du cadre. */
@@ -485,7 +479,7 @@
       #mots li { animation: none; padding-left: 0; }
     }
     @media (max-width: 768px) {
-      #mots li { font-size: 17vmin; }
+      #mots li { font-size: 15vmin; }
     }
 
     /* ─── HERO ─── */
@@ -1139,8 +1133,8 @@
       nav { padding: 14px 16px; }
       .nav-logo, .nav-link, .nav-menu-btn { display: none; }
 
-      /* Cacher tous les panels sauf la liste. */
-      .panel:not(#mots) { display: none; }
+      /* Cacher tous les panels sauf le hero. */
+      .panel:not(#hero) { display: none; }
 
       /* Cacher tous les éléments fixes liés aux autres sections. */
       .section-nav, .outro-meta { display: none; }
@@ -1249,14 +1243,22 @@
 </nav>
 
 <!-- Panel 1 — Hero -->
+<div id="hero" class="panel">
+  <div class="panel-inner">
+    <div class="dark-brand-title" id="heroTitle">
+      <span class="hl-wrap"><span class="hl js-hl">Picture it</span></span>
+    </div>
+    <!-- Bloc visible UNIQUEMENT en mobile (≤768px) : ligne + email cliquable -->
+    <div class="mobile-contact">
+      <div class="mobile-contact-line"></div>
+      <a href="mailto:creation@mermoz-californie.com" class="mobile-contact-email">creation@mermoz-californie.com</a>
+    </div>
+  </div>
+</div>
+
 <!-- Section MOTS — section aimantée ; la liste défile à l'intérieur -->
 <div id="mots" class="panel m-ecriture">
  <div class="panel-inner">
-  <!-- Visible UNIQUEMENT en mobile (≤768px) : email cliquable -->
-  <div class="mobile-contact">
-    <div class="mobile-contact-line"></div>
-    <a href="mailto:creation@mermoz-californie.com" class="mobile-contact-email">creation@mermoz-californie.com</a>
-  </div>
   <div class="mots-scroll">
    <ul>
     <li>WONDER</li>
@@ -1426,12 +1428,13 @@
 
 <!-- Section nav — graduations à droite pour accès direct -->
 <nav class="section-nav" id="sectionNav" aria-label="Sections">
-  <button class="section-nav-tick is-active" data-idx="0" aria-label="Mots"><span class="label">Mots</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="1" aria-label="Mantra"><span class="label">Mantra</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="2" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="3" aria-label="Outils"><span class="label">Outils</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="4" aria-label="Références"><span class="label">Références</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="5" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
+  <button class="section-nav-tick is-active" data-idx="0" aria-label="Home"><span class="label">Home</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="1" aria-label="Mots"><span class="label">Mots</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="2" aria-label="Mantra"><span class="label">Mantra</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="3" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="4" aria-label="Outils"><span class="label">Outils</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="5" aria-label="Références"><span class="label">Références</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="6" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
 </nav>
 
 <!-- Panel 5 — Outro -->
@@ -1490,7 +1493,6 @@
 
   /* splitChars : crée char-wrap > char pour le clip mask reveal */
   function splitChars(container, selector) {
-    if (!container) return;      // le hero n'existe plus : appel sans objet
     let globalIdx = 0;
     container.querySelectorAll(selector).forEach((span, wordIdx) => {
       const text = span.textContent;
@@ -1590,7 +1592,7 @@
   const heroTitle    = document.getElementById('heroTitle');
 
   /* Mobile : tap sur MERMOZ CALIFORNIE → toggle l'affichage de la tagline. */
-  heroTitle?.addEventListener('click', () => {
+  heroTitle.addEventListener('click', () => {
     if (window.innerWidth <= 768) {
       const tag = document.querySelector('.js-tagline');
       tag?.classList.toggle('is-tap-shown');
@@ -1709,7 +1711,6 @@
 
   /* ─── ENTER / EXIT ─── */
   function enterEl(el) {
-    if (!el) return;
     // Recalcule le stagger séquentiel à chaque entrée
     el.querySelectorAll('.char').forEach((ch, i) => {
       ch.style.setProperty('--char-delay', (i * 0.028 + Math.random() * 0.015) + 's');
@@ -1723,7 +1724,6 @@
   }
 
   function exitEl(el) {
-    if (!el) return;
     // Sortie rapide quasi-simultanée, léger stagger décroissant
     const chars = [...el.querySelectorAll('.char')];
     chars.forEach((ch, i) => {
@@ -1737,6 +1737,7 @@
   let current = 0;
   let isAnimating = false;
   const panels = [
+    document.getElementById('hero'),
     document.getElementById('mots'),
     document.getElementById('manifeste'),
     document.getElementById('services'),
@@ -2216,7 +2217,8 @@
   function bootHero() {
     fitOutroTitle();
     evenTracking(heroTitle, 0.0214);
-    heroTitle?.querySelectorAll('.char').forEach(ch => {
+    // Randomiser les délais d'entrée du hero (plus court qu'avant pour plus de snap).
+    heroTitle.querySelectorAll('.char').forEach(ch => {
       ch.style.setProperty('--char-delay', (Math.random() * 0.22) + 's');
     });
     setTimeout(() => {
