@@ -616,13 +616,11 @@
     /* 002 — Paragraphes éditoriaux (texte mantra, texte outils) — apparition ligne par ligne (opacité). */
     .mfst-body {
       font-family: 'Editorial New', Georgia, serif;
-      font-size: clamp(17px, 1.8vw, 28px);
+      font-size: clamp(28px, 3.8vw, 64px);
       font-style: italic;
       color: var(--vert); text-align: center;
-      max-width: 900px; padding: 0 60px; line-height: 1.25;
+      max-width: 1000px; padding: 0 60px; line-height: 1.08;
     }
-    /* Texte en plusieurs paragraphes : l'air entre les blocs, pas d'indentation. */
-    .mfst-body p + p { margin-top: 0.85em; }
     /* Chaque mot wrappé par splitWords() ; le delay est posé par applyLineDelays()
        en JS selon la position Y → tous les mots d'une même ligne fadent ensemble. */
     .mfst-body .word-inner,
@@ -1297,14 +1295,11 @@
 <div id="manifeste" class="panel">
   <div class="panel-inner">
     <div class="mfst-label" id="mfstLabel">
-      <span>QUI SOMMES-NOUS</span>
+      <span>CE QUE NOUS FAISONS</span>
     </div>
-    <div class="mfst-body" id="mfstBody">
-      <p>On est un studio de création. Conception, rédaction, design, stratégie &mdash; les bonnes personnes autour de la bonne idée.</p>
-      <p>Tout le monde en a marre de la pub. Alors imaginez quand elle est mauvaise. Un message ne passe que s'il est digeste. Le reste, c'est du bruit.</p>
-      <p>L'humain est simple : il retient l'humour, la poésie, une couleur, une typo. Pas un plan média gonflé pour compenser un angle creux. Acheter de l'espace pour dire quelque chose de fade, c'est de l'argent par la fenêtre.</p>
-      <p>Alors on ne vous montrera que des choses qui nous plaisent &mdash; et qui répondent au brief. Les deux. Toujours.</p>
-    </div>
+    <p class="mfst-body" id="mfstBody">
+      Nous imageons ce que vous imaginez<br>pour votre startup et votre entreprise.
+    </p>
     <p class="mfst-sub" id="mfstSub">
       <span class="svc-sub-item">Identité visuelle</span>
       <span class="svc-sub-line"></span>
