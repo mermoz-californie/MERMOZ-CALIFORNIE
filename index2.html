@@ -1691,8 +1691,8 @@ a{ color: inherit; text-decoration: none; }
            déplacement T, grossissement k autour de O, puis le
            déplacement fait à la main. */
         var g = geo[i];
-        var lx = (fx - g.tx - g.ox) / g.k + g.ox - off[i].x;
-        var ly = (fy - g.ty - g.oy) / g.k + g.oy - off[i].y;
+        var lx = g.ox + ((fx - g.tx - g.ox) / g.k - off[i].x) / zoom[i];
+        var ly = g.oy + ((fy - g.ty - g.oy) / g.k - off[i].y) / zoom[i];
         var px = Math.floor(lx * W), py = Math.floor(ly * H);
         if(px >= 0 && py >= 0 && px < W && py < H && a[py * W + px] > 24) return i;
       }
@@ -1701,7 +1701,40 @@ a{ color: inherit; text-decoration: none; }
 
     function applique(i){
       sheets[i].style.transform =
-        'translate(' + (off[i].x * 100) + '%, ' + (off[i].y * 100) + '%)';
+        'translate(' + (off[i].x * 100) + '%, ' + (off[i].y * 100) + '%)' +
+        (zoom[i] !== 1 ? ' scale(' + zoom[i] + ')' : '');
+    }
+
+    /* Sur téléphone, la pastille tenue grossit de 25 % avec un petit
+       rebond, et reprend sa taille quand on la lâche. Le grossissement
+       est animé à la main, image par image, et non par une transition
+       CSS : une transition sur transform ralentirait aussi le
+       déplacement, et la pastille traînerait derrière le doigt. */
+    var zoom = sheets.map(function(){ return 1; });
+    var anims = [], fins = [];
+    var TENUE = 1.25;
+    function rebond(p){          /* dépasse à peine la cible, puis s'y pose */
+      var c = 1.1, u = p - 1;
+      return 1 + (c + 1) * u * u * u + c * u * u;
+    }
+    function zoome(i, cible){
+      cancelAnimationFrame(anims[i]);
+      var depart = zoom[i], t0 = performance.now(), duree = 130;
+      (function pas(){
+        /* l'heure lue ici, pas celle que passe le navigateur : la sienne
+           peut précéder t0, et la courbe partirait à l'envers */
+        var p = Math.max(0, Math.min(1, (performance.now() - t0) / duree));
+        zoom[i] = depart + (cible - depart) * rebond(p);
+        applique(i);
+        if(p < 1) anims[i] = requestAnimationFrame(pas);
+        else { zoom[i] = cible; applique(i); }
+      })();
+      /* filet : si le navigateur saute des images, la taille finale
+         est posée quand même */
+      clearTimeout(fins[i]);
+      fins[i] = setTimeout(function(){
+        cancelAnimationFrame(anims[i]); zoom[i] = cible; applique(i);
+      }, duree + 60);
     }
 
     stage.addEventListener('pointerdown', function(e){
@@ -1711,6 +1744,7 @@ a{ color: inherit; text-decoration: none; }
       e.preventDefault();
       sheets[i].style.zIndex = ++sommet;
       prise = { i: i, x: e.clientX, y: e.clientY, ox: off[i].x, oy: off[i].y };
+      if(telephone.matches) zoome(i, TENUE);
       try{ stage.setPointerCapture(e.pointerId); }catch(err){}
       stage.style.cursor = 'grabbing';
     });
@@ -1729,6 +1763,7 @@ a{ color: inherit; text-decoration: none; }
 
     function lache(){
       if(!prise) return;
+      if(zoom[prise.i] !== 1) zoome(prise.i, 1);
       prise = null;
       stage.style.cursor = '';
     }
