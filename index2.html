@@ -320,9 +320,48 @@ a{ color: inherit; text-decoration: none; }
    l'écart entre deux lignes redevient exactement l'interlignage
    demandé. */
 .punch .red,
-.punch .off{ display: flex; flex-direction: column; }
+.punch .off{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* la largeur exacte d'une espace de la punchline, mesurée */
+  column-gap: .173em;
+}
+
+/* LES RETOURS À LA LIGNE
+
+   Un élément vide qui prend toute la largeur force la suite à la
+   ligne suivante. Sa hauteur est nulle : il ne crée aucun blanc.
+   br vaut sur tous les écrans, br-o sur ordinateur seulement, br-t
+   sur téléphone seulement. C'est ce qui permet deux découpages
+   différents du même texte, même quand une ligne du téléphone est
+   à cheval sur deux lignes de l'ordinateur, comme « pas de ». */
+.punch .br{ flex-basis: 100%; height: 0; }
+.punch .br-t{ display: none; }
+
+/* « naires, » se recolle à « d'action » sur ordinateur : la marge
+   négative annule l'espace entre les deux groupes, et le trait de
+   césure est caché. Sur téléphone, les deux passent sur deux lignes
+   et le trait réapparaît. */
+.punch .suite{ margin-left: calc(-.1em - .173em); }
+.punch .cesure{ display: none; }
 .punch .red{ color: var(--rose); }
 .punch .off{ color: var(--blanc); }
+
+/* DEUX MORCEAUX D'UNE MÊME LIGNE
+
+   Certaines lignes ne se coupent pas au même endroit selon l'écran :
+   « on est pas au CAC40 » tient sur une ligne sur ordinateur et
+   passe sur deux sur téléphone. Chaque morceau garde son propre
+   masque, donc sa propre vague. Sur ordinateur, les deux morceaux
+   se remettent côte à côte, séparés par la largeur exacte d'une
+   espace du texte, mesurée à 0,173 em : la ligne retombe à
+   l'identique. Sur téléphone, ils s'empilent. */
+.duo{
+  display: flex;
+  justify-content: center;
+  gap: .173em;
+}
 
 /* LA PASTILLE DE LA PUNCHLINE
 
@@ -615,6 +654,12 @@ a{ color: inherit; text-decoration: none; }
 /* le corps se déclare sur les lignes : un élément ne peut pas
    interroger le conteneur qu'il est lui-même */
 .who__t .m{ font-size: 15.9cqw; }
+/* L'écart entre « Qui » et « sommes » se compte en em : il faut
+   donc que le conteneur des deux morceaux porte le même corps que
+   les lettres, sinon l'em serait celui du texte courant, dix fois
+   plus petit. L'espace du titre, plus serré et plus grand, mesure
+   0,195 em et non 0,173 comme dans la punchline. */
+.who__t .duo{ font-size: 15.9cqw; gap: .195em; }
 
 /* ------------------------------------------------------------
    LA POSE
@@ -768,15 +813,49 @@ a{ color: inherit; text-decoration: none; }
      sa largeur : ça aère un grand écran, mais sur un téléphone ça
      faisait 51 px de chaque côté, un quart de la largeur perdu, et
      tous les textes serrés dans 288 px. Elle redevient fixe. */
-  :root{ --side: 22px; }
+  :root{ --side: 22px; --section: 56px; }
 
-  .top__logo{ font-size: 15px; }
-  .top__tag{ font-size: 12px; }
+  /* L'accueil n'occupe plus tout l'écran : il prend la hauteur de
+     sa phrase. Plein écran, il laissait deux grands pans de noir
+     autour d'elle et repoussait la liste loin en bas. */
+  .hero{ min-height: 0; padding: 96px var(--edge) 132px; }
+  .punch{ margin-bottom: 0; }
+
+  .contact{ padding-bottom: 56px; }
+
+  /* Section plus courte : 120 % de l'écran. Les onze pastilles se
+     posent sur un peu plus de la moitié d'un écran de défilement.
+
+     La scène « Qui sommes nous » garde son épinglage, mais dans un
+     cadre de 62 % de l'écran au lieu de l'écran entier, centré par
+     son décalage de 19 %. La composition n'en remplit qu'un tiers
+     sur un téléphone : plein écran, elle laissait près de 300 px de
+     noir avant elle et autant après. */
+  .who{ height: 120svh; }
+  .who__sticky{ height: 62svh; top: 19svh; }
+
+  /* Le nom ne se coupe jamais. Sur les écrans les plus étroits,
+     c'est l'accroche qui passe sur deux lignes, calée à droite :
+     les deux se coupaient sinon, et l'en-tête se lisait mal. */
+  .top{ align-items: flex-start; }
+  .top__logo{ font-size: 15px; white-space: nowrap; }
+  .top__tag{ font-size: 12px; line-height: 1.25; max-width: 11em; }
+
+  /* les lignes en deux morceaux s'empilent : les coupures voulues
+     pour le téléphone, lignes courtes, corps plus fort */
+  .who__t .duo{ flex-direction: column; gap: 0; }
+
+  .punch .br-o{ display: none; }
+  .punch .br-t{ display: block; }
+  .punch .suite{ margin-left: -.1em; }
+  .punch .cesure{ display: inline-block; }
 
   .label{ font-size: 12px; letter-spacing: .18em; }
 
   .craft__n{ font-size: 12px; }
-  .craft__t{ font-size: clamp(28px, 8.2vw, 40px); }
+  /* plus que doublés : sur une colonne de 320 px, « Branding » a la
+     place de monter jusque vers 290 px de large */
+  .craft__t{ font-size: clamp(28px, 18.5vw, 80px); }
   .craft__d{ font-size: 14px; line-height: 1.4; }
 
   /* le manifeste se lit, il ne se regarde pas : corps plus fort,
@@ -794,16 +873,32 @@ a{ color: inherit; text-decoration: none; }
      nous ? » touche juste les bords de l'écran, et les pastilles,
      rassemblées au centre, gagnent un cinquième de leur taille. */
   .who{ --who-pad: 64px; }
-  .stage{ --zoom: 1.2; }
+  /* Les pastilles au maximum de ce que permet la largeur : leur
+     ensemble occupe 63 % de la scène, et à 1,64 il tient tout juste
+     dans l'écran. Plus grand, les pastilles du bord seraient coupées.
+     Le titre, lui, ne doit pas suivre : son corps est divisé
+     d'autant plus bas, pour qu'il garde sa taille à l'écran. */
+  .stage{ --zoom: 1.64; }
 
   /* la pastille de la punchline suit : à 36 % de la largeur elle
      tombait à 120 px, trop petite pour être lue */
+  /* Au maximum que permet la largeur. Avec la césure de
+     « d'action-naires, », la ligne la plus large devient « on est
+     pas », qui doit tenir sur l'écran : au-delà elle en sort. */
+  .punch{ font-size: min(16.5vw, 84px); }
+
+  /* Le titre de la scène, sur trois lignes. « sommes » occupe
+     presque toute la largeur de l'écran à lui seul : c'est lui qui
+     borne le corps. */
+  .who__t .m,
+  .who__t .duo{ font-size: 12.44cqw; }   /* 17 × 1,2 / 1,64 */
+
   .punch__sticker{
-    width: 52%;
+    width: 100%;
     /* plus bas que sur grand écran : à cette taille, la pastille
        recouvrait « TICKET RES » et la chute devenait illisible.
        Elle ne mord plus que le bas des lettres. */
-    --decal-y: 74%;
+    --decal-y: 63.5%;
   }
 }
 </style>
@@ -820,14 +915,23 @@ a{ color: inherit; text-decoration: none; }
 <!-- ============================ PUNCHLINE ============================ -->
 <section class="hero" id="top">
   <h1 class="punch">
+    <!-- Groupes de mots, et retours à la ligne propres à chaque
+         écran : br (partout), br-o (ordinateur seul), br-t (téléphone
+         seul). La césure de « d'action-naires, » n'existe que sur
+         téléphone. -->
     <span class="red">
-      <span class="m"><span>On n'a pas</span></span>
-      <span class="m"><span>d'actionnaires,</span></span>
-      <span class="m"><span>on est pas au CAC40</span></span>
+      <span class="m"><span>On n'a pas</span></span><i class="br"></i>
+      <span class="m"><span>d'action<span class="cesure">-</span></span></span><i class="br br-t"></i>
+      <span class="m suite"><span>naires,</span></span><i class="br"></i>
+      <span class="m"><span>on est pas</span></span><i class="br br-t"></i>
+      <span class="m"><span>au CAC40</span></span>
     </span>
     <span class="off">
-      <span class="m"><span>on a même pas</span></span>
-      <span class="m"><span>de ticket restau.</span></span>
+      <span class="m"><span>on a même</span></span><i class="br br-t"></i>
+      <span class="m"><span>pas</span></span><i class="br br-o"></i>
+      <span class="m"><span>de</span></span><i class="br br-t"></i>
+      <span class="m"><span>ticket</span></span><i class="br br-t"></i>
+      <span class="m"><span>restau.</span></span>
     </span>
     <span class="punch__sticker" aria-hidden="true"></span>
   </h1>
@@ -856,7 +960,7 @@ a{ color: inherit; text-decoration: none; }
   <div class="who__sticky">
     <div class="stage">
       <h2 class="who__t">
-        <span class="m"><span>Qui sommes</span></span>
+        <span class="duo"><span class="m"><span>Qui</span></span><span class="m"><span>sommes</span></span></span>
         <span class="m"><span>nous&nbsp;?</span></span>
       </h2>
     </div>
@@ -906,7 +1010,6 @@ a{ color: inherit; text-decoration: none; }
      le temps de sa propre vague, et l'ancien pas de 110 ms
      laissait un trou entre la fin d'une ligne et le départ de la
      suivante. */
-  stagger('.punch .m', 70, 40);
   stagger('.who__t .m', 70, 40);
   stagger('.craft li .m', 95);
   stagger('.craft li', 95);          /* le filet suit son titre */
@@ -1011,6 +1114,36 @@ a{ color: inherit; text-decoration: none; }
      chaque ligne bien après que l'œil a fini de la lire. */
   Array.prototype.forEach.call(document.querySelectorAll('.punch .m'),
     function(m){ enLettres(m, 26); });
+
+  /* La punchline est faite de groupes de mots, et c'est l'écran qui
+     décide lesquels partagent une ligne. Les départs se calculent
+     donc sur la mise en page réelle : chaque ligne part 70 ms après
+     la précédente, et dans une ligne les lettres s'enchaînent de
+     26 ms en 26 ms, d'un groupe à l'autre, comme si la ligne était
+     d'un seul tenant. Recalculé si l'écran change de taille. */
+  var calerVague = function(){
+    var groupes = Array.prototype.slice.call(document.querySelectorAll('.punch .m'));
+    var lignes = [];
+    groupes.forEach(function(g){
+      var haut = Math.round(g.getBoundingClientRect().top);
+      var l = lignes.filter(function(x){ return Math.abs(x.haut - haut) < 4; })[0];
+      if(!l){ l = { haut: haut, groupes: [] }; lignes.push(l); }
+      l.groupes.push(g);
+    });
+    lignes.sort(function(a, b){ return a.haut - b.haut; });
+    lignes.forEach(function(l, i){
+      l.groupes.sort(function(a, b){
+        return a.getBoundingClientRect().left - b.getBoundingClientRect().left;
+      });
+      var avant = 0;
+      l.groupes.forEach(function(g){
+        g.style.setProperty('--d', (40 + i * 70 + avant * 26) + 'ms');
+        avant += g.querySelectorAll('.c').length;
+      });
+    });
+  };
+  calerVague();
+  window.addEventListener('resize', calerVague);
   Array.prototype.forEach.call(document.querySelectorAll('.craft__t'),
     function(m){ enLettres(m, 20); });
   Array.prototype.forEach.call(document.querySelectorAll('.who__t .m'),
@@ -1293,17 +1426,23 @@ a{ color: inherit; text-decoration: none; }
      pastilles visibles. Réversible, puisqu'elle ne dépend que de
      la position. */
   function sequence(sheets){
+    var colle = who.querySelector('.who__sticky');
     var pending = false;
     function frame(){
       pending = false;
       var r = who.getBoundingClientRect();
-      var course = r.height - window.innerHeight;
+      /* La course se compte sur le cadre épinglé réel, et non sur la
+         fenêtre : sur téléphone il ne fait que 62 % de l'écran et
+         s'épingle à 19 % du haut. Sur ordinateur les deux méthodes
+         donnent la même chose. */
+      var haut = parseFloat(getComputedStyle(colle).top) || 0;
+      var course = r.height - colle.offsetHeight;
       if(course <= 0) return;
 
       /* Amorce à zéro : la séquence démarre à l'épinglage de la
          scène, quand le titre atteint sa place au centre. */
       var amorce = window.innerHeight * 0;
-      var p = Math.min(Math.max((amorce - r.top) / (course + amorce), 0), 1);
+      var p = Math.min(Math.max((haut + amorce - r.top) / (course + amorce), 0), 1);
 
       var n = sheets.length;
       var etale = 0.72;   /* part de la course occupée par les poses */
