@@ -823,22 +823,25 @@ a{ color: inherit; text-decoration: none; }
 
   .contact{ padding-bottom: 56px; }
 
-  /* Section plus courte : 120 % de l'écran. Les onze pastilles se
-     posent sur un peu plus de la moitié d'un écran de défilement.
-
-     La scène « Qui sommes nous » garde son épinglage, mais dans un
-     cadre de 62 % de l'écran au lieu de l'écran entier, centré par
-     son décalage de 19 %. La composition n'en remplit qu'un tiers
-     sur un téléphone : plein écran, elle laissait près de 300 px de
-     noir avant elle et autant après. */
-  .who{ height: 120svh; }
-  .who__sticky{ height: 62svh; top: 19svh; }
+  /* La section s'allonge : 210 % de l'écran, soit un écran entier
+     de défilement pendant lequel la scène reste épinglée. Les onze
+     pastilles s'y posent une à une, au fil du geste, environ tous
+     les 70 px. Le cadre épinglé reprend tout l'écran : la
+     composition verticale en occupe presque toute la hauteur. */
+  .who{ height: 210svh; }
+  /* La composition verticale est un peu plus haute que basse autour
+     du titre : le cadre est décalé de 27 px vers le bas pour qu'elle
+     tombe au centre de l'écran. */
+  .who__sticky{ padding: 91px var(--edge) 37px; }
 
   /* Le nom ne se coupe jamais. Sur les écrans les plus étroits,
      c'est l'accroche qui passe sur deux lignes, calée à droite :
      les deux se coupaient sinon, et l'en-tête se lisait mal. */
   .top{ align-items: flex-start; }
-  .top__logo{ font-size: 15px; white-space: nowrap; }
+  /* Le logo passe sur deux lignes, plus gros : « MERMOZ » au-dessus,
+     « CALIFORNIE® » en dessous. Chaque mot garde sa ligne entière. */
+  .top__logo{ font-size: 24px; line-height: .92; white-space: nowrap; }
+  .top__l2{ display: block; }
   .top__tag{ font-size: 12px; line-height: 1.25; max-width: 11em; }
 
   /* les lignes en deux morceaux s'empilent : les coupures voulues
@@ -873,12 +876,11 @@ a{ color: inherit; text-decoration: none; }
      nous ? » touche juste les bords de l'écran, et les pastilles,
      rassemblées au centre, gagnent un cinquième de leur taille. */
   .who{ --who-pad: 64px; }
-  /* Les pastilles au maximum de ce que permet la largeur : leur
-     ensemble occupe 63 % de la scène, et à 1,64 il tient tout juste
-     dans l'écran. Plus grand, les pastilles du bord seraient coupées.
-     Le titre, lui, ne doit pas suivre : son corps est divisé
-     d'autant plus bas, pour qu'il garde sa taille à l'écran. */
-  .stage{ --zoom: 1.64; }
+  /* Échelle de base : sur téléphone, chaque pastille est grossie et
+     replacée une à une par le script, d'après la maquette portrait.
+     Grossir toute la scène ne pouvait pas marcher : la composition
+     est large, elle sortait de l'écran bien avant d'être lisible. */
+  .stage{ --zoom: 1; }
 
   /* la pastille de la punchline suit : à 36 % de la largeur elle
      tombait à 120 px, trop petite pour être lue */
@@ -891,7 +893,7 @@ a{ color: inherit; text-decoration: none; }
      presque toute la largeur de l'écran à lui seul : c'est lui qui
      borne le corps. */
   .who__t .m,
-  .who__t .duo{ font-size: 12.44cqw; }   /* 17 × 1,2 / 1,64 */
+  .who__t .duo{ font-size: 20.4cqw; }
 
   .punch__sticker{
     width: 100%;
@@ -908,7 +910,7 @@ a{ color: inherit; text-decoration: none; }
 
 <!-- ============================ EN-TÊTE ============================ -->
 <header class="top">
-  <a class="top__logo" href="#top">Mermoz Californie<sup>®</sup></a>
+  <a class="top__logo" href="#top">Mermoz <span class="top__l2">Californie<sup>®</sup></span></a>
   <span class="top__tag">Studio de création publicitaire</span>
 </header>
 
@@ -1484,7 +1486,13 @@ a{ color: inherit; text-decoration: none; }
      ========================================================== */
   function manipulation(sheets, infos, R){
     var W = 600, H = Math.round(W / R);
-    var alphas = [], off = [], sommet = 10, prise = null;
+    var alphas = [], boites = [], off = [], sommet = 30, prise = null;
+
+    /* Géométrie propre à chaque calque : un déplacement T et un
+       grossissement k autour du centre de son encre O, tous en
+       fraction de la scène. Identité sur ordinateur ; sur téléphone,
+       c'est ce qui recompose la scène à la verticale. */
+    var geo = sheets.map(function(){ return { tx: 0, ty: 0, ox: .5, oy: .5, k: 1 }; });
 
     /* Ouverte comme un fichier, la page ne peut pas lire les pixels
        des pastilles : le navigateur l'interdit. On le dit dans la
@@ -1509,8 +1517,18 @@ a{ color: inherit; text-decoration: none; }
           var ctx = cv.getContext('2d', { willReadFrequently: true });
           ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
           var d = ctx.getImageData(0, 0, W, H).data, a = new Uint8Array(W * H);
-          for(var k = 0; k < a.length; k++) a[k] = d[k * 4 + 3];
+          var x0 = W, x1 = -1, y0 = H, y1 = -1;
+          for(var k = 0; k < a.length; k++){
+            a[k] = d[k * 4 + 3];
+            if(a[k] > 24){
+              var x = k % W, y = (k - x) / W;
+              if(x < x0) x0 = x; if(x > x1) x1 = x;
+              if(y < y0) y0 = y; if(y > y1) y1 = y;
+            }
+          }
           alphas[i] = a;
+          if(x1 >= 0) boites[i] = { x: x0 / W, y: y0 / H, w: (x1 - x0 + 1) / W, h: (y1 - y0 + 1) / H };
+          disposer();
         }catch(e){
           /* ouvert depuis le Finder, le navigateur interdit de lire
              les pixels d'un fichier local : la pastille reste
@@ -1519,6 +1537,65 @@ a{ color: inherit; text-decoration: none; }
       };
       img.src = t.src;
     });
+
+    /* LA SCÈNE SUR TÉLÉPHONE
+
+       Sur ordinateur, la composition est large et chaque calque garde
+       sa place d'origine. Sur un téléphone, elle serait écrasée dans
+       la largeur de l'écran. Elle y est donc recomposée à la
+       verticale, d'après la maquette portrait : 668 px de large,
+       « SOMMES » centré à 616 px de haut.
+
+       Pour chaque pastille : le centre de son encre et sa largeur
+       dans la maquette. Le script en déduit, sur l'écran réel, de
+       combien la déplacer et la grossir. Une pastille sans entrée
+       ici garde sa place d'origine. */
+    var MAQUETTE = { largeur: 668, ancre: 616 };
+    var PORTRAIT = {
+       2: { x: 440, y: 288, l: 285 },    3: { x: 525, y: 461, l: 115 },
+       4: { x: 267, y: 580, l: 198 },    5: { x: 391, y: 608, l: 127 },
+       6: { x: 261, y: 290, l: 102 },    7: { x: 234, y: 376, l: 273 },
+       8: { x: 193, y: 451, l: 310 },    9: { x: 401, y: 476, l: 182 },
+      10: { x: 320, y: 762, l: 504 },   11: { x: 293, y: 878, l: 138 },
+      12: { x: 454, y: 914, l: 314 }
+    };
+    /* ordre d'empilement de la maquette, du dessous au dessus : il ne
+       diffère de l'ordre des numéros que pour « On est pas là pour
+       plaisanter » et le téléphone, qui passent sur « Ça ne fait
+       grandir personne » */
+    var ORDRE_PORTRAIT = [2, 3, 6, 7, 8, 4, 5, 9, 10, 11, 12];
+    var telephone = matchMedia('(max-width: 760px)');
+
+    function disposer(){
+      var b = stage.getBoundingClientRect();
+      if(!b.width) return;
+      /* l'ancre : le centre de la ligne « sommes » du titre */
+      var lignes = stage.querySelectorAll('.who__t .m');
+      var ancre = lignes[1] ? lignes[1].getBoundingClientRect() : b;
+      var ancreY = ancre.top + ancre.height / 2;
+      var s = window.innerWidth / MAQUETTE.largeur;
+
+      sheets.forEach(function(el, i){
+        var n = infos[i].n, cible = PORTRAIT[n], bo = boites[i], g = geo[i];
+        if(telephone.matches && cible && bo){
+          g.ox = bo.x + bo.w / 2;
+          g.oy = bo.y + bo.h / 2;
+          g.k  = (cible.l * s) / (bo.w * b.width);
+          g.tx = (cible.x * s - b.left) / b.width - g.ox;
+          g.ty = (ancreY + (cible.y - MAQUETTE.ancre) * s - b.top) / b.height - g.oy;
+          var rang = ORDRE_PORTRAIT.indexOf(n);
+          if(!(parseInt(el.style.zIndex, 10) > 29)) el.style.zIndex = rang >= 0 ? rang + 1 : '';
+        } else {
+          g.tx = g.ty = 0; g.ox = g.oy = .5; g.k = 1;
+          if(!(parseInt(el.style.zIndex, 10) > 29)) el.style.zIndex = '';
+        }
+        el.style.transformOrigin = (g.ox * 100) + '% ' + (g.oy * 100) + '%';
+        el.style.translate = (g.tx * 100) + '% ' + (g.ty * 100) + '%';
+        el.style.scale = String(g.k);
+      });
+    }
+    window.addEventListener('resize', disposer);
+    if(telephone.addEventListener) telephone.addEventListener('change', disposer);
 
     function visible(i){
       return !stage.classList.contains('sequence') || sheets[i].classList.contains('vu');
@@ -1534,7 +1611,13 @@ a{ color: inherit; text-decoration: none; }
       for(var k = 0; k < ordre.length; k++){
         var i = ordre[k], a = alphas[i];
         if(!a || !visible(i)) continue;
-        var px = Math.floor((fx - off[i].x) * W), py = Math.floor((fy - off[i].y) * H);
+        /* On remonte la chaîne des transformations à l'envers :
+           déplacement T, grossissement k autour de O, puis le
+           déplacement fait à la main. */
+        var g = geo[i];
+        var lx = (fx - g.tx - g.ox) / g.k + g.ox - off[i].x;
+        var ly = (fy - g.ty - g.oy) / g.k + g.oy - off[i].y;
+        var px = Math.floor(lx * W), py = Math.floor(ly * H);
         if(px >= 0 && py >= 0 && px < W && py < H && a[py * W + px] > 24) return i;
       }
       return -1;
@@ -1559,8 +1642,9 @@ a{ color: inherit; text-decoration: none; }
     stage.addEventListener('pointermove', function(e){
       if(prise){
         var b = stage.getBoundingClientRect();
-        off[prise.i].x = prise.ox + (e.clientX - prise.x) / b.width;
-        off[prise.i].y = prise.oy + (e.clientY - prise.y) / b.height;
+        var kk = geo[prise.i].k;
+        off[prise.i].x = prise.ox + (e.clientX - prise.x) / b.width / kk;
+        off[prise.i].y = prise.oy + (e.clientY - prise.y) / b.height / kk;
         applique(prise.i);
       } else if(e.pointerType === 'mouse'){
         stage.style.cursor = touche(e.clientX, e.clientY) >= 0 ? 'grab' : '';
