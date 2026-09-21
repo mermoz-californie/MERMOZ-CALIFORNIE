@@ -4,7 +4,7 @@
     {
       "name": "mermoz-static",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8742", "--directory", "/Users/maxco/MERMOZ-CALIFORNIE"],
+      "runtimeArgs": ["/Users/maxco/MERMOZ-CALIFORNIE/.claude/serveur-dev.py", "8742", "/Users/maxco/MERMOZ-CALIFORNIE"],
       "port": 8742
     },
     {
