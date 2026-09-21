@@ -712,7 +712,7 @@ a{ color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce){
   .who{ height: auto; }
-  .who__sticky{ position: static; height: auto; padding-block: 12vh; }
+  .who__sticky{ position: static; height: 100svh; }
   .stage.sequence .p{ visibility: visible; }
 }
 
@@ -755,9 +755,51 @@ a{ color: inherit; text-decoration: none; }
 /* au survol, l'aplat passe au blanc cassé : pas de couleur de plus
    dans la charte, juste un déplacement dans celles qui existent */
 .contact__mail:hover{ background: var(--blanc); }
+
+/* LA PASTILLE DU CONTACT
+
+   Elle est posée dans le lien et non à côté : elle suit le bouton
+   partout, et un clic dessus ouvre le mail comme le bouton.
+
+   Tout est compté en em, donc en proportion du bouton, dont la
+   hauteur vaut 1,86 em (le corps plus ses marges). D'après la
+   maquette ordinateur : un diamètre de 2,08 fois cette hauteur, soit
+   3,87 em ; le centre à 19 % du bord droit ; le bas qui mord de 17 %
+   sur le haut du bouton.
+
+   Le fichier doit être recadré sur le rond : il est servi en
+   « contain » dans une boîte carrée, un calque pleine page y
+   tiendrait tout petit. */
+.contact__mail{ position: relative; }
+.contact__pastille{
+  position: absolute;
+  width: 3.87em;
+  aspect-ratio: 1;
+  right: calc(19% - 1.935em);
+  bottom: 1.544em;
+  background: center / contain no-repeat url(assets/autres_pastilles/contact.svg);
+  pointer-events: none;
+}
 @media (max-width: 680px){
-  .contact{ flex-direction: column; align-items: flex-start; }
-  .contact__mail{ font-size: clamp(15px, 4.9vw, 30px); }
+  /* Téléphone : le label centré au-dessus, le bouton presque pleine
+     largeur, la pastille à droite du label, qui mord sur le haut du
+     bouton. D'après la maquette : diamètre 3,63 em, centre à 15 % du
+     bord droit, morsure d'un quart de la hauteur du bouton. */
+  .contact{
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    padding-inline: 8px;
+  }
+  /* le retrait compense l'interlettrage, pour un centrage d'aplomb */
+  .contact .label{ text-align: center; text-indent: .18em; }
+  /* l'adresse tient sur une seule ligne : le bouton fait ~96 % de l'écran */
+  .contact__mail{ font-size: min(5.6vw, 30px); white-space: nowrap; }
+  .contact__pastille{
+    width: 3.63em;
+    right: calc(15% - 1.815em);
+    bottom: 1.395em;
+  }
 }
 
 /* ============================================================
@@ -818,7 +860,7 @@ a{ color: inherit; text-decoration: none; }
   /* L'accueil n'occupe plus tout l'écran : il prend la hauteur de
      sa phrase. Plein écran, il laissait deux grands pans de noir
      autour d'elle et repoussait la liste loin en bas. */
-  .hero{ min-height: 0; padding: 96px var(--edge) 132px; }
+  .hero{ min-height: 0; padding: 124px var(--edge) 132px; }
   .punch{ margin-bottom: 0; }
 
   .contact{ padding-bottom: 56px; }
@@ -837,7 +879,11 @@ a{ color: inherit; text-decoration: none; }
   /* Le nom ne se coupe jamais. Sur les écrans les plus étroits,
      c'est l'accroche qui passe sur deux lignes, calée à droite :
      les deux se coupaient sinon, et l'en-tête se lisait mal. */
-  .top{ align-items: flex-start; }
+  /* L'accroche s'aligne sur la dernière ligne du logo : la ligne de
+     base de « publicitaire » tombe sur celle de « CALIFORNIE ».
+     flex-end d'abord, en repli pour les moteurs qui ignorent
+     « last baseline » : les deux blocs s'alignent alors par le bas. */
+  .top{ align-items: flex-end; align-items: last baseline; }
   /* Le logo passe sur deux lignes, plus gros : « MERMOZ » au-dessus,
      « CALIFORNIE® » en dessous. Chaque mot garde sa ligne entière. */
   .top__logo{ font-size: 24px; line-height: .92; white-space: nowrap; }
@@ -896,12 +942,33 @@ a{ color: inherit; text-decoration: none; }
   .who__t .duo{ font-size: 20.4cqw; }
 
   .punch__sticker{
-    width: 100%;
+    width: 86%;
     /* plus bas que sur grand écran : à cette taille, la pastille
        recouvrait « TICKET RES » et la chute devenait illisible.
        Elle ne mord plus que le bas des lettres. */
-    --decal-y: 63.5%;
+    --decal-y: 60%;
   }
+}
+
+/* ============================================================
+   14. MOUVEMENT RÉDUIT, EN DERNIER
+
+   Quand le visiteur a demandé moins d'animations (« Réduire les
+   animations » sur iPhone), la scène n'est plus épinglée : elle
+   s'affiche d'un bloc, pastilles toutes posées.
+
+   Le cadre garde alors une hauteur d'écran fixe, et non la hauteur
+   de son contenu. C'est indispensable : ce cadre sert de conteneur
+   de requête, il ignore donc son contenu pour se dimensionner. Laissé
+   en hauteur automatique, il ne mesurait plus que ses marges, et la
+   scène tombait à 0 × 0 pixel. La section était invisible sur tout
+   téléphone réglé ainsi.
+
+   Placé en fin de feuille pour l'emporter sur les réglages du
+   téléphone, qui allongent la section. */
+@media (prefers-reduced-motion: reduce){
+  .who{ height: auto; }
+  .who__sticky{ position: static; top: 0; height: 100svh; }
 }
 </style>
 </head>
@@ -978,7 +1045,7 @@ a{ color: inherit; text-decoration: none; }
 <!-- ============================ CONTACT ============================ -->
 <section class="col contact">
   <div class="label f">Contactez-nous</div>
-  <a class="contact__mail f" href="mailto:creation@mermoz-californie.com">creation@mermoz-californie.com</a>
+  <a class="contact__mail f" href="mailto:creation@mermoz-californie.com">creation@mermoz-californie.com<span class="contact__pastille" aria-hidden="true"></span></a>
 </section>
 
 <!-- ============================ LOGOTYPE ============================ -->
