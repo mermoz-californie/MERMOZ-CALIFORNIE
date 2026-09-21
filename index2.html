@@ -620,6 +620,7 @@ a{ color: inherit; text-decoration: none; }
   --ratio: 1.95;
   aspect-ratio: var(--ratio);
   --zoom: .855;   /* 90 % puis 5 % de moins */
+  --gros: 1.4;    /* pastilles seules, sur ordi (le téléphone a sa propre mise en page) */
 
   height: auto;
   width: 100%;
@@ -1041,7 +1042,7 @@ a{ color: inherit; text-decoration: none; }
 <!-- ============================ MANIFESTE ============================ -->
 <section class="section col manifesto">
   <div class="section__label label f">Manifeste</div>
-  <p class="mani">Le succès naît d'une synergie, faisant de nous des partenaires. Nous refusons les modèles standardisés : chaque projet part d'une feuille blanche car pour nous, la nouveauté et l'audace créative sont les seules méthodes pour émerger dans un environnement saturé de messages. La justesse et la simplicité des idées, le soin qu'on apporte au détail et la qualité du rendu sont les socles de votre crédibilité et de notre réputation.</p>
+  <p class="mani">Le succès naît d'une synergie, faisant de nous des partenaires. Nous refusons les modèles standardisés : chaque projet part d'une feuille blanche car pour nous, la nouveauté et l'audace créative sont les seules méthodes pour émerger dans un environnement saturé de messages. La justesse et la simplicité des idées, le soin qu'on apporte au détail et la qualité du rendu sont les piliers de votre crédibilité et de notre réputation.</p>
 </section>
 
 <!-- ============================ CONTACT ============================ -->
@@ -1626,13 +1627,14 @@ a{ color: inherit; text-decoration: none; }
        6: { x: 261, y: 290, l: 102 },    7: { x: 234, y: 376, l: 273 },
        8: { x: 193, y: 451, l: 310 },    9: { x: 401, y: 476, l: 182 },
       10: { x: 320, y: 762, l: 504 },   11: { x: 293, y: 878, l: 138 },
-      12: { x: 454, y: 914, l: 314 }
+      12: { x: 454, y: 914, l: 314 },
+      13: { x: 334, y: 610, l: 330 },   14: { x: 480, y: 690, l: 150 }
     };
     /* ordre d'empilement de la maquette, du dessous au dessus : il ne
        diffère de l'ordre des numéros que pour « On est pas là pour
        plaisanter » et le téléphone, qui passent sur « Ça ne fait
        grandir personne » */
-    var ORDRE_PORTRAIT = [2, 3, 6, 7, 8, 4, 5, 9, 10, 11, 12];
+    var ORDRE_PORTRAIT = [2, 3, 6, 7, 8, 4, 5, 9, 10, 11, 12, 13, 14];
     var telephone = matchMedia('(max-width: 760px)');
 
     function disposer(){
@@ -1653,9 +1655,14 @@ a{ color: inherit; text-decoration: none; }
           g.tx = (cible.x * s - b.left) / b.width - g.ox;
           g.ty = (ancreY + (cible.y - MAQUETTE.ancre) * s - b.top) / b.height - g.oy;
           var rang = ORDRE_PORTRAIT.indexOf(n);
-          if(!(parseInt(el.style.zIndex, 10) > 29)) el.style.zIndex = rang >= 0 ? rang + 1 : '';
+          /* une pastille absente de la liste passe au-dessus de toutes */
+          if(rang < 0) rang = ORDRE_PORTRAIT.length + i;
+          if(!(parseInt(el.style.zIndex, 10) > 29)) el.style.zIndex = rang + 1;
         } else {
-          g.tx = g.ty = 0; g.ox = g.oy = .5; g.k = 1;
+          /* ordi : tout le groupe grossit depuis le centre de la
+             scène, le titre garde sa taille (--gros, en CSS) */
+          g.tx = g.ty = 0; g.ox = g.oy = .5;
+          g.k = parseFloat(getComputedStyle(stage).getPropertyValue('--gros')) || 1;
           if(!(parseInt(el.style.zIndex, 10) > 29)) el.style.zIndex = '';
         }
         el.style.transformOrigin = (g.ox * 100) + '% ' + (g.oy * 100) + '%';
