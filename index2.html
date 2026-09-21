@@ -720,13 +720,19 @@ a{ color: inherit; text-decoration: none; }
 /* ============================================================
    11. CONTACT
    ============================================================ */
+/* Le label centré au-dessus du bouton, lui-même centré. L'écart
+   place le label à hauteur du centre de la pastille : 0,9 fois la
+   hauteur du bouton au-dessus de son bord, moins la demi-hauteur
+   du label. */
 .contact{
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: clamp(14px, 2vw, 34px);
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 3.3vw, 54px);
   padding-bottom: clamp(90px, 14vw, 200px);
 }
+/* le retrait compense l'interlettrage, pour un centrage d'aplomb */
+.contact .label{ text-align: center; text-indent: .18em; }
 /* L'adresse est une pastille : aplat rose, texte en noir, bouts
    parfaitement ronds. C'est le seul aplat de couleur de la page,
    et il tombe sur la seule chose qu'on attend d'un visiteur.
@@ -765,7 +771,7 @@ a{ color: inherit; text-decoration: none; }
    Tout est compté en em, donc en proportion du bouton, dont la
    hauteur vaut 1,86 em (le corps plus ses marges). D'après la
    maquette ordinateur : un diamètre de 2,08 fois cette hauteur, soit
-   3,87 em ; le centre à 19 % du bord droit ; le bas qui mord de 17 %
+   3,87 em ; le centre à 19 % du bord droit ; le bas qui mord de 12 %
    sur le haut du bouton.
 
    Le fichier doit être recadré sur le rond : il est servi en
@@ -777,7 +783,7 @@ a{ color: inherit; text-decoration: none; }
   width: 3.87em;
   aspect-ratio: 1;
   right: calc(19% - 1.935em);
-  bottom: 1.544em;
+  bottom: 1.637em;
   background: center / contain no-repeat url(assets/autres_pastilles/contact.svg);
   pointer-events: none;
 }
@@ -787,13 +793,9 @@ a{ color: inherit; text-decoration: none; }
      bouton. D'après la maquette : diamètre 3,63 em, centre à 15 % du
      bord droit, morsure d'un quart de la hauteur du bouton. */
   .contact{
-    flex-direction: column;
-    align-items: center;
     gap: 26px;
     padding-inline: 8px;
   }
-  /* le retrait compense l'interlettrage, pour un centrage d'aplomb */
-  .contact .label{ text-align: center; text-indent: .18em; }
   .section__label{ text-align: center; text-indent: .18em; }
   /* l'adresse tient sur une seule ligne : le bouton fait ~96 % de l'écran */
   .contact__mail{ font-size: min(5.6vw, 30px); white-space: nowrap; }
@@ -980,7 +982,7 @@ a{ color: inherit; text-decoration: none; }
 <!-- ============================ EN-TÊTE ============================ -->
 <header class="top">
   <a class="top__logo" href="#top">Mermoz <span class="top__l2">Californie<sup>®</sup></span></a>
-  <span class="top__tag">Studio de création publicitaire</span>
+  <span class="top__tag">Studio de création</span>
 </header>
 
 <!-- ============================ PUNCHLINE ============================ -->
@@ -1017,12 +1019,12 @@ a{ color: inherit; text-decoration: none; }
     <li>
       <span class="craft__n f">01</span>
       <span class="craft__t m"><span>Publicité</span></span>
-      <span class="craft__d f">TVC &amp; OLV · OOH &amp; DOOH · Campagne online · Radio</span>
+      <span class="craft__d f">FILM TVC&nbsp;&amp;&nbsp;OLV · OOH&nbsp;&amp;&nbsp;DOOH · CAMPAGNE&nbsp;ONLINE · RADIO</span>
     </li>
     <li>
       <span class="craft__n f">02</span>
       <span class="craft__t m"><span>Branding</span></span>
-      <span class="craft__d f">Stratégie · Identité rédactionnelle · Identité visuelle · Naming · Interface</span>
+      <span class="craft__d f">STRATÉGIE · IDENTITÉ VISUELLE &amp; RÉDACTIONNELLE · NAMING · DESIGN&nbsp;SYSTEM</span>
     </li>
   </ol>
 </section>
@@ -1042,7 +1044,7 @@ a{ color: inherit; text-decoration: none; }
 <!-- ============================ MANIFESTE ============================ -->
 <section class="section col manifesto">
   <div class="section__label label f">Manifeste</div>
-  <p class="mani">Le succès naît d'une synergie, faisant de nous des partenaires. Nous refusons les modèles standardisés : chaque projet part d'une feuille blanche car pour nous, la nouveauté et l'audace créative sont les seules méthodes pour émerger dans un environnement saturé de messages. La justesse et la simplicité des idées, le soin qu'on apporte au détail et la qualité du rendu sont les piliers de votre crédibilité et de notre réputation.</p>
+  <p class="mani">Nous refusons les modèles standardisés : chaque projet part d'une feuille blanche car pour nous, la nouveauté et l'audace créative sont les seules méthodes pour émerger dans un environnement saturé de messages. La justesse et la simplicité des idées, le soin qu'on apporte au détail et la qualité du rendu sont les piliers de votre crédibilité et de notre réputation.</p>
 </section>
 
 <!-- ============================ CONTACT ============================ -->

@@ -25,6 +25,16 @@ import sys
 
 
 class SansCache(http.server.SimpleHTTPRequestHandler):
+    def send_head(self):
+        # Le serveur de base répond « 304 inchangé » en comparant les
+        # seules dates de modification. Un fichier renommé ou échangé
+        # garde sa date d'origine, parfois plus ancienne que la copie
+        # du navigateur : il réaffichait alors l'ancien dessin. On
+        # renvoie donc toujours le fichier entier, en local c'est
+        # instantané.
+        del self.headers["If-Modified-Since"]
+        return super().send_head()
+
     def end_headers(self):
         self.send_header("Cache-Control", "no-cache")
         super().end_headers()
