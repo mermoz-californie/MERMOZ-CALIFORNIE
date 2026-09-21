@@ -555,7 +555,7 @@ a{ color: inherit; text-decoration: none; }
   /* Moins de deux écrans. À 250svh la scène restait figée bien
      après la dernière pastille, et on traversait un long pan de
      noir avant la section suivante. */
-  height: 185svh;
+  height: 340svh;
   /* La scène remonte dans la respiration que la liste laisse
      derrière elle. Cet écart sépare deux blocs de texte ; ici il
      ne sépare rien, puisque la scène est centrée dans son propre
@@ -873,7 +873,7 @@ a{ color: inherit; text-decoration: none; }
      pastilles s'y posent une à une, au fil du geste, environ tous
      les 70 px. Le cadre épinglé reprend tout l'écran : la
      composition verticale en occupe presque toute la hauteur. */
-  .who{ height: 210svh; }
+  .who{ height: 420svh; }
   /* La composition verticale est un peu plus haute que basse autour
      du titre : le cadre est décalé de 27 px vers le bas pour qu'elle
      tombe au centre de l'écran. */
@@ -1518,7 +1518,7 @@ a{ color: inherit; text-decoration: none; }
       var p = Math.min(Math.max((haut + amorce - r.top) / (course + amorce), 0), 1);
 
       var n = sheets.length;
-      var etale = 0.72;   /* part de la course occupée par les poses */
+      var etale = 0.86;   /* part de la course occupée par les poses */
       var duree = 0.26;   /* fenêtre de chaque pose */
       /* Le pas se recalcule sur le nombre de pastilles : qu'il y en
          ait six ou quinze, la séquence tient dans la même course.
