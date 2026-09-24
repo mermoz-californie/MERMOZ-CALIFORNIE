@@ -2038,7 +2038,7 @@ body{ cursor: none; }
        Les quatre réglages ont été trouvés sur la démo
        _demo-gelatine.html, qui sert de banc d'essai. */
     var PINCEMENT = .55;   /* combien le retard déforme */
-    var ETENDUE   = .44;   /* la portée autour du point saisi */
+    var ETENDUE   = .80;   /* la portée autour du point saisi */
     var RAIDEUR   = .05;   /* la vivacité du retour, au lâcher */
     var REBONDS   = .85;   /* l'amortissement : plus haut, plus ça gigote */
     var MARGE     = .5;    /* le débord autorisé autour de la pastille */
@@ -2193,7 +2193,7 @@ body{ cursor: none; }
       if(elan){
         var e = elan;
         off[e.i].x += e.x; off[e.i].y += e.y;
-        e.x *= .94; e.y *= .94;
+        e.x *= .84; e.y *= .84;   /* freinage après le lâcher */
         applique(e.i);
         if(Math.abs(e.x) < .0002 && Math.abs(e.y) < .0002) elan = null;
         else if(!boucle) boucle = requestAnimationFrame(tourne);
@@ -2205,7 +2205,7 @@ body{ cursor: none; }
       if(prise && prise.i === i){
         var b = sheets[i].getBoundingClientRect();
         var ex = vise.x - tenu.x, ey = vise.y - tenu.y;
-        tenu.x += ex * .10; tenu.y += ey * .10;   /* plus bas, plus d'inertie */
+        tenu.x += ex * .19; tenu.y += ey * .19;   /* plus bas, plus d'inertie */
         /* Le retard est plafonné juste en dessous du seuil de
            repli. Au-delà, deux points voisins du filet se croisent
            et le dessin se referme sur lui-même : c'est la bouillie
