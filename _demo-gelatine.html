@@ -119,9 +119,15 @@ input[type=range]{ accent-color: var(--vert); width: 120px; }
     '  vUV = aPos;',
     /* Le point tenu reste sous le doigt, et toute la matière
        traîne derrière, d'autant plus qu'elle est loin du point
-       saisi : l'étiquette s'étire en entier, des deux côtés. */
-    '  float d = distance(aPos, uGrab) / max(uRayon, 0.0001);',
-    '  float traine = 1.0 - exp(-d * d);',
+       saisi : l'étiquette s'étire en entier, des deux côtés.
+
+       Le profil de cette traîne est un smoothstep, dont la pente
+       est nulle au départ comme à l'arrivée. La cloche qu'on
+       utilisait avant changeait de pente trop vite au voisinage du
+       point saisi, et le dessin y formait une pointe. Ici tout est
+       arrondi. */
+    '  float d = clamp(distance(aPos, uGrab) / max(uRayon, 0.0001), 0.0, 1.0);',
+    '  float traine = smoothstep(0.0, 1.0, d);',
     '  vec2 p = aPos - uLag * traine;',
     '  gl_Position = vec4(p.x * 2.0 - 1.0, 1.0 - p.y * 2.0, 0.0, 1.0);',
     '}'
@@ -319,12 +325,16 @@ input[type=range]{ accent-color: var(--vert); width: 120px; }
       if(prise){
         var ex = vise.x - suivi.x, ey = vise.y - suivi.y;
         suivi.x += ex * .30; suivi.y += ey * .30;
+        /* le retard est plafonné sous le seuil de repli : au-delà,
+           deux points voisins du filet se croisent et le dessin se
+           referme sur lui-même */
+        var plafond = R.rayon * .66;
         pos.x = prise.px + (suivi.x - prise.x);
         pos.y = prise.py + (suivi.y - prise.y);
         etiq.style.transform = 'translate(' + pos.x + 'px,' + pos.y + 'px)';
         /* le retard, ramené en fraction de l'étiquette */
-        cx = borne(ex / etiq.clientWidth * R.gain, -.75, .75);
-        cy = borne(ey / etiq.clientHeight * R.gain, -.75, .75);
+        cx = borne(ex / etiq.clientWidth * R.gain, -plafond, plafond);
+        cy = borne(ey / etiq.clientHeight * R.gain, -plafond, plafond);
       }
       if(prise){
         /* Sous la main, la déformation colle au geste : pas de
