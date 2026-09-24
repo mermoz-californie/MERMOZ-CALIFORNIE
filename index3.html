@@ -2099,12 +2099,15 @@ a{ color: inherit; text-decoration: none; }
         var b = sheets[i].getBoundingClientRect();
         var ex = vise.x - tenu.x, ey = vise.y - tenu.y;
         tenu.x += ex * .30; tenu.y += ey * .30;
-        /* le retard est lui aussi ramené au dessin : même geste,
-           même déformation, quelle que soit la place que le dessin
-           occupe dans son calque */
-        var t = Math.max(gel.taille, .05);
-        cx = Math.max(-.75, Math.min(.75, ex / (b.width * t) * PINCEMENT * t));
-        cy = Math.max(-.75, Math.min(.75, ey / (b.height * t) * PINCEMENT * t));
+        /* Le retard est plafonné juste en dessous du seuil de
+           repli. Au-delà, deux points voisins du filet se croisent
+           et le dessin se referme sur lui-même : c'est la bouillie
+           qu'on voyait sur les gestes très rapides. Le seuil vaut
+           la portée de la déformation, elle-même proportionnelle
+           au dessin. */
+        var plafond = ETENDUE * Math.max(gel.taille, .05) * .95;
+        cx = Math.max(-plafond, Math.min(plafond, ex / b.width * PINCEMENT));
+        cy = Math.max(-plafond, Math.min(plafond, ey / b.height * PINCEMENT));
       }
 
       if(prise && prise.i === i){
