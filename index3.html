@@ -1659,6 +1659,12 @@ a{ color: inherit; text-decoration: none; }
   function sequence(sheets){
     var colle = who.querySelector('.who__sticky');
     var pending = false;
+    /* L'avance affichée court après l'avance réelle, d'un sixième
+       de l'écart à chaque image : les pastilles ne collent plus au
+       défilement, elles le suivent avec un peu de retard, et la
+       pose garde une trace d'élan quand on s'arrête. */
+    var lisse = null, boucleSeq = null;
+
     function frame(){
       pending = false;
       var r = who.getBoundingClientRect();
@@ -1673,7 +1679,17 @@ a{ color: inherit; text-decoration: none; }
       /* Amorce à zéro : la séquence démarre à l'épinglage de la
          scène, quand le titre atteint sa place au centre. */
       var amorce = window.innerHeight * 0;
-      var p = Math.min(Math.max((haut + amorce - r.top) / (course + amorce), 0), 1);
+      var cible = Math.min(Math.max((haut + amorce - r.top) / (course + amorce), 0), 1);
+
+      if(lisse === null) lisse = cible;          /* au chargement, pas de retard */
+      var ecart = cible - lisse;
+      lisse += ecart * .16;
+      if(Math.abs(ecart) > .0004){
+        if(!boucleSeq) boucleSeq = requestAnimationFrame(function(){ boucleSeq = null; frame(); });
+      } else {
+        lisse = cible;
+      }
+      var p = lisse;
 
       var n = sheets.length;
       var etale = 0.86;   /* part de la course occupée par les poses */
@@ -1908,6 +1924,8 @@ a{ color: inherit; text-decoration: none; }
       if(telephone.matches) zoome(i, TENUE);
       fige(i, e.clientX, e.clientY);
       vise.x = tenu.x = e.clientX; vise.y = tenu.y = e.clientY;
+      avant.x = off[i].x; avant.y = off[i].y;
+      elan = null;
       relance();
       try{ stage.setPointerCapture(e.pointerId); }catch(err){}
       stage.style.cursor = 'grabbing';
@@ -1917,6 +1935,7 @@ a{ color: inherit; text-decoration: none; }
       if(prise){
         var b = stage.getBoundingClientRect();
         var kk = geo[prise.i].k;
+        avant.x = off[prise.i].x; avant.y = off[prise.i].y;
         off[prise.i].x = prise.ox + (e.clientX - prise.x) / b.width / kk;
         off[prise.i].y = prise.oy + (e.clientY - prise.y) / b.height / kk;
         applique(prise.i);
@@ -1959,6 +1978,8 @@ a{ color: inherit; text-decoration: none; }
     var CASES     = 40;    /* finesse du filet */
 
     var boucle = null, prisEn = -1;
+    var avant = { x: 0, y: 0 };   /* position à l'image précédente */
+    var elan = null;              /* la course qui continue après le lâcher */
     var vise = { x: 0, y: 0 }, tenu = { x: 0, y: 0 };
     var gel = { gx: .5, gy: .5, x: 0, y: 0, vx: 0, vy: 0, taille: 1 };
     var toile = null, gl = null, mailleN = 0, uGrab, uLag, uRayon, texture;
@@ -2096,13 +2117,24 @@ a{ color: inherit; text-decoration: none; }
 
     function tourne(){
       boucle = null;
+
+      /* la pastille lancée poursuit sa course en ralentissant */
+      if(elan){
+        var e = elan;
+        off[e.i].x += e.x; off[e.i].y += e.y;
+        e.x *= .90; e.y *= .90;
+        applique(e.i);
+        if(Math.abs(e.x) < .0002 && Math.abs(e.y) < .0002) elan = null;
+        else if(!boucle) boucle = requestAnimationFrame(tourne);
+      }
+
       if(prisEn < 0) return;
       var i = prisEn, cx = 0, cy = 0;
 
       if(prise && prise.i === i){
         var b = sheets[i].getBoundingClientRect();
         var ex = vise.x - tenu.x, ey = vise.y - tenu.y;
-        tenu.x += ex * .30; tenu.y += ey * .30;
+        tenu.x += ex * .17; tenu.y += ey * .17;   /* plus bas, plus d'inertie */
         /* Le retard est plafonné juste en dessous du seuil de
            repli. Au-delà, deux points voisins du filet se croisent
            et le dessin se referme sur lui-même : c'est la bouillie
@@ -2135,8 +2167,8 @@ a{ color: inherit; text-decoration: none; }
         Math.abs(gel.x) < .0006 && Math.abs(gel.y) < .0006 &&
         Math.abs(gel.vx) < .0006 && Math.abs(gel.vy) < .0006;
 
-      if(dort) range();
-      else boucle = requestAnimationFrame(tourne);
+      if(dort && !elan) range();
+      else if(!boucle) boucle = requestAnimationFrame(tourne);
     }
 
     function relance(){ if(!boucle) boucle = requestAnimationFrame(tourne); }
@@ -2189,6 +2221,9 @@ a{ color: inherit; text-decoration: none; }
       if(!prise) return;
       var i = prise.i;
       if(zoom[i] !== 1) zoome(i, 1);
+      /* l'élan du dernier instant : la pastille continue sa course
+         et ralentit, au lieu de s'arrêter net sous le doigt */
+      elan = { i: i, x: (off[i].x - avant.x) * .9, y: (off[i].y - avant.y) * .9 };
       prise = null;
       stage.style.cursor = '';
       relance();   /* le ressort ramène le dessin au repos en gigotant */
