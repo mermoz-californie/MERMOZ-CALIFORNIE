@@ -819,6 +819,21 @@ a{ color: inherit; text-decoration: none; }
      lui-même, image par image : le mouvement de repos est coupé */
   animation: none;
 }
+/* Les quatre quartiers du pincement. Le dessin entier s'efface le
+   temps qu'ils le remplacent, sinon on le verrait dessous. */
+.stage .p.coupe > .img{ background-image: none; }
+.stage .p > .img > .q{
+  position: absolute;
+  background-repeat: no-repeat;
+  backface-visibility: hidden;
+  will-change: transform;
+  display: none;
+}
+.stage .p.coupe > .img > .q{ display: block; }
+.stage .p > .img > .hg{ transform-origin: left top; }
+.stage .p > .img > .hd{ transform-origin: right top; }
+.stage .p > .img > .bg{ transform-origin: left bottom; }
+.stage .p > .img > .bd{ transform-origin: right bottom; }
 /* Le script relève la déformation en cours avant de couper le
    mouvement de repos, et la réécrit dans --sx et --sy : la
    pastille reprend exactement où elle en était, sans à-coup. */
@@ -1896,7 +1911,7 @@ a{ color: inherit; text-decoration: none; }
       sheets[i].style.zIndex = ++sommet;
       prise = { i: i, x: e.clientX, y: e.clientY, ox: off[i].x, oy: off[i].y };
       if(telephone.matches) zoome(i, TENUE);
-      fige(i);
+      fige(i, e.clientX, e.clientY);
       vise.x = tenu.x = e.clientX; vise.y = tenu.y = e.clientY;
       relance();
       try{ stage.setPointerCapture(e.pointerId); }catch(err){}
@@ -1918,35 +1933,93 @@ a{ color: inherit; text-decoration: none; }
 
     /* LA GÉLATINE
 
-       Chaque pastille manipulée a quatre ressorts : sa largeur, sa
-       hauteur, son inclinaison et son cisaillement. Un ressort est
-       une valeur qui court après une cible sans jamais s'y poser du
-       premier coup : elle la dépasse, revient, redépasse moins
-       loin, puis s'y colle. C'est ce va-et-vient qui fait la
-       gélatine, pendant le geste comme au lâcher.
+       Le principe est celui du pincement : la pastille se déforme à
+       l'endroit exact où on l'attrape, et elle suit le doigt en
+       même temps.
 
-       Le cisaillement, c'est l'inertie. Quand la pastille part à
-       droite, son bord arrière reste en retard, la forme penche,
-       puis le bord rattrape le reste en oscillant.
+       À la prise, son dessin est découpé en quatre au point saisi.
+       Chaque quartier est ancré par son coin extérieur, si bien que
+       les bords de la pastille ne bougent pas : seule la matière
+       entre le bord et le point saisi s'étire. Quand la main part à
+       droite, les quartiers de gauche s'allongent et ceux de droite
+       se compriment d'autant, exactement comme une gelée qu'on
+       pince et qu'on tire.
 
-       Tout est écrit image par image sur le calque d'image, sans
-       transition ni animation CSS : c'est le seul moyen d'obtenir
-       exactement le même rendu d'un navigateur à l'autre.
+       Ce qui commande tout, c'est le retard : l'écart entre le
+       doigt et la pastille, qui la rattrape toujours avec un temps
+       de retard. Ce retard est porté par un ressort, une valeur qui
+       ne se pose jamais du premier coup sur sa cible : elle la
+       dépasse, revient, redépasse moins loin. Au lâcher, la cible
+       redevient zéro et c'est ce même ressort qui fait trembler la
+       pastille jusqu'au repos.
+
+       Tout est écrit image par image, sans transition ni animation
+       CSS : c'est le seul moyen d'avoir le même rendu sur Chrome et
+       sur Safari.
 
        Au premier contact, le mouvement de repos de la pastille
        s'arrête pour de bon : elle ne bouge plus que sous la main. */
-    var RAIDEUR = .16, AMORTI = .80;   /* la mollesse de la gelée */
+    var RAIDEUR = .17, AMORTI = .78;   /* la mollesse de la gelée */
+    var GAIN = 1.35;                   /* combien le retard déforme */
     var boucle = null;
     var vise = { x: 0, y: 0 }, tenu = { x: 0, y: 0 };
     var pate = sheets.map(function(){
-      return { sx: 1, sy: 1, rot: 0, cis: 0, vsx: 0, vsy: 0, vrot: 0, vcis: 0, vif: false };
+      return { x: 0, y: 0, vx: 0, vy: 0, mx: 0, my: 0, L: 0, H: 0, ech: 1, vif: false, quarts: null };
     });
 
-    function pose(el, d){
-      el.style.transform =
-        'scale(' + d.sx.toFixed(4) + ',' + d.sy.toFixed(4) + ')' +
-        ' rotate(' + d.rot.toFixed(2) + 'deg)' +
-        ' skewX(' + d.cis.toFixed(2) + 'deg)';
+    /* Les quatre quartiers, créés une seule fois par pastille. */
+    function quartiers(i){
+      var d = pate[i];
+      if(d.quarts) return d.quarts;
+      var noms = ['hg', 'hd', 'bg', 'bd'], liste = [];
+      for(var k = 0; k < 4; k++){
+        var el = document.createElement('i');
+        el.className = 'q ' + noms[k];
+        calques[i].appendChild(el);
+        liste.push(el);
+      }
+      d.quarts = liste;
+      return liste;
+    }
+
+    /* Le découpage au point saisi : chaque quartier montre sa part
+       du dessin, en décalant le fond d'autant. */
+    function decoupe(i){
+      var d = pate[i], qs = quartiers(i), src = sheets[i].style.getPropertyValue('--src');
+      var boites = [
+        [0,    0,    d.mx,        d.my],
+        [d.mx, 0,    d.L - d.mx,  d.my],
+        [0,    d.my, d.mx,        d.H - d.my],
+        [d.mx, d.my, d.L - d.mx,  d.H - d.my]
+      ];
+      for(var k = 0; k < 4; k++){
+        var b = boites[k], el = qs[k];
+        el.style.left = b[0] + 'px';
+        el.style.top = b[1] + 'px';
+        el.style.width = Math.max(b[2], 1) + 'px';
+        el.style.height = Math.max(b[3], 1) + 'px';
+        el.style.backgroundImage = src;
+        el.style.backgroundSize = d.L + 'px ' + d.H + 'px';
+        el.style.backgroundPosition = (-b[0]) + 'px ' + (-b[1]) + 'px';
+        el.style.transform = 'scale(1,1)';
+      }
+    }
+
+    function borne(v, mini, maxi){ return Math.max(mini, Math.min(maxi, v)); }
+
+    /* Les quatre facteurs découlent du retard : le point de coupe
+       se déplace, les coins restent. */
+    function pose(i){
+      var d = pate[i], qs = d.quarts;
+      if(!qs) return;
+      var g = borne((d.mx + d.x) / d.mx, .3, 2.6);
+      var dr = borne((d.L - d.mx - d.x) / (d.L - d.mx), .3, 2.6);
+      var h = borne((d.my + d.y) / d.my, .3, 2.6);
+      var b = borne((d.H - d.my - d.y) / (d.H - d.my), .3, 2.6);
+      qs[0].style.transform = 'scale(' + g.toFixed(4) + ',' + h.toFixed(4) + ')';
+      qs[1].style.transform = 'scale(' + dr.toFixed(4) + ',' + h.toFixed(4) + ')';
+      qs[2].style.transform = 'scale(' + g.toFixed(4) + ',' + b.toFixed(4) + ')';
+      qs[3].style.transform = 'scale(' + dr.toFixed(4) + ',' + b.toFixed(4) + ')';
     }
 
     function ressort(valeur, vitesse, cible){
@@ -1965,39 +2038,32 @@ a{ color: inherit; text-decoration: none; }
         if(!d.vif) continue;
         var tenue = !!(prise && prise.i === i);
 
-        /* les cibles : sous la main elles suivent le geste, sinon
-           elles ramènent tout au repos */
-        var csx = 1, csy = 1, crot = 0, ccis = 0;
+        var cx = 0, cy = 0;
         if(tenue){
-          var dx = vise.x - tenu.x, dy = vise.y - tenu.y;
-          tenu.x += dx * .32; tenu.y += dy * .32;
-          var v = Math.min(Math.sqrt(dx * dx + dy * dy) / 18, 1);
-          var a = Math.atan2(dy, dx);
-          var h = Math.abs(Math.cos(a));       /* 1 horizontal, 0 vertical */
-          csx = 1 + .22 * v * (h - (1 - h) * .6);
-          csy = 1 + .22 * v * ((1 - h) - h * .6);
-          crot = Math.max(-1, Math.min(1, dx / 24)) * 5;
-          ccis = Math.max(-1, Math.min(1, -dx / 14)) * 10;
+          /* le retard du doigt sur la pastille, ramené à l'échelle
+             du dessin pour que la déformation soit la même quelle
+             que soit la taille à l'écran */
+          var ex = vise.x - tenu.x, ey = vise.y - tenu.y;
+          tenu.x += ex * .30; tenu.y += ey * .30;
+          cx = borne(ex / d.ech * GAIN, -d.L * .45, d.L * .45);
+          cy = borne(ey / d.ech * GAIN, -d.H * .45, d.H * .45);
         }
 
         var r;
-        r = ressort(d.sx,  d.vsx,  csx);  d.sx  = r[0]; d.vsx  = r[1];
-        r = ressort(d.sy,  d.vsy,  csy);  d.sy  = r[0]; d.vsy  = r[1];
-        r = ressort(d.rot, d.vrot, crot); d.rot = r[0]; d.vrot = r[1];
-        r = ressort(d.cis, d.vcis, ccis); d.cis = r[0]; d.vcis = r[1];
+        r = ressort(d.x, d.vx, cx); d.x = r[0]; d.vx = r[1];
+        r = ressort(d.y, d.vy, cy); d.y = r[0]; d.vy = r[1];
 
         var dort = !tenue &&
-          Math.abs(d.sx - 1) < .002 && Math.abs(d.sy - 1) < .002 &&
-          Math.abs(d.rot) < .05 && Math.abs(d.cis) < .05 &&
-          Math.abs(d.vsx) < .002 && Math.abs(d.vcis) < .05;
+          Math.abs(d.x) < .4 && Math.abs(d.y) < .4 &&
+          Math.abs(d.vx) < .4 && Math.abs(d.vy) < .4;
 
         if(dort){
-          d.sx = d.sy = 1; d.rot = d.cis = 0;
-          d.vsx = d.vsy = d.vrot = d.vcis = 0;
+          d.x = d.y = d.vx = d.vy = 0;
           d.vif = false;
-          calques[i].style.transform = '';
+          sheets[i].classList.remove('coupe');
+          pose(i);
         } else {
-          pose(calques[i], d);
+          pose(i);
           encore = true;
         }
       }
@@ -2007,14 +2073,27 @@ a{ color: inherit; text-decoration: none; }
 
     function relance(){ if(!boucle) boucle = requestAnimationFrame(tourne); }
 
-    /* La prise : le mouvement de repos s'arrête définitivement, et
-       la pastille se pince, pour qu'on sente qu'on la tient. */
-    function fige(i){
-      sheets[i].classList.add('prise');
-      var d = pate[i];
+    /* La prise : on note où le doigt tombe dans le dessin, on
+       découpe, et le mouvement de repos s'arrête pour de bon. */
+    function fige(i, cx, cy){
+      var d = pate[i], el = sheets[i], b = el.getBoundingClientRect();
+      d.L = el.offsetWidth; d.H = el.offsetHeight;
+      d.ech = b.width / d.L || 1;
+      /* le point saisi, ramené dans le repère du dessin */
+      var g = geo[i];
+      var sb = stage.getBoundingClientRect();
+      var fx = (cx - sb.left) / sb.width, fy = (cy - sb.top) / sb.height;
+      var lx = g.ox + ((fx - g.tx - g.ox) / g.k - off[i].x) / zoom[i];
+      var ly = g.oy + ((fy - g.ty - g.oy) / g.k - off[i].y) / zoom[i];
+      d.mx = borne(lx * d.L, d.L * .12, d.L * .88);
+      d.my = borne(ly * d.H, d.H * .12, d.H * .88);
+      d.x = d.y = d.vx = d.vy = 0;
       d.vif = true;
-      d.vsx = .045; d.vsy = -.040; d.vrot = 0; d.vcis = 0;
-      pose(calques[i], d);
+      el.classList.add('prise', 'coupe');
+      decoupe(i);
+      /* une pincée à la prise, pour qu'on sente qu'on la tient */
+      d.vx = d.L * .012; d.vy = d.H * .008;
+      pose(i);
     }
 
     function lache(){
@@ -2023,7 +2102,7 @@ a{ color: inherit; text-decoration: none; }
       if(zoom[i] !== 1) zoome(i, 1);
       prise = null;
       stage.style.cursor = '';
-      relance();   /* les ressorts ramènent tout au repos en gigotant */
+      relance();   /* le ressort ramène tout au repos en gigotant */
     }
 
     stage.addEventListener('pointerup', lache);

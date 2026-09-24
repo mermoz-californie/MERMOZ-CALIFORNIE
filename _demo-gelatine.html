@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Démo gélatine</title>
+<style>
+/* ============================================================
+   DÉMO : LA GÉLATINE EN QUATRE QUARTIERS
+
+   Le principe de l'exemple du chat. À la prise, l'image est
+   découpée en quatre au point exact où l'on clique. Chaque
+   quartier est ensuite étiré séparément, ancré par son coin
+   extérieur : celui du haut à gauche s'accroche au coin haut
+   gauche, etc. Le point de découpe, lui, suit le doigt.
+
+   Résultat : la matière s'étire là où on tire et reste en place
+   ailleurs, au lieu de se déformer d'un bloc. Au lâcher, les
+   quartiers reviennent à 1 avec une courbe élastique.
+
+   Ce fichier commence par un tiret bas : il ne sera jamais
+   publié en ligne.
+   ============================================================ */
+:root{
+  --noir:  #222221;
+  --blanc: #E0DFD9;
+  --vert:  #4AD66D;
+}
+*{ box-sizing: border-box; }
+body{
+  margin: 0; min-height: 100svh;
+  background: var(--noir); color: var(--blanc);
+  font: 500 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 28px; padding: 40px 20px;
+  -webkit-font-smoothing: antialiased;
+}
+h1{ font-size: 15px; letter-spacing: .18em; text-transform: uppercase; margin: 0; font-weight: 600; }
+p{ margin: 0; max-width: 34em; text-align: center; color: rgba(224,223,217,.6); }
+
+.jeu{ display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+
+/* le bocal : il porte les quartiers et reçoit le doigt */
+.bocal{
+  position: relative;
+  width: min(42vw, 420px);
+  aspect-ratio: 1;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.bocal:active{ cursor: grabbing; }
+.bocal__nom{
+  position: absolute; left: 0; right: 0; bottom: -26px;
+  text-align: center; font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: rgba(224,223,217,.45);
+}
+/* l'image entière, visible au repos */
+.entier{
+  position: absolute; inset: 0;
+  background: center / contain no-repeat var(--src);
+}
+/* les quatre quartiers, cachés tant qu'on ne tient rien */
+.quartier{
+  position: absolute;
+  background-repeat: no-repeat;
+  backface-visibility: hidden;
+  will-change: transform;
+  display: none;
+}
+.bocal.tenu .entier{ visibility: hidden; }
+.bocal.tenu .quartier{ display: block; }
+.hg{ transform-origin: left top; }
+.hd{ transform-origin: right top; }
+.bg{ transform-origin: left bottom; }
+.bd{ transform-origin: right bottom; }
+/* le retour au repos : une courbe qui dépasse, donc qui tremble */
+.bocal.repos .quartier{
+  transition: transform .55s cubic-bezier(.18, 1.7, .32, 1);
+  transform: scale(1, 1);
+}
+</style>
+</head>
+<body>
+
+<h1>La gélatine en quatre quartiers</h1>
+<p>Attrape une pastille et tire. L'image se coupe en quatre à l'endroit exact où tu cliques : la matière s'étire du côté où tu tires, et reste en place de l'autre. Lâche, et les quartiers reviennent en tremblant.</p>
+
+<div class="jeu">
+  <div class="bocal" data-src="assets/pastilles/1.svg">
+    <div class="entier"></div>
+    <div class="quartier hg"></div><div class="quartier hd"></div>
+    <div class="quartier bg"></div><div class="quartier bd"></div>
+    <span class="bocal__nom">1.svg</span>
+  </div>
+  <div class="bocal" data-src="assets/pastilles/13.svg">
+    <div class="entier"></div>
+    <div class="quartier hg"></div><div class="quartier hd"></div>
+    <div class="quartier bg"></div><div class="quartier bd"></div>
+    <span class="bocal__nom">13.svg</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  document.querySelectorAll('.bocal').forEach(function(bocal){
+    var src = bocal.dataset.src;
+    var entier = bocal.querySelector('.entier');
+    entier.style.setProperty('--src', 'url("' + src + '")');
+
+    var q = {
+      hg: bocal.querySelector('.hg'), hd: bocal.querySelector('.hd'),
+      bg: bocal.querySelector('.bg'), bd: bocal.querySelector('.bd')
+    };
+    var prise = null;
+
+    /* Le découpage : quatre boîtes qui se partagent l'image, et
+       qui décalent son fond pour que chacune montre sa part. */
+    function coupe(mx, my, L, H){
+      var parts = [
+        [q.hg, 0,  0,  mx,     my],
+        [q.hd, mx, 0,  L - mx, my],
+        [q.bg, 0,  my, mx,     H - my],
+        [q.bd, mx, my, L - mx, H - my]
+      ];
+      parts.forEach(function(p){
+        var el = p[0];
+        el.style.left = p[1] + 'px';
+        el.style.top = p[2] + 'px';
+        el.style.width = Math.max(p[3], 0) + 'px';
+        el.style.height = Math.max(p[4], 0) + 'px';
+        el.style.backgroundImage = 'url("' + src + '")';
+        el.style.backgroundSize = L + 'px ' + H + 'px';
+        el.style.backgroundPosition = (-p[1]) + 'px ' + (-p[2]) + 'px';
+        el.style.transform = 'scale(1, 1)';
+      });
+    }
+
+    /* L'étirement : le rapport entre la nouvelle position du doigt
+       et celle de la prise donne le facteur de chaque quartier. Les
+       deux quartiers du côté opposé reçoivent le facteur inverse,
+       sinon l'image se déchirerait au point de coupe. */
+    function tire(x, y){
+      var r = bocal.getBoundingClientRect();
+      var nx = Math.max(6, Math.min(x - r.left, r.width - 6));
+      var ny = Math.max(6, Math.min(y - r.top, r.height - 6));
+      var sx = nx / prise.mx, sy = ny / prise.my;
+      var ix = (r.width - nx) / (r.width - prise.mx);
+      var iy = (r.height - ny) / (r.height - prise.my);
+      q.hg.style.transform = 'scale(' + sx + ',' + sy + ')';
+      q.hd.style.transform = 'scale(' + ix + ',' + sy + ')';
+      q.bg.style.transform = 'scale(' + sx + ',' + iy + ')';
+      q.bd.style.transform = 'scale(' + ix + ',' + iy + ')';
+    }
+
+    bocal.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      var r = bocal.getBoundingClientRect();
+      var mx = Math.max(6, Math.min(e.clientX - r.left, r.width - 6));
+      var my = Math.max(6, Math.min(e.clientY - r.top, r.height - 6));
+      prise = { mx: mx, my: my };
+      bocal.classList.remove('repos');
+      bocal.classList.add('tenu');
+      coupe(mx, my, r.width, r.height);
+      bocal.setPointerCapture(e.pointerId);
+    });
+
+    bocal.addEventListener('pointermove', function(e){
+      if(prise) tire(e.clientX, e.clientY);
+    });
+
+    function lache(){
+      if(!prise) return;
+      prise = null;
+      bocal.classList.add('repos');
+      /* une fois les quartiers revenus, on remontre l'image entière */
+      setTimeout(function(){
+        bocal.classList.remove('tenu', 'repos');
+      }, 560);
+    }
+    bocal.addEventListener('pointerup', lache);
+    bocal.addEventListener('pointercancel', lache);
+  });
+})();
+</script>
+</body>
+</html>
