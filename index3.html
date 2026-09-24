@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="polices-attente">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mermoz Californie</title>
 <meta name="description" content="Studio de création publicitaire indépendant à Paris. Publicité : TVC &amp; OLV, OOH &amp; DOOH, campagne online, radio. Branding : stratégie, identité rédactionnelle et visuelle, naming, interface.">
 
+<!-- Heartbreak est sur le site : on la demande tout de suite, en
+     même temps que la page, et non après avoir lu le CSS. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/heartbreak-eighties-regular-webfont-full/webfonts/heartbreak-eighties-regular.woff2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&display=swap">
@@ -108,6 +112,25 @@ body{
 }
 
 a{ color: inherit; text-decoration: none; }
+
+/* ============================================================
+   LE TEMPS DU CHARGEMENT
+
+   Sans ça, le navigateur affiche d'abord les gros titres dans une
+   police de secours, puis les redessine dans la bonne : le texte
+   saute sous les yeux, et c'est très visible sur des corps
+   pareils.
+
+   Les deux titres sont donc tenus invisibles jusqu'à ce que les
+   polices soient prêtes. Ils gardent leur place, rien ne bouge
+   dans la page. Le script retire la classe dès que les polices
+   sont là, et au plus tard au bout de deux secondes : une police
+   qui n'arrive jamais ne doit pas laisser une page vide.
+
+   Le reste du texte n'est pas masqué : il est en police système,
+   donc il s'affiche juste. */
+.polices-attente .punch,
+.polices-attente .who__t{ visibility: hidden; }
 
 /* ============================================================
    LE CURSEUR
@@ -1166,6 +1189,17 @@ body{ cursor: none; }
 <body>
 
 <!-- ============================ EN-TÊTE ============================ -->
+<script>
+/* dès que les polices sont prêtes, les titres apparaissent */
+(function(){
+  var racine = document.documentElement;
+  function montre(){ racine.classList.remove('polices-attente'); }
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(montre);
+  else montre();
+  setTimeout(montre, 2000);   /* filet : jamais de page vide */
+})();
+</script>
+
 <div id="curseur" aria-hidden="true"></div>
 <div id="curseur-anneau" aria-hidden="true"></div>
 
@@ -2037,7 +2071,11 @@ body{ cursor: none; }
 
        Les quatre réglages ont été trouvés sur la démo
        _demo-gelatine.html, qui sert de banc d'essai. */
-    var PINCEMENT = .55;   /* combien le retard déforme */
+    var PINCEMENT = .55;   /* combien le retard déforme, sur ordinateur */
+    /* Au doigt, le geste est plus lent et la pastille plus petite
+       à l'écran : à réglage égal, la déformation se voyait à peine.
+       Elle est donc poussée sur téléphone. */
+    var PINCEMENT_DOIGT = 1.6;
     var ETENDUE   = .80;   /* la portée autour du point saisi */
     var RAIDEUR   = .05;   /* la vivacité du retour, au lâcher */
     var REBONDS   = .85;   /* l'amortissement : plus haut, plus ça gigote */
@@ -2223,8 +2261,9 @@ body{ cursor: none; }
            continue de répondre à la main. */
         var plafond = ETENDUE * Math.max(gel.taille, .05) * .60;
         var doux = function(v){ return plafond * Math.tanh(v / plafond); };
-        cx = doux(ex / b.width * PINCEMENT);
-        cy = doux(ey / b.height * PINCEMENT);
+        var force = telephone.matches ? PINCEMENT_DOIGT : PINCEMENT;
+        cx = doux(ex / b.width * force);
+        cy = doux(ey / b.height * force);
       }
 
       if(prise && prise.i === i){
