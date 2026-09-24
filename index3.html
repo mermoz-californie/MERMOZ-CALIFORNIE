@@ -1960,7 +1960,7 @@ a{ color: inherit; text-decoration: none; }
 
     var boucle = null, prisEn = -1;
     var vise = { x: 0, y: 0 }, tenu = { x: 0, y: 0 };
-    var gel = { gx: .5, gy: .5, x: 0, y: 0, vx: 0, vy: 0 };
+    var gel = { gx: .5, gy: .5, x: 0, y: 0, vx: 0, vy: 0, taille: 1 };
     var toile = null, gl = null, mailleN = 0, uGrab, uLag, uRayon, texture;
     var textures = [];     /* le dessin de chaque pastille, rastérisé une fois */
 
@@ -2074,7 +2074,12 @@ a{ color: inherit; text-decoration: none; }
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(uGrab, (gel.gx + MARGE) * e, (gel.gy + MARGE) * e);
       gl.uniform2f(uLag, gel.x * e, gel.y * e);
-      gl.uniform1f(uRayon, ETENDUE);
+      /* La portée est donnée en proportion du dessin, pas du
+         calque : un calque couvre toute la scène et le dessin n'en
+         occupe qu'un coin, si bien qu'une portée comptée sur le
+         calque engloberait le dessin entier, qui suivrait le doigt
+         sans se déformer. */
+      gl.uniform1f(uRayon, ETENDUE * gel.taille * e);
       gl.drawArrays(gl.TRIANGLES, 0, mailleN);
     }
 
@@ -2094,8 +2099,12 @@ a{ color: inherit; text-decoration: none; }
         var b = sheets[i].getBoundingClientRect();
         var ex = vise.x - tenu.x, ey = vise.y - tenu.y;
         tenu.x += ex * .30; tenu.y += ey * .30;
-        cx = Math.max(-.75, Math.min(.75, ex / b.width * PINCEMENT));
-        cy = Math.max(-.75, Math.min(.75, ey / b.height * PINCEMENT));
+        /* le retard est lui aussi ramené au dessin : même geste,
+           même déformation, quelle que soit la place que le dessin
+           occupe dans son calque */
+        var t = Math.max(gel.taille, .05);
+        cx = Math.max(-.75, Math.min(.75, ex / (b.width * t) * PINCEMENT * t));
+        cy = Math.max(-.75, Math.min(.75, ey / (b.height * t) * PINCEMENT * t));
       }
 
       if(prise && prise.i === i){
@@ -2151,6 +2160,10 @@ a{ color: inherit; text-decoration: none; }
       gel.gx = Math.max(0, Math.min(1, g.ox + ((fx - g.tx - g.ox) / g.k - off[i].x) / zoom[i]));
       gel.gy = Math.max(0, Math.min(1, g.oy + ((fy - g.ty - g.oy) / g.k - off[i].y) / zoom[i]));
       gel.x = gel.y = gel.vx = gel.vy = 0;
+      /* la taille du dessin dans son calque, pour que la portée et
+         le retard se mesurent sur lui */
+      var bo = boites[i];
+      gel.taille = bo ? Math.max(bo.w, bo.h) : 1;
 
       var L = el.offsetWidth, H = el.offsetHeight;
       dessinDe(i, L, H, function(source){
