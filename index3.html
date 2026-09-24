@@ -1918,115 +1918,112 @@ a{ color: inherit; text-decoration: none; }
 
     /* LA GÉLATINE
 
-       Tout est calculé ici, image par image, et écrit directement
-       sur le calque d'image. On n'utilise ni transition ni
-       animation CSS : elles ne se rafraîchissaient pas de la même
-       façon d'un navigateur à l'autre.
+       Chaque pastille manipulée a quatre ressorts : sa largeur, sa
+       hauteur, son inclinaison et son cisaillement. Un ressort est
+       une valeur qui court après une cible sans jamais s'y poser du
+       premier coup : elle la dépasse, revient, redépasse moins
+       loin, puis s'y colle. C'est ce va-et-vient qui fait la
+       gélatine, pendant le geste comme au lâcher.
 
-       Pendant le geste, la pastille s'allonge dans la direction du
-       mouvement et s'amincit dans l'autre, d'autant plus qu'on va
-       vite. Au lâcher, l'allongement du moment devient l'élan d'un
-       ressort amorti : il dépasse, revient, redépasse plus faible,
-       et s'éteint. C'est ce va-et-vient qui fait la gélatine. */
-    var MOU = .30;          /* allongement maximal, en proportion */
+       Le cisaillement, c'est l'inertie. Quand la pastille part à
+       droite, son bord arrière reste en retard, la forme penche,
+       puis le bord rattrape le reste en oscillant.
+
+       Tout est écrit image par image sur le calque d'image, sans
+       transition ni animation CSS : c'est le seul moyen d'obtenir
+       exactement le même rendu d'un navigateur à l'autre.
+
+       Au premier contact, le mouvement de repos de la pastille
+       s'arrête pour de bon : elle ne bouge plus que sous la main. */
+    var RAIDEUR = .16, AMORTI = .80;   /* la mollesse de la gelée */
     var boucle = null;
     var vise = { x: 0, y: 0 }, tenu = { x: 0, y: 0 };
-    var etat = { sx: 1, sy: 1, rot: 0 };
-    var ressorts = [];      /* un rebond en cours par pastille */
+    var pate = sheets.map(function(){
+      return { sx: 1, sy: 1, rot: 0, cis: 0, vsx: 0, vsy: 0, vrot: 0, vcis: 0, vif: false };
+    });
 
-    function pose(el, sx, sy, rot){
-      el.style.transform = 'scale(' + sx.toFixed(4) + ',' + sy.toFixed(4) + ') rotate(' + rot.toFixed(2) + 'deg)';
+    function pose(el, d){
+      el.style.transform =
+        'scale(' + d.sx.toFixed(4) + ',' + d.sy.toFixed(4) + ')' +
+        ' rotate(' + d.rot.toFixed(2) + 'deg)' +
+        ' skewX(' + d.cis.toFixed(2) + 'deg)';
+    }
+
+    function ressort(valeur, vitesse, cible){
+      vitesse = (vitesse + (cible - valeur) * RAIDEUR) * AMORTI;
+      return [valeur + vitesse, vitesse];
     }
 
     function etire(i, x, y){ vise.x = x; vise.y = y; }
 
     function tourne(){
       boucle = null;
-      var actif = false;
+      var encore = false;
 
-      if(prise){
-        actif = true;
-        var el = calques[prise.i];
-        var dx = vise.x - tenu.x, dy = vise.y - tenu.y;
-        tenu.x += dx * .30; tenu.y += dy * .30;
+      for(var i = 0; i < pate.length; i++){
+        var d = pate[i];
+        if(!d.vif) continue;
+        var tenue = !!(prise && prise.i === i);
 
-        var v = Math.min(Math.sqrt(dx * dx + dy * dy) / 16, 1);
-        var a = Math.atan2(dy, dx);
-        var h = Math.abs(Math.cos(a));          /* 1 horizontal, 0 vertical */
-        var csx = 1 + MOU * v * (h - (1 - h) * .6);
-        var csy = 1 + MOU * v * ((1 - h) - h * .6);
-        var crot = Math.max(-1, Math.min(1, dx / 22)) * 7;
-
-        etat.sx += (csx - etat.sx) * .22;
-        etat.sy += (csy - etat.sy) * .22;
-        etat.rot += (crot - etat.rot) * .22;
-        pose(el, etat.sx, etat.sy, etat.rot);
-      }
-
-      /* les rebonds en cours, même sur des pastilles déjà lâchées */
-      for(var n = ressorts.length - 1; n >= 0; n--){
-        var r = ressorts[n];
-        var t = (performance.now() - r.t0) / 1000;
-        var amorti = Math.exp(-t * 3.6);        /* extinction */
-        if(t > 1.4 || amorti < .004){
-          calques[r.i].style.transform = '';
-          sheets[r.i].classList.remove('prise');
-          ressorts.splice(n, 1);
-          continue;
+        /* les cibles : sous la main elles suivent le geste, sinon
+           elles ramènent tout au repos */
+        var csx = 1, csy = 1, crot = 0, ccis = 0;
+        if(tenue){
+          var dx = vise.x - tenu.x, dy = vise.y - tenu.y;
+          tenu.x += dx * .32; tenu.y += dy * .32;
+          var v = Math.min(Math.sqrt(dx * dx + dy * dy) / 18, 1);
+          var a = Math.atan2(dy, dx);
+          var h = Math.abs(Math.cos(a));       /* 1 horizontal, 0 vertical */
+          csx = 1 + .22 * v * (h - (1 - h) * .6);
+          csy = 1 + .22 * v * ((1 - h) - h * .6);
+          crot = Math.max(-1, Math.min(1, dx / 24)) * 5;
+          ccis = Math.max(-1, Math.min(1, -dx / 14)) * 10;
         }
-        actif = true;
-        var onde = Math.cos(t * 22) * amorti;   /* trois allers-retours */
-        pose(calques[r.i], 1 + r.ax * onde, 1 + r.ay * onde, r.rot * amorti * Math.cos(t * 20));
+
+        var r;
+        r = ressort(d.sx,  d.vsx,  csx);  d.sx  = r[0]; d.vsx  = r[1];
+        r = ressort(d.sy,  d.vsy,  csy);  d.sy  = r[0]; d.vsy  = r[1];
+        r = ressort(d.rot, d.vrot, crot); d.rot = r[0]; d.vrot = r[1];
+        r = ressort(d.cis, d.vcis, ccis); d.cis = r[0]; d.vcis = r[1];
+
+        var dort = !tenue &&
+          Math.abs(d.sx - 1) < .002 && Math.abs(d.sy - 1) < .002 &&
+          Math.abs(d.rot) < .05 && Math.abs(d.cis) < .05 &&
+          Math.abs(d.vsx) < .002 && Math.abs(d.vcis) < .05;
+
+        if(dort){
+          d.sx = d.sy = 1; d.rot = d.cis = 0;
+          d.vsx = d.vsy = d.vrot = d.vcis = 0;
+          d.vif = false;
+          calques[i].style.transform = '';
+        } else {
+          pose(calques[i], d);
+          encore = true;
+        }
       }
 
-      if(actif) boucle = requestAnimationFrame(tourne);
+      if(encore) boucle = requestAnimationFrame(tourne);
     }
 
     function relance(){ if(!boucle) boucle = requestAnimationFrame(tourne); }
 
-    /* Geler le mouvement de repos sans à-coup : on lit la
-       déformation de l'instant sur le calque d'image, on la
-       recopie telle quelle, puis on coupe l'animation. La valeur
-       affichée ne change pas d'un cheveu. */
+    /* La prise : le mouvement de repos s'arrête définitivement, et
+       la pastille se pince, pour qu'on sente qu'on la tient. */
     function fige(i){
-      var el = calques[i];
-      var m = getComputedStyle(el).transform;
-      var sx = 1, sy = 1, rot = 0;
-      var n = m && m.match(/matrix\(([^)]+)\)/);
-      if(n){
-        var v = n[1].split(',').map(parseFloat);
-        sx = Math.sqrt(v[0] * v[0] + v[1] * v[1]) || 1;
-        sy = Math.sqrt(v[2] * v[2] + v[3] * v[3]) || 1;
-        rot = Math.atan2(v[1], v[0]) * 180 / Math.PI;
-      }
-      /* la pastille sort d'un rebond en cours : on l'arrête */
-      for(var k = ressorts.length - 1; k >= 0; k--) if(ressorts[k].i === i) ressorts.splice(k, 1);
       sheets[i].classList.add('prise');
-      etat.sx = sx * 1.12; etat.sy = sy * .90; etat.rot = rot;
-      pose(el, etat.sx, etat.sy, etat.rot);
+      var d = pate[i];
+      d.vif = true;
+      d.vsx = .045; d.vsy = -.040; d.vrot = 0; d.vcis = 0;
+      pose(calques[i], d);
     }
 
     function lache(){
       if(!prise) return;
       var i = prise.i;
       if(zoom[i] !== 1) zoome(i, 1);
-      /* l'allongement du moment devient l'élan du rebond */
-      /* l'élan vaut l'allongement du moment, avec un minimum pour
-         qu'un lâcher à l'arrêt tremblote quand même, et un plafond
-         pour que le dessin reste lisible */
-      var borne = function(v){ return Math.max(-.20, Math.min(.20, v)); };
-      var elan = borne((etat.sx - 1) * 1.15 + .07);
-      ressorts.push({
-        i: i,
-        t0: performance.now(),
-        ax: elan,
-        ay: -elan * .85,
-        rot: etat.rot * .5
-      });
-      etat.sx = etat.sy = 1; etat.rot = 0;
       prise = null;
       stage.style.cursor = '';
-      relance();
+      relance();   /* les ressorts ramènent tout au repos en gigotant */
     }
 
     stage.addEventListener('pointerup', lache);
