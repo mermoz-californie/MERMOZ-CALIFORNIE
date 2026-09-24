@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mermoz Californie</title>
+<meta name="description" content="Studio de création publicitaire indépendant à Paris. Publicité : TVC &amp; OLV, OOH &amp; DOOH, campagne online, radio. Branding : stratégie, identité rédactionnelle et visuelle, naming, interface.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&display=swap">
+
+<style>
+/* ============================================================
+   01. TYPOGRAPHIES
+
+   Bricolage Grotesque vient de Google Fonts.
+   SF Pro n'est pas chargée : la pile système la sert nativement
+   sur macOS et iOS, ce qui donne le dessin exact, zéro octet
+   téléchargé, et aucun souci de licence Apple. Sur Windows et
+   Android, la pile retombe sur la grotesque système la plus
+   proche.
+   ============================================================ */
+:root{
+  --bricolage: "Bricolage Grotesque", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro",
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* ============================================================
+   02. COULEURS
+   ============================================================ */
+  --noir:  #222221;
+  --blanc: #E0DFD9;
+  --rose:  #FF7375;
+  --vert:  #4AD66D;   /* v3 : le vert des pastilles */
+
+  /* Rien d'autre. Les filets et les détails atténués ne sont pas
+     des couleurs de plus : c'est le blanc, posé à faible opacité
+     sur le noir. */
+  --filet:   rgba(224, 223, 217, .16);
+  --attenue: rgba(224, 223, 217, .55);
+
+/* ============================================================
+   03. GRILLE ET RYTHME
+
+   Les sections tiennent dans une colonne centrée, aux marges
+   égales des deux côtés. Le header, la punchline et le
+   logotype de pied de page, eux, travaillent bord à bord.
+   ============================================================ */
+  /* Une seule courbe et deux durées pour tout le site : c'est ce
+     qui donne au défilement sa régularité. */
+  --ease: cubic-bezier(.19, 1, .22, 1);
+  --slow: 1150ms;
+  --mid:  850ms;
+
+  --edge:    clamp(14px, 1.6vw, 26px);   /* marge de page, bord à bord */
+  --side:    clamp(20px, 13.2vw, 300px); /* colonne de contenu, symétrique */
+  --section: clamp(90px, 15vw, 230px);   /* respiration entre sections */
+}
+
+/* ============================================================
+   01 bis. HEARTBREAK EIGHTIES (licence achetée)
+
+Font: 		Heartbreak Eighties
+Style: 		Regular
+URL: 		https://youworkforthem.com/font/T27367/heartbreak-eighties
+Foundry: 	Nicky Laatz
+Foundry: 	https://youworkforthem.com/designer/993/nicky-laatz
+Copyright:	
+Version: 	18
+Created:	April 03, 2026
+License: 	https://www.youworkforthem.com/font-license 
+License: 	The WebFont(s) listed in this document must follow the YouWorkForThem
+			WebFont license rules. All other parties are strictly restricted 
+			from using the WebFonts(s) listed without a purchased license. 
+			All details above must always remain unaltered and visible in your CSS.
+   ============================================================ */
+@font-face {
+	font-family: 'HeartbreakEighties-Regular';
+	src: url('assets/fonts/heartbreak-eighties-regular-webfont-full/webfonts/heartbreak-eighties-regular.woff2') format('woff2'),
+	     url('assets/fonts/heartbreak-eighties-regular-webfont-full/webfonts/heartbreak-eighties-regular.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* Toute la punchline est composée dans cette
+   police. Elle n'a qu'une graisse : le gras synthétique est donc
+   désactivé, il épaissirait le dessin au lieu de le remplacer. */
+.punch .red,
+.punch .off{
+  font-family: 'HeartbreakEighties-Regular', var(--bricolage);
+  font-weight: 400;
+}
+
+*{ box-sizing: border-box; }
+
+html{ scroll-behavior: smooth; }
+
+body{
+  margin: 0;
+  background: var(--noir);
+  color: var(--blanc);
+  font-family: var(--sf);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+a{ color: inherit; text-decoration: none; }
+:focus-visible{ outline: 1.5px solid var(--rose); outline-offset: 4px; }
+/* La sélection : surlignage rose, texte en noir, quel que soit
+   le texte sélectionné. ::selection ne s'hérite pas, d'où le
+   sélecteur universel pour atteindre les éléments imbriqués. */
+::selection,
+*::selection{
+  background-color: var(--rose);
+  color: var(--noir);
+  text-shadow: none;
+}
+::-moz-selection,
+*::-moz-selection{
+  background-color: var(--rose);
+  color: var(--noir);
+  text-shadow: none;
+}
+
+/* Safari, et lui seul, compose la sélection avec le fond de la
+   page au lieu de peindre la couleur déclarée. Le test ci-dessous
+   isole Safari : Chrome, Edge et Firefox implémentent hyphens sans
+   préfixe, donc ils n'entrent jamais ici et gardent le rose exact.
+   Pour Safari, on part d'une valeur éclaircie, calculée pour que
+   le résultat après mélange retombe sur #FF7375. Ce n'est pas une
+   quatrième couleur de la charte, c'est un correctif de moteur. */
+@supports (-webkit-hyphens: none){
+  ::selection,
+  *::selection{ background-color: #FF878A; }
+}
+
+/* ============================================================
+   04. MOUVEMENT
+
+   Deux gestes, pas plus. Le texte monte sous son propre masque,
+   les éléments secondaires arrivent en fondu. Rien n'est masqué
+   par le CSS : le script ne pose l'état caché que sur ce qui est
+   hors écran au chargement, donc la page reste entière sans JS.
+   ============================================================ */
+.m{
+  display: block;
+  overflow: hidden;
+  /* Un masque coupe sur les quatre côtés, pas seulement en bas.
+     Les panses du S, du O et le point dépassent optiquement de
+     leur chasse et se faisaient rogner à droite. On élargit donc
+     la boîte de chaque côté et on reprend la largeur en marge
+     négative : le débord a de la place, la mise en page ne bouge
+     pas d'un pixel.
+
+     En haut aussi, et pour la même raison : avec un interlignage
+     serré, l'accent du Ê monte bien au-dessus de sa ligne et le
+     bord haut du masque le tranchait net. L'ouvrir ne découvre
+     rien, puisque les lettres arrivent par le bas ; elles ne
+     passent jamais au-dessus de leur position. Et comme chaque
+     ligne se peint après celle du dessus, l'accent passe par
+     dessus la ligne précédente au lieu de disparaître dedans. */
+  padding: .26em .1em .1em;
+  margin: -.26em -.1em -.1em;
+}
+.m > *{
+  display: block;
+  transition: transform var(--slow) var(--ease) var(--d, 0ms);
+}
+.m.armed > *{ transform: translateY(112%); }
+.m.armed.in > *{ transform: none; }
+
+.f{
+  transition: opacity var(--mid) var(--ease) var(--d, 0ms),
+              transform var(--mid) var(--ease) var(--d, 0ms);
+}
+.f.armed{ opacity: 0; transform: translateY(14px); }
+.f.armed.in{ opacity: 1; transform: none; }
+
+/* LA VAGUE
+
+   Une ligne ne monte plus d'un bloc : chaque lettre monte pour
+   elle-même, décalée sur sa voisine. Le décalage se cumule à celui
+   de la ligne, si bien que le mouvement traverse le bloc en
+   diagonale au lieu de tomber palier par palier.
+
+   Le masque reste celui de la ligne, il n'y en a pas un par
+   lettre : une lettre posée sous le bord du masque est déjà
+   cachée, un masque par glyphe ne servirait à rien et coûterait
+   bien plus de boîtes.
+
+   Les lettres sont des inline-block, le seul affichage en ligne
+   qui accepte une transformation. Elles sont donc regroupées par
+   mot dans un conteneur en white-space:nowrap : entre deux
+   inline-block voisins, le moteur voit une occasion de retour à la
+   ligne et s'autorise à couper un mot en plein milieu. */
+.m .wd,
+.footmark .wd{ display: inline-block; white-space: nowrap; }
+
+.m .c{
+  display: inline-block;
+  transition: transform var(--slow) var(--ease)
+              calc(var(--d, 0ms) + var(--cd, 0ms));
+}
+.m.vague.armed    .c{ transform: translateY(125%); }
+.m.vague.armed.in .c{ transform: none; }
+
+/* le bloc, lui, cesse de bouger : sans ça la ligne et ses lettres
+   joueraient deux fois le même mouvement, l'un sur l'autre */
+.m.vague.armed > *,
+.m.vague.armed.in > *{ transform: none; }
+
+/* le logotype de pied de page suit la même vague */
+.footmark__in{ transition: transform var(--slow) var(--ease); }
+.footmark.armed .footmark__in{ transform: translateY(115%); }
+.footmark.armed.in .footmark__in{ transform: none; }
+.footmark .c{
+  display: inline-block;
+  transition: transform var(--slow) var(--ease) var(--cd, 0ms);
+}
+.footmark.vague.armed    .c{ transform: translateY(125%); }
+.footmark.vague.armed.in .c{ transform: none; }
+.footmark.vague.armed .footmark__in,
+.footmark.vague.armed.in .footmark__in{ transform: none; }
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  .m.armed > *,
+  .m.armed .c,
+  .footmark.armed .c,
+  .footmark.armed .footmark__in{ transform: none !important; }
+  .f.armed{ opacity: 1 !important; transform: none !important; }
+  .contact__mail.in{ animation: none; }
+  *{ transition-duration: .01ms !important; }
+}
+
+/* ============================================================
+   05. PRIMITIVES
+   ============================================================ */
+
+/* les labels de section : SF Pro, très espacée, très petite */
+.label{
+  font-family: var(--sf);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--blanc);
+}
+
+/* le bloc de contenu des sections */
+.col{ padding-inline: var(--side); }
+
+/* ============================================================
+   06. EN-TÊTE
+   ============================================================ */
+.top{
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 20px;
+  /* Marge haute réduite par rapport à la basse : le bandeau remonte
+     vers le bord de la fenêtre sans se resserrer sous le texte. */
+  padding: clamp(9px, 1.1vw, 17px) var(--edge) clamp(16px, 1.9vw, 28px);
+  background: var(--noir);
+}
+.top__logo{
+  font-family: var(--bricolage);
+  font-weight: 700;
+  font-size: clamp(13px, 1.15vw, 19px);
+  letter-spacing: -.005em;
+  text-transform: uppercase;
+}
+.top__logo sup{
+  font-size: .52em;
+  vertical-align: super;
+  font-weight: 500;
+}
+.top__tag{
+  font-family: var(--sf);
+  font-size: clamp(12px, .86vw, 14px);
+  font-weight: 600;
+  letter-spacing: -.005em;
+  text-align: right;
+}
+
+/* ============================================================
+   07. PUNCHLINE
+   Bricolage en capitales, graisse pleine. L'interlignage passe
+   sous 0,9 : les hauteurs de capitale se frôlent sans se
+   toucher, c'est ce qui fait tenir le bloc comme une masse.
+   Le tracking négatif compense l'écartement que les capitales
+   ajoutent naturellement.
+   ============================================================ */
+.hero{
+  min-height: 100svh;
+  display: flex; align-items: center; justify-content: center;
+  /* le header est fixe : on décale d'autant pour que le bloc
+     soit centré dans ce qui reste visible, pas dans la page */
+  padding: clamp(70px, 6.4vw, 100px) var(--edge) clamp(20px, 2vw, 34px);
+}
+.punch{
+  position: relative;   /* repère de la pastille */
+  /* Le bloc est centré dans le hero. Une marge basse le remonte
+     donc de la moitié de sa valeur, le centrage répartissant le
+     reste. C'est plus sûr qu'une translation : ça ne crée pas de
+     nouveau repère et ça ne touche pas au calage de la pastille. */
+  margin: 0 0 17vh;   /* v3 : le bloc et sa pastille remontent */
+  font-family: var(--bricolage);
+  font-weight: 800;
+  /* Le corps se règle sur la ligne la plus longue, « on est pas au
+     CAC40 ». C'est elle qui décide : au-delà, elle déborde du cadre
+     ou se replie en deux, et un repli casserait son masque, qui ne
+     compte qu'une ligne.
+
+     Pas de minimum à la fonction : un plancher en pixels finirait
+     par dépasser la largeur d'un téléphone et ferait précisément
+     ce repli. La taille reste donc proportionnelle jusqu'en bas. */
+  font-size: min(7.2vw, 130px);   /* v3 : bloc un peu plus petit */
+  line-height: .82;   /* v3 : un poil desserré, la police est plus haute */
+
+  /* Le crénage : Bricolage embarque ses tables de paires, mais
+     certains moteurs les mettent de côté dans les très grands
+     corps, d'où les blancs inégaux entre lettres. On les impose,
+     ligatures comprises.
+     L'axe de taille optique reste en auto : à 152 px la police
+     sert son dessin de titrage, aux chasses déjà resserrées, ce
+     qui permet de moins forcer le tracking. */
+  font-kerning: normal;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -.022em;
+
+  /* v3 : la punchline est en bas de casse, sauf les capitales
+     de début de phrase, portées par .maj */
+  text-transform: lowercase;
+  text-align: center;
+}
+/* Crénage manuel. Les tables de la police valent pour des corps
+   courants ; à 152 px certaines paires demandent un rattrapage à
+   la main. Une marge négative sur un glyphe le rapproche de celui
+   qui le précède et décale la suite de la ligne d'autant, comme
+   un vrai crénage. */
+.punch .kl{ margin-left: -.022em; }   /* rapproche du glyphe précédent */
+.punch .kr{ margin-left:  .028em; }   /* l'en écarte */
+.punch .kr.moins{ margin-left: .015em; }  /* écart réduit de moitié */
+
+/* Colonnes flexibles, et pas de simples blocs, pour une raison
+   précise : entre deux blocs voisins, les marges verticales
+   fusionnent, et deux marges négatives ne s'additionnent pas, le
+   moteur ne retient que la plus négative des deux. Les masques
+   portent -0,26 em en haut et -0,1 em en bas ; fusionnées, le
+   -0,1 em du bas disparaissait dans le -0,26 em du haut et chaque
+   ligne gagnait 0,1 em d'interlignage sans que personne n'ait
+   touché à line-height. Les enfants d'une boîte flexible ne
+   fusionnent pas leurs marges : les deux valeurs s'appliquent, et
+   l'écart entre deux lignes redevient exactement l'interlignage
+   demandé. */
+.punch .red,
+.punch .off{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* la largeur exacte d'une espace de la punchline, mesurée */
+  column-gap: .173em;
+}
+
+/* LES RETOURS À LA LIGNE
+
+   Un élément vide qui prend toute la largeur force la suite à la
+   ligne suivante. Sa hauteur est nulle : il ne crée aucun blanc.
+   br vaut sur tous les écrans, br-o sur ordinateur seulement, br-t
+   sur téléphone seulement. C'est ce qui permet deux découpages
+   différents du même texte, même quand une ligne du téléphone est
+   à cheval sur deux lignes de l'ordinateur, comme « pas de ». */
+.punch .br{ flex-basis: 100%; height: 0; }
+.punch .br-t{ display: none; }
+
+/* « naires, » se recolle à « d'action » sur ordinateur : la marge
+   négative annule l'espace entre les deux groupes, et le trait de
+   césure est caché. Sur téléphone, les deux passent sur deux lignes
+   et le trait réapparaît. */
+.punch .suite{ margin-left: calc(-.1em - .173em); }
+.punch .cesure{ display: none; }
+.punch .red{ color: inherit; }   /* v3 : toute la punchline en blanc */
+.punch .maj,
+.who__t .maj{ text-transform: uppercase; }
+.punch .off{ color: var(--blanc); }
+
+/* DEUX MORCEAUX D'UNE MÊME LIGNE
+
+   Certaines lignes ne se coupent pas au même endroit selon l'écran :
+   « on est pas au CAC40 » tient sur une ligne sur ordinateur et
+   passe sur deux sur téléphone. Chaque morceau garde son propre
+   masque, donc sa propre vague. Sur ordinateur, les deux morceaux
+   se remettent côte à côte, séparés par la largeur exacte d'une
+   espace du texte, mesurée à 0,173 em : la ligne retombe à
+   l'identique. Sur téléphone, ils s'empilent. */
+.duo{
+  display: flex;
+  justify-content: center;
+  gap: .173em;
+}
+
+/* LA PASTILLE DE LA PUNCHLINE
+
+   Elle se colle à la suite de la phrase, une fois la vague passée.
+   Elle est posée dans le h1 et non dans le masque d'une ligne : un
+   masque coupe ce qui déborde, elle y serait rognée net.
+
+   Le fichier est recadré sur son dessin, aucune mesure n'est faite
+   à l'exécution : la taille est donc la même dans tous les
+   navigateurs et dès la première image. Le rapport ci-dessous est
+   celui du fichier recadré. */
+.punch__sticker{
+  position: absolute;
+  right: 1%;
+  bottom: -7%;
+  width: 30%;   /* v3 : accordée au bloc de texte réduit */
+  aspect-ratio: 104.94 / 38.67;
+  z-index: 2;
+  pointer-events: none;
+  background: center / contain no-repeat url(assets/pastilles/1.svg);
+
+  /* Déplacement à partir du centre, en pourcentage du bloc de
+     texte. Positif vers la droite et vers le bas. Ce sont les deux
+     seules molettes à tourner pour bouger la pastille. */
+  --decal-x: 0%;
+  --decal-y: 60%;
+}
+/* Elle apparaît, et rien d'autre : aucune translation, aucune
+   rotation, aucun flou, aucune ombre, aucun dévers. Le seul
+   réglage est le retard, qui vaut le temps que met la vague à
+   traverser les cinq lignes : la pastille se pose quand la phrase
+   finit de s'écrire, pas pendant. */
+.punch__sticker.armed{ visibility: hidden; }
+/* Le retard vaut le temps que met la vague à traverser les cinq
+   lignes : la pastille se pose quand la phrase finit de s'écrire,
+   pas pendant. Une transition de durée nulle sur visibility ne
+   crée aucun fondu, elle ne fait que retarder la bascule. */
+.punch__sticker.armed.in{
+  visibility: visible;
+  transition: visibility 0s linear 1500ms;
+}
+
+/* ============================================================
+   08. CE QUE NOUS FAISONS
+   ============================================================ */
+.section{ padding-bottom: var(--section); }
+/* La première section de contenu respire sous la punchline.
+
+   Le sélecteur vise la voisine du hero, et non :first-of-type : le
+   hero est lui-même une section, il est donc le premier élément de
+   ce type, et comme il ne porte pas la classe, l'ancienne règle ne
+   trouvait jamais personne. Elle était morte. */
+.hero + .section{ padding-top: clamp(40px, 6vw, 96px); }
+.section__label{ margin-bottom: clamp(30px, 4.4vw, 74px); text-align: center; text-indent: .18em; }
+
+.craft{ list-style: none; margin: 0; padding: 0; }
+.craft li{
+  display: grid;
+  grid-template-columns: clamp(24px, 3.4vw, 54px) minmax(0, 1fr) auto;
+  gap: clamp(8px, 1.4vw, 24px);
+  align-items: baseline;
+  padding-bottom: clamp(10px, 1.3vw, 20px);
+  position: relative;
+}
+/* le filet n'est pas une bordure mais un trait qui se tire :
+   il accompagne la montée du titre au lieu d'être déjà là */
+.craft li::after{
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  border-bottom: 1px solid var(--filet);
+  transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform 1300ms var(--ease) var(--d, 0ms);
+}
+.craft li.drawn::after{ transform: none; }
+.craft li + li{ padding-top: clamp(14px, 1.9vw, 30px); }
+
+.craft__n{
+  font-family: var(--sf);
+  font-size: clamp(11px, .75vw, 13px);
+  font-weight: 500;
+  letter-spacing: .1em;
+  color: var(--attenue);
+  font-variant-numeric: tabular-nums;
+}
+.craft__t{
+  font-family: var(--bricolage);
+  font-weight: 600;
+  font-size: clamp(19px, 2.9vw, 47px);   /* v3 */
+  letter-spacing: -.028em;
+  line-height: 1;
+  text-transform: uppercase;   /* v3 */
+}
+.craft__d{
+  font-family: var(--sf);
+  font-size: clamp(13px, .92vw, 15px);
+  font-weight: 500;
+  letter-spacing: -.002em;
+  color: var(--attenue);
+  text-align: right;
+  white-space: nowrap;
+}
+/* La liste s'empile dès 900 px et non à 760 : depuis que les
+   descriptions ont grossi, la ligne Branding touchait presque son
+   titre vers 820 px et l'aurait chevauché juste au-dessus de 760. */
+@media (max-width: 900px){
+  .craft li{ grid-template-columns: clamp(24px, 6vw, 40px) minmax(0, 1fr); }
+  .craft__d{
+    grid-column: 2; text-align: left; margin-top: 7px;
+    white-space: normal;
+  }
+}
+
+/* ============================================================
+   09. MANIFESTE
+   Pavé justifié, à la taille des titres de la liste : les deux
+   blocs se répondent. La césure automatique évite les lézardes
+   que le fer à droite creuse dans un texte justifié.
+   ============================================================ */
+.manifesto p{
+  margin: 0;
+  font-family: var(--sf);
+  font-weight: 400;
+  font-size: clamp(18px, 3.4vw, 56px);
+  line-height: 1.12;
+  letter-spacing: -.028em;
+  text-align: center;
+  /* Répartition soignée des lignes là où le moteur la connaît ;
+     les espaces insécables du script couvrent les autres. */
+  text-wrap: pretty;
+  /* La césure est coupée en même temps que la justification. Elle
+     ne servait qu'à éviter les lézardes d'un pavé justifié ; sur un
+     texte centré il n'y a pas de lézarde à corriger, et un mot
+     coupé en fin de ligne y passerait pour une erreur. */
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+/* Le pavé ne monte pas d'un bloc : il se met au point, mot après
+   mot, dans l'ordre de lecture.
+
+   Les mots restent des span en ligne, jamais des inline-block.
+   C'est la condition pour que le pavé garde sa justification et
+   sa césure : un inline-block est un bloc atomique, le moteur ne
+   peut plus couper dedans, et un texte justifié à cette taille se
+   met alors à creuser des lézardes. Ne bougent donc que deux
+   propriétés qui s'appliquent au texte en ligne, l'opacité et le
+   flou. Rien ne touche à la mise en page, pas un pixel ne saute. */
+/* Le label suit le pavé : centré comme lui.
+
+   L'indentation compense l'interlettrage. Une lettre espacée porte
+   son espacement après elle, y compris la dernière : la ligne est
+   donc plus large que l'encre d'un espacement entier, et un
+   centrage sur cette ligne décale le mot vers la gauche de la
+   moitié. Un retrait d'un espacement le remet d'aplomb. */
+.manifesto .section__label{
+  text-align: center;
+  text-indent: .22em;
+}
+
+.mani .w{
+  transition: opacity 620ms var(--ease) var(--wd, 0ms),
+              filter  620ms var(--ease) var(--wd, 0ms);
+}
+/* En sortie de champ, pas de cascade : le pavé se désarme d'un
+   coup et sans décalage. Sinon le dernier mot mettrait une seconde
+   et demie à s'éteindre, et un retour rapide relancerait la lecture
+   sur un pavé encore à moitié allumé. */
+.mani.armed .w{
+  opacity: 0; filter: blur(6px);
+  transition: opacity 160ms linear, filter 160ms linear;
+}
+.mani.armed.in .w{
+  opacity: 1; filter: blur(0);
+  transition: opacity 620ms var(--ease) var(--wd, 0ms),
+              filter  620ms var(--ease) var(--wd, 0ms);
+}
+
+/* ============================================================
+   10. QUI SOMMES-NOUS
+
+   Les pastilles sont six calques pleine page, tous cadrés sur la
+   même emprise : leur position est déjà dans le dessin, il suffit
+   de les superposer. La section dure plusieurs écrans, la scène
+   reste immobile au centre, et la progression du défilement décide
+   du nombre de pastilles collées.
+
+   Le titre n'est plus un calque : c'est du texte, posé derrière
+   les pastilles et animé comme le reste de la page. Il se
+   sélectionne, il se traduit, il se lit par un lecteur d'écran, et
+   il reste net à toutes les définitions.
+   ============================================================ */
+.who{
+  /* Moins de deux écrans. À 250svh la scène restait figée bien
+     après la dernière pastille, et on traversait un long pan de
+     noir avant la section suivante. */
+  height: 340svh;
+  /* La scène remonte dans la respiration que la liste laisse
+     derrière elle. Cet écart sépare deux blocs de texte ; ici il
+     ne sépare rien, puisque la scène est centrée dans son propre
+     écran et porte déjà son blanc. */
+  margin-top: calc(var(--section) * -.9);
+  position: relative;
+  --who-pad: clamp(80px, 11vh, 150px);
+}
+.who__sticky{
+  position: sticky; top: 0;
+  height: 100svh;
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--who-pad) var(--edge);
+  /* Conteneur de taille : la scène se mesure sur lui. Sa largeur
+     vient de la page et sa hauteur de la fenêtre, jamais de son
+     contenu, donc le confinement ne peut pas l'effondrer. */
+  container-type: size;
+  /* Ce qui dépasse de l'écran est coupé ici. Sur téléphone la scène
+     est agrandie et déborde un peu ; sans ce masque, un navigateur
+     mobile élargit toute la page pour faire tenir le débordement,
+     l'en-tête se retrouve coupé et la page glisse de côté sous le
+     doigt. Le masque est posé sur l'élément collant lui-même, pas
+     sur un de ses parents : sur un parent, il casserait
+     l'épinglage. */
+  overflow: hidden;
+}
+
+/* Pas de transform-style: preserve-3d ici, et c'est important.
+
+   Avec preserve-3d, les enfants partagent un même espace en trois
+   dimensions et sont peints dans l'ordre de leur profondeur, pas
+   dans celui de leurs z-index. Une pastille inclinée voyait donc
+   une partie d'elle-même passer derrière le plan du titre pendant
+   toute son arrivée, puis ressortir devant en se posant à plat.
+   D'où ce clignotement d'avant-plan que rien dans les z-index
+   n'expliquait.
+
+   Aplati, chaque calque projette sa propre perspective dans son
+   coin puis se peint normalement : l'inclinaison est identique, et
+   les pastilles restent devant le titre du début à la fin. */
+.stage{
+  position: relative;
+  perspective: 1200px;
+  perspective-origin: center top;
+  margin-inline: auto;
+  /* La scène prend les proportions du plan de travail des
+     pastilles, --ratio, que le script renseigne. Elle occupe toute
+     la place qui lui est donnée sans jamais se déformer : la plus
+     grande largeur qui tienne à la fois dans la largeur et dans la
+     hauteur du conteneur, la hauteur découlant du rapport.
+
+     L'ancienne version fixait la hauteur à 100 % et plafonnait la
+     largeur. Sur un écran large, ça passait. Sur un téléphone, la
+     largeur était plafonnée mais la hauteur restait à 100 % : le
+     cadre devenait vertical, 310 sur 563, les pastilles flottaient
+     au milieu d'un grand vide, et le clic, qui compte sur les
+     proportions, tombait à côté.
+
+     width: 100% d'abord, en repli : un moteur qui ne connaît pas
+     les unités de conteneur ignore la seconde déclaration et garde
+     celle-ci, la scène reste alors visible et proportionnée. */
+  --ratio: 1.95;
+  aspect-ratio: var(--ratio);
+  --zoom: .855;   /* 90 % puis 5 % de moins */
+  --gros: 1.4;    /* pastilles seules, sur ordi (le téléphone a sa propre mise en page) */
+
+  height: auto;
+  width: 100%;
+  width: min(100cqw, calc(100cqh * var(--ratio)));
+  transform: scale(var(--zoom));
+  transform-origin: 50% 50%;
+}
+/* Le titre, derrière les pastilles. z-index 0 contre 1 : les
+   pastilles se collent par-dessus, comme sur la compo d'origine.
+
+   Il se mesure sur la scène et non sur la fenêtre, pour retrouver
+   l'échelle du dessin d'origine. Le conteneur de requête est posé
+   ici et pas sur la scène : la scène est un élément flexible dont
+   la largeur se déduit de sa hauteur et de son rapport, et le
+   confinement qu'impose container-type annule cette déduction, la
+   largeur retombe sur la place disponible et le cadre passe en
+   portrait. Le titre, lui, est calé sur les quatre côtés : sa
+   largeur est déjà définie par ses décalages. */
+.who__t{
+  position: absolute; inset: 0; z-index: 0;
+  margin: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  container-type: inline-size;
+  /* v3 : titre en Heartbreak, bas de casse */
+  font-family: 'HeartbreakEighties-Regular', var(--bricolage);
+  font-weight: 400;
+  text-transform: lowercase;
+  line-height: .82;
+  letter-spacing: -.01em;
+  text-align: center;
+  color: var(--blanc);
+}
+/* le corps se déclare sur les lignes : un élément ne peut pas
+   interroger le conteneur qu'il est lui-même */
+.who__t .m{ font-size: 15.9cqw; }   /* v3 : trois lignes, une par mot */
+/* L'écart entre « Qui » et « sommes » se compte en em : il faut
+   donc que le conteneur des deux morceaux porte le même corps que
+   les lettres, sinon l'em serait celui du texte courant, dix fois
+   plus petit. L'espace du titre, plus serré et plus grand, mesure
+   0,195 em et non 0,173 comme dans la punchline. */
+.who__t .duo{ font-size: 15.9cqw; gap: .195em; }
+
+/* ------------------------------------------------------------
+   LA POSE
+
+   Une pastille ne doit pas apparaître, elle doit se dérouler. Tout
+   ce qui suit sert cette idée, et l'opacité n'y joue aucun rôle :
+   à aucun moment le dessin n'est atténué, il est simplement pas
+   encore posé.
+
+   Le geste : un front de collage traverse la pastille en diagonale.
+   Derrière lui, le papier est plaqué. Devant, il n'y a rien. Sur
+   le front lui-même, trois choses se succèdent en quelques pour
+   cent :
+
+     - une ligne de lumière vive, la pliure qui accroche l'éclairage.
+       Sur un fond presque noir c'est elle qui fait tout : l'ombre
+       portée, réflexe habituel du relief, y serait invisible ;
+     - juste devant, le dos du papier encore relevé, un aplat clair
+       qui s'éteint vite ;
+     - puis plus rien.
+
+   Le front est piloté par --avance, une propriété typée en nombre.
+   Le typage est la condition de l'interpolation : une variable non
+   déclarée saute de 0 à 1 au lieu de glisser. Elle est déclarée
+   héritable, parce que ce sont les pseudo-éléments qui s'en servent
+   et qu'ils la reçoivent de leur parent.
+
+   Et si le navigateur ignore @property, rien ne casse : la valeur
+   reste substituée, le calcul reste valide, la pose se fait d'un
+   coup au lieu de se dérouler.
+   ------------------------------------------------------------ */
+/* Les pastilles apparaissent, et rien d'autre. Pas de pli, pas de
+   reflet, pas d'inclinaison, pas de dévers, pas de rebond, et pas
+   de fondu non plus : elles sont là ou elles n'y sont pas.
+
+   C'est visibility et non opacity, justement pour qu'aucun fondu
+   ne puisse s'installer : une opacité, même posée d'un coup, reste
+   une valeur continue qu'une transition pourrait reprendre.
+
+   La classe est posée sur la scène par le script. Sans script, la
+   règle ne s'applique pas et les six pastilles s'affichent
+   normalement. */
+.stage .p{
+  position: absolute; inset: 0; z-index: 1;
+  user-select: none;
+}
+/* v3. LE CAOUTCHOUC
+
+   Le dessin n'est plus peint sur le calque lui-même mais sur un
+   calque interne, et c'est lui qui se déforme. Le calque garde
+   donc sa géométrie exacte : la mise en page, le clic sur l'encre
+   et le glisser continuent de tomber juste, seule l'image bouge.
+
+   Quatre mouvements se répartissent sur les pastilles, avec des
+   durées et des retards tous différents : rien ne bat la mesure
+   ensemble. */
+.stage .p::after{
+  content: "";
+  position: absolute; inset: 0;
+  background: center / contain no-repeat var(--src);
+  transform-origin: 50% 60%;
+  will-change: transform;
+}
+@keyframes gelatine{
+  0%, 62%, 100% { transform: scale(1, 1); }
+  68%  { transform: scale(1.05, .94); }
+  74%  { transform: scale(.96, 1.05); }
+  80%  { transform: scale(1.025, .98); }
+  87%  { transform: scale(.99, 1.01); }
+}
+@keyframes balancier{
+  0%, 58%, 100% { transform: rotate(0deg) scale(1, 1); }
+  66%  { transform: rotate(-1.6deg) scale(1.02, .985); }
+  76%  { transform: rotate(1.4deg)  scale(.99, 1.015); }
+  86%  { transform: rotate(-.5deg)  scale(1.005, .997); }
+}
+@keyframes pompe{
+  0%, 100% { transform: scale(1, 1); }
+  50%      { transform: scale(1.022, 1.028); }
+}
+@keyframes ressort{
+  0%, 55%, 100% { transform: translateY(0) scale(1, 1); }
+  63%  { transform: translateY(-2.2%) scale(.975, 1.05); }
+  72%  { transform: translateY(1.4%)  scale(1.04, .955); }
+  82%  { transform: translateY(0)     scale(.99, 1.012); }
+}
+/* Pendant le déplacement, la pastille s'étire dans le sens du
+   geste : le calque interne s'allonge d'un côté et s'amincit de
+   l'autre, les deux variables étant écrites par le script. Le
+   mouvement de repos est coupé, il se battrait avec celui-ci. */
+.stage .p.prise::after{
+  animation: none;
+  transform: scale(var(--sx, 1), var(--sy, 1)) rotate(var(--rot, 0deg));
+  transition: transform 90ms ease-out;
+}
+/* Au lâcher, elle tremblote et se repose. */
+.stage .p.gelee::after{ animation: gelee .62s var(--ease) 1; }
+@keyframes gelee{
+  0%   { transform: scale(1.13, .88); }
+  28%  { transform: scale(.93, 1.08); }
+  52%  { transform: scale(1.05, .965); }
+  72%  { transform: scale(.98, 1.018); }
+  88%  { transform: scale(1.008, .994); }
+  100% { transform: scale(1, 1); }
+}
+.stage .p:nth-child(4n+1)::after{ animation: gelatine  5.2s var(--ease) infinite; }
+.stage .p:nth-child(4n+2)::after{ animation: balancier 6.4s var(--ease) infinite; }
+.stage .p:nth-child(4n+3)::after{ animation: pompe     4.6s ease-in-out infinite; }
+.stage .p:nth-child(4n+4)::after{ animation: ressort   5.8s var(--ease) infinite; }
+/* les retards décalent les départs, pastille par pastille */
+.stage .p:nth-child(1)::after{ animation-delay: 0ms; }
+.stage .p:nth-child(2)::after{ animation-delay: 700ms; }
+.stage .p:nth-child(3)::after{ animation-delay: 1500ms; }
+.stage .p:nth-child(4)::after{ animation-delay: 300ms; }
+.stage .p:nth-child(5)::after{ animation-delay: 2100ms; }
+.stage .p:nth-child(6)::after{ animation-delay: 1100ms; }
+.stage .p:nth-child(7)::after{ animation-delay: 2600ms; }
+.stage .p:nth-child(8)::after{ animation-delay: 500ms; }
+.stage .p:nth-child(9)::after{ animation-delay: 1800ms; }
+.stage .p:nth-child(10)::after{ animation-delay: 900ms; }
+.stage .p:nth-child(11)::after{ animation-delay: 2400ms; }
+.stage .p:nth-child(12)::after{ animation-delay: 1300ms; }
+.stage .p:nth-child(13)::after{ animation-delay: 3000ms; }
+.stage .p:nth-child(14)::after{ animation-delay: 1900ms; }
+.stage.sequence .p{ visibility: hidden; }
+.stage.sequence .p.vu{ visibility: visible; }
+
+@media (prefers-reduced-motion: reduce){
+  .who{ height: auto; }
+  .who__sticky{ position: static; height: 100svh; }
+  .stage.sequence .p{ visibility: visible; }
+  .stage .p::after{ animation: none; }
+}
+
+/* ============================================================
+   11. CONTACT
+   ============================================================ */
+/* Le label centré au-dessus du bouton, lui-même centré. L'écart
+   place le label à hauteur du centre de la pastille : 0,9 fois la
+   hauteur du bouton au-dessus de son bord, moins la demi-hauteur
+   du label. */
+.contact{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 3.3vw, 54px);
+  padding-bottom: clamp(90px, 14vw, 200px);
+}
+/* le retrait compense l'interlettrage, pour un centrage d'aplomb */
+.contact .label{ text-align: center; text-indent: .18em; }
+/* L'adresse est une pastille : aplat rose, texte en noir, bouts
+   parfaitement ronds. C'est le seul aplat de couleur de la page,
+   et il tombe sur la seule chose qu'on attend d'un visiteur.
+
+   inline-block et non inline : sur un élément en ligne, les marges
+   intérieures verticales ne poussent pas la ligne, l'aplat
+   déborderait sur le texte voisin au lieu d'écarter la boîte.
+
+   Le rayon en 999px plutôt qu'en pourcentage : un pourcentage
+   dessine une ellipse qui suit les proportions de la boîte, donc
+   des bouts de plus en plus pointus à mesure qu'elle s'allonge.
+   Une valeur fixe plus grande que la moitié de la hauteur donne
+   toujours le demi-cercle exact. */
+.contact__mail{
+  display: inline-block;
+  font-family: var(--bricolage);
+  font-weight: 700;
+  font-size: clamp(15px, 2.2vw, 36px);
+  letter-spacing: -.028em;
+  line-height: 1;
+  color: var(--noir);
+  background: var(--vert);   /* v3 */
+  padding: .40em .62em .46em;
+  border-radius: 999px;
+  transition: background-color .35s ease;
+}
+/* au survol, l'aplat passe au blanc cassé : pas de couleur de plus
+   dans la charte, juste un déplacement dans celles qui existent */
+.contact__mail:hover{ background: var(--blanc); }
+
+/* LA SAUCISSE
+
+   Le bouton s'étire et s'écrase sur place, puis se repose. Le
+   mouvement ne démarre qu'une fois le bouton arrivé (.in) : la
+   transition d'apparition se sert du même transform, les deux se
+   marcheraient dessus. Le repos occupe les deux tiers du cycle,
+   sans quoi ça gigote sans arrêt. */
+@keyframes saucisse{
+  0%   { transform: scale(1, 1); }
+  6%   { transform: scale(1.045, .94); }
+  13%  { transform: scale(.97, 1.05); }
+  20%  { transform: scale(1.02, .98); }
+  27%  { transform: scale(.995, 1.01); }
+  34%, 100% { transform: scale(1, 1); }
+}
+.contact__mail.in{
+  animation: saucisse 3.6s var(--ease) 1100ms infinite;
+  transform-origin: 50% 50%;
+}
+/* au survol, elle se tend d'un coup et garde la pose */
+.contact__mail:hover{ animation-play-state: paused; }
+
+/* LA PASTILLE DU CONTACT
+
+   Elle est posée dans le lien et non à côté : elle suit le bouton
+   partout, et un clic dessus ouvre le mail comme le bouton.
+
+   Tout est compté en em, donc en proportion du bouton, dont la
+   hauteur vaut 1,86 em (le corps plus ses marges). D'après la
+   maquette ordinateur : un diamètre de 2,08 fois cette hauteur, soit
+   3,87 em ; le centre à 19 % du bord droit ; le bas qui mord de 12 %
+   sur le haut du bouton.
+
+   Le fichier doit être recadré sur le rond : il est servi en
+   « contain » dans une boîte carrée, un calque pleine page y
+   tiendrait tout petit. */
+.contact__mail{ position: relative; }
+.contact__pastille{
+  position: absolute;
+  width: 3.87em;
+  aspect-ratio: 1;
+  right: calc(19% - 1.935em);
+  bottom: 1.637em;
+  background: center / contain no-repeat url(assets/autres_pastilles/contact.svg);
+  pointer-events: none;
+}
+@media (max-width: 680px){
+  /* Téléphone : le label centré au-dessus, le bouton presque pleine
+     largeur, la pastille à droite du label, qui mord sur le haut du
+     bouton. D'après la maquette : diamètre 3,63 em, centre à 15 % du
+     bord droit, morsure d'un quart de la hauteur du bouton. */
+  .contact{
+    gap: 26px;
+    padding-inline: 8px;
+  }
+  /* l'adresse tient sur une seule ligne : le bouton fait ~96 % de l'écran */
+  .contact__mail{ font-size: min(5.6vw, 30px); white-space: nowrap; }
+  .contact__pastille{
+    width: 3.63em;
+    right: calc(15% - 1.815em);
+    bottom: 1.395em;
+  }
+}
+
+/* ============================================================
+   12. LOGOTYPE DE PIED DE PAGE
+   Il occupe la largeur de la page. La taille est calculée pour
+   que les 17 signes remplissent la ligne : 100 / 17 * 1,17 en
+   vw, ajusté au tracking.
+   ============================================================ */
+.footmark{
+  padding: 0 var(--edge) clamp(8px, 1.1vw, 18px);
+  overflow: hidden;
+}
+.footmark__in{
+  display: inline-block;
+  white-space: nowrap;
+  font-family: var(--bricolage);
+  font-weight: 650;   /* un cran sous le Bold plein */
+  font-size: 9.6vw;   /* valeur de départ, remplacée par la mesure */
+  line-height: .84;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+  color: var(--blanc);
+}
+.footmark sup{
+  font-size: .33em;
+  font-weight: 400;
+  letter-spacing: 0;
+  /* super place le glyphe selon la police, ce qui le laissait
+     sous la ligne de hauteur des capitales. Le relèvement le pose
+     au-dessus du sommet du E final ; le léger déport à droite
+     compense le tracking négatif du logotype, qui sinon le colle
+     au dernier fût. */
+  vertical-align: super;
+  position: relative;
+  top: -.34em;
+  left: .1em;
+}
+
+/* ============================================================
+   13. TÉLÉPHONE
+
+   Tout ce qui change sur petit écran est ici, au même endroit.
+
+   Sur un grand écran, les petits textes peuvent descendre très bas
+   parce qu'ils sont lus de près et qu'ils accompagnent de très
+   grands titres. Sur un téléphone, les mêmes valeurs tombaient à
+   8 ou 9 px, en dessous de ce qu'un œil lit sans effort. Aucun
+   texte ne descend plus ici sous 12 px, et les corps de lecture
+   remontent franchement.
+   ============================================================ */
+@media (max-width: 760px){
+  /* La marge des colonnes est proportionnelle à l'écran, 13,2 % de
+     sa largeur : ça aère un grand écran, mais sur un téléphone ça
+     faisait 51 px de chaque côté, un quart de la largeur perdu, et
+     tous les textes serrés dans 288 px. Elle redevient fixe. */
+  :root{ --side: 22px; --section: 56px; }
+
+  /* L'accueil n'occupe plus tout l'écran : il prend la hauteur de
+     sa phrase. Plein écran, il laissait deux grands pans de noir
+     autour d'elle et repoussait la liste loin en bas. */
+  .hero{ min-height: 0; padding: 124px var(--edge) 132px; }
+  .punch{ margin-bottom: 0; }
+
+  .contact{ padding-bottom: 56px; }
+
+  /* La section s'allonge : 210 % de l'écran, soit un écran entier
+     de défilement pendant lequel la scène reste épinglée. Les onze
+     pastilles s'y posent une à une, au fil du geste, environ tous
+     les 70 px. Le cadre épinglé reprend tout l'écran : la
+     composition verticale en occupe presque toute la hauteur. */
+  .who{ height: 420svh; }
+  /* La composition verticale est un peu plus haute que basse autour
+     du titre : le cadre est décalé de 27 px vers le bas pour qu'elle
+     tombe au centre de l'écran. */
+  .who__sticky{ padding: 91px var(--edge) 37px; }
+
+  /* Le nom ne se coupe jamais. Sur les écrans les plus étroits,
+     c'est l'accroche qui passe sur deux lignes, calée à droite :
+     les deux se coupaient sinon, et l'en-tête se lisait mal. */
+  /* L'accroche s'aligne sur la dernière ligne du logo : la ligne de
+     base de « publicitaire » tombe sur celle de « CALIFORNIE ».
+     flex-end d'abord, en repli pour les moteurs qui ignorent
+     « last baseline » : les deux blocs s'alignent alors par le bas. */
+  .top{ align-items: flex-end; align-items: last baseline; }
+  /* Le logo passe sur deux lignes, plus gros : « MERMOZ » au-dessus,
+     « CALIFORNIE® » en dessous. Chaque mot garde sa ligne entière. */
+  .top__logo{ font-size: 24px; line-height: .92; white-space: nowrap; }
+  .top__l2{ display: block; }
+  .top__tag{ font-size: 12px; line-height: 1.25; max-width: 11em; }
+
+  /* les lignes en deux morceaux s'empilent : les coupures voulues
+     pour le téléphone, lignes courtes, corps plus fort */
+  .who__t .duo{ flex-direction: column; gap: 0; }
+
+  .punch .br-o{ display: none; }
+  .punch .br-t{ display: block; }
+  .punch .suite{ margin-left: -.1em; }
+  .punch .cesure{ display: inline-block; }
+
+  .label{ font-size: 12px; letter-spacing: .18em; }
+
+  .craft__n{ font-size: 12px; }
+  /* plus que doublés : sur une colonne de 320 px, « Branding » a la
+     place de monter jusque vers 290 px de large */
+  .craft__t{ font-size: clamp(26px, 14.5vw, 64px); }   /* v3 */
+  .craft__d{ font-size: 14px; line-height: 1.4; }
+
+  /* le manifeste se lit, il ne se regarde pas : corps plus fort,
+     interlignage plus ouvert, approche moins serrée */
+  .manifesto p{
+    font-size: clamp(20px, 5.6vw, 26px);
+    line-height: 1.3;
+    letter-spacing: -.012em;
+  }
+
+  /* La scène s'agrandit de 20 % au lieu de se réduire de 15 %
+     comme sur grand écran. Sur un téléphone, la composition est
+     bornée par la largeur de l'écran et les pastilles tombaient
+     trop petites pour être lues. À 1,2, le titre « Qui sommes
+     nous ? » touche juste les bords de l'écran, et les pastilles,
+     rassemblées au centre, gagnent un cinquième de leur taille. */
+  .who{ --who-pad: 64px; }
+  /* Échelle de base : sur téléphone, chaque pastille est grossie et
+     replacée une à une par le script, d'après la maquette portrait.
+     Grossir toute la scène ne pouvait pas marcher : la composition
+     est large, elle sortait de l'écran bien avant d'être lisible. */
+  .stage{ --zoom: 1; }
+
+  /* la pastille de la punchline suit : à 36 % de la largeur elle
+     tombait à 120 px, trop petite pour être lue */
+  /* Au maximum que permet la largeur. Avec la césure de
+     « d'action-naires, », la ligne la plus large devient « on est
+     pas », qui doit tenir sur l'écran : au-delà elle en sort. */
+  .punch{ font-size: min(16.5vw, 84px); }
+
+  /* Le titre de la scène, sur trois lignes. « sommes » occupe
+     presque toute la largeur de l'écran à lui seul : c'est lui qui
+     borne le corps. */
+  .who__t .m,
+  .who__t .duo{ font-size: 20.4cqw; }
+
+  .punch__sticker{
+    width: 74%;   /* v3 */
+    /* plus bas que sur grand écran : à cette taille, la pastille
+       recouvrait « TICKET RES » et la chute devenait illisible.
+       Elle ne mord plus que le bas des lettres. */
+    --decal-y: 60%;
+  }
+}
+
+/* ============================================================
+   14. MOUVEMENT RÉDUIT, EN DERNIER
+
+   Quand le visiteur a demandé moins d'animations (« Réduire les
+   animations » sur iPhone), la scène n'est plus épinglée : elle
+   s'affiche d'un bloc, pastilles toutes posées.
+
+   Le cadre garde alors une hauteur d'écran fixe, et non la hauteur
+   de son contenu. C'est indispensable : ce cadre sert de conteneur
+   de requête, il ignore donc son contenu pour se dimensionner. Laissé
+   en hauteur automatique, il ne mesurait plus que ses marges, et la
+   scène tombait à 0 × 0 pixel. La section était invisible sur tout
+   téléphone réglé ainsi.
+
+   Placé en fin de feuille pour l'emporter sur les réglages du
+   téléphone, qui allongent la section. */
+@media (prefers-reduced-motion: reduce){
+  .who{ height: auto; }
+  .who__sticky{ position: static; top: 0; height: 100svh; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ============================ EN-TÊTE ============================ -->
+<header class="top">
+  <a class="top__logo" href="#top">Mermoz <span class="top__l2">Californie<sup>®</sup></span></a>
+  <span class="top__tag">Studio de création</span>
+</header>
+
+<!-- ============================ PUNCHLINE ============================ -->
+<section class="hero" id="top">
+  <h1 class="punch">
+    <!-- Groupes de mots, et retours à la ligne propres à chaque
+         écran : br (partout), br-o (ordinateur seul), br-t (téléphone
+         seul). La césure de « d'action-naires, » n'existe que sur
+         téléphone. -->
+    <span class="red">
+      <span class="m"><span><span class="maj">O</span>n n'a pas</span></span><i class="br"></i>
+      <span class="m"><span>d'action<span class="cesure">-</span></span></span><i class="br br-t"></i>
+      <span class="m suite"><span>naires,</span></span><i class="br"></i>
+      <span class="m"><span>on est pas</span></span><i class="br br-t"></i>
+      <span class="m"><span>au CAC40,</span></span>
+    </span>
+    <span class="off">
+      <span class="m"><span>on n'a</span></span><i class="br br-t"></i>
+      <span class="m"><span>même</span></span>
+      <span class="m"><span>pas</span></span><i class="br"></i>
+      <span class="m"><span>de</span></span>
+      <span class="m"><span>ticket</span></span><i class="br br-t"></i>
+      <span class="m"><span>restau.</span></span>
+    </span>
+    <span class="punch__sticker" aria-hidden="true"></span>
+  </h1>
+</section>
+
+<!-- ======================= CE QUE NOUS FAISONS ======================= -->
+<section class="section col">
+  <div class="section__label label f">Ce que nous faisons</div>
+
+  <ol class="craft">
+    <li>
+      <span class="craft__n f">01</span>
+      <span class="craft__t m"><span>Publicité</span></span>
+      <span class="craft__d f">FILM TVC&nbsp;&amp;&nbsp;OLV · OOH&nbsp;&amp;&nbsp;DOOH · CAMPAGNE&nbsp;ONLINE · RADIO</span>
+    </li>
+    <li>
+      <span class="craft__n f">02</span>
+      <span class="craft__t m"><span>Branding</span></span>
+      <span class="craft__d f">STRATÉGIE · IDENTITÉ VISUELLE &amp; RÉDACTIONNELLE · NAMING · DESIGN&nbsp;SYSTEM</span>
+    </li>
+  </ol>
+</section>
+
+<!-- ========================= QUI SOMMES-NOUS ========================= -->
+<section class="who" id="qui">
+  <div class="who__sticky">
+    <div class="stage">
+      <h2 class="who__t">
+        <span class="m"><span><span class="maj">Q</span>ui</span></span>
+        <span class="m"><span>sommes</span></span>
+        <span class="m"><span>nous&nbsp;?</span></span>
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MANIFESTE ============================ -->
+<section class="section col manifesto">
+  <div class="section__label label f">Manifeste</div>
+  <p class="mani">Nous refusons les modèles standardisés. Pour nous, l'identité créative est la vraie méthode pour émerger dans un environnement saturé de messages. La justesse et la simplicité des idées, le soin qu'on apporte au détail et la qualité du rendu sont les piliers de votre crédibilité et de notre réputation.</p>
+</section>
+
+<!-- ============================ CONTACT ============================ -->
+<section class="col contact">
+  <div class="label f">Contactez-nous</div>
+  <a class="contact__mail f" href="mailto:creation@mermoz-californie.com">creation@mermoz-californie.com<span class="contact__pastille" aria-hidden="true"></span></a>
+</section>
+
+<!-- ============================ LOGOTYPE ============================ -->
+<footer class="footmark"><span class="footmark__in">Mermoz Californie<sup>&reg;</sup></span></footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Pas de défilement lissé en JavaScript : intercepter la molette
+     annule le momentum natif du trackpad et le remplace par un
+     rattrapage plus lent, ce qui se ressent comme un frein. Le
+     défilement reste donc celui du navigateur, accéléré
+     matériellement. Le rythme de la page vient des apparitions,
+     pas d'une manipulation du scroll. */
+
+  /* ==========================================================
+     APPARITIONS
+     ========================================================== */
+  var hero = document.querySelector('.hero');
+
+  /* cascades : les voisins s'enchaînent au lieu de sauter ensemble */
+  var stagger = function(sel, step, start){
+    var n = document.querySelectorAll(sel);
+    Array.prototype.forEach.call(n, function(el, i){
+      el.style.setProperty('--d', ((start || 0) + i * step) + 'ms');
+    });
+  };
+  /* Le pas entre lignes se resserre : chaque ligne dure maintenant
+     le temps de sa propre vague, et l'ancien pas de 110 ms
+     laissait un trou entre la fin d'une ligne et le départ de la
+     suivante. */
+  stagger('.who__t .m', 70, 40);
+  stagger('.craft li .m', 95);
+  stagger('.craft li', 95);          /* le filet suit son titre */
+  stagger('.craft li .craft__n', 95, 260);
+  stagger('.craft li .craft__d', 95, 340);
+
+  if(reduce) return;
+
+  /* Le manifeste est découpé en mots. Chaque mot est un span en
+     ligne, et les espaces entre eux restent de vrais nœuds texte :
+     c'est sur eux que le moteur répartit la justification. Sans ça
+     le pavé cesserait d'être justifié. */
+  (function(){
+    var p = document.querySelector('.manifesto p');
+    if(!p) return;
+    var mots = p.textContent.trim().split(/\s+/);
+    /* Le pas se déduit du nombre de mots, il n'est pas fixé.
+
+       Un pas constant fait durer la cascade en proportion du texte :
+       en passant de 58 à 82 mots, elle est montée de 1,5 à 2,1
+       secondes, et le dernier mot finissait près de trois secondes
+       après le premier. En répartissant une durée totale, le rythme
+       de lecture reste le même quel que soit le texte déposé. */
+    var pas = 1500 / Math.max(1, mots.length - 1);
+    p.textContent = '';
+    mots.forEach(function(mot, i){
+      var s = document.createElement('span');
+      s.className = 'w';
+      s.style.setProperty('--wd', Math.round(i * pas) + 'ms');
+      s.textContent = mot;
+      p.appendChild(s);
+      /* Les trois derniers mots sont soudés par des espaces
+         insécables : la dernière ligne ne peut plus se réduire à un
+         mot orphelin. Posé dans le script plutôt que dans le texte,
+         pour tenir quel que soit le manifeste déposé. */
+      if(i < mots.length - 1){
+        var soude = i >= mots.length - 3;
+        p.appendChild(document.createTextNode(soude ? '\u00a0' : ' '));
+      }
+    });
+  })();
+
+  /* ==========================================================
+     LA VAGUE
+     Chaque ligne masquée est découpée en lettres. Le découpage
+     parcourt les nœuds plutôt que la chaîne de caractères : une
+     ligne peut contenir des span de crénage manuel, et un
+     découpage sur le texte brut les effacerait. Un élément déjà
+     présent devient donc lui-même une lettre, il garde sa classe
+     et donc son approche.
+     ========================================================== */
+  var enLettres = function(masque, pas){
+    var inner = masque.firstElementChild;
+    if(!inner) return;
+    var frag = document.createDocumentFragment();
+    var mot = null, dernier = null, i = 0;
+    var pousse = function(el){
+      if(!mot){
+        mot = document.createElement('span');
+        mot.className = 'wd';
+        frag.appendChild(mot);
+      }
+      el.style.setProperty('--cd', (i++ * pas) + 'ms');
+      mot.appendChild(el);
+      dernier = el;
+    };
+    Array.prototype.slice.call(inner.childNodes).forEach(function(n){
+      if(n.nodeType === 3){
+        n.nodeValue.split('').forEach(function(ch){
+          if(ch === ' ' || ch === ' '){
+            frag.appendChild(document.createTextNode(' '));
+            mot = null;
+            return;
+          }
+          var s = document.createElement('span');
+          s.className = 'c';
+          s.textContent = ch;
+          pousse(s);
+        });
+      } else if(n.nodeType === 1){
+        /* L'exposant n'est pas une lettre : il monte avec celle qui
+           le précède. Seul, il formerait une lettre bien plus basse
+           que les autres, et comme la descente se compte en
+           pourcentage de la hauteur de chaque boîte, il ne
+           passerait pas sous le bord du masque et resterait visible
+           en position désarmée. */
+        if(n.tagName === 'SUP' && dernier){
+          dernier.appendChild(n);
+          return;
+        }
+        n.classList.add('c');
+        pousse(n);
+      }
+    });
+    inner.textContent = '';
+    inner.appendChild(frag);
+    masque.classList.add('vague');
+  };
+
+  /* Le pas est plus serré sur les titres de la liste que sur la
+     punchline : à cette taille-là, un pas large ferait traîner
+     chaque ligne bien après que l'œil a fini de la lire. */
+  Array.prototype.forEach.call(document.querySelectorAll('.punch .m'),
+    function(m){ enLettres(m, 26); });
+
+  /* La punchline est faite de groupes de mots, et c'est l'écran qui
+     décide lesquels partagent une ligne. Les départs se calculent
+     donc sur la mise en page réelle : chaque ligne part 70 ms après
+     la précédente, et dans une ligne les lettres s'enchaînent de
+     26 ms en 26 ms, d'un groupe à l'autre, comme si la ligne était
+     d'un seul tenant. Recalculé si l'écran change de taille. */
+  var calerVague = function(){
+    var groupes = Array.prototype.slice.call(document.querySelectorAll('.punch .m'));
+    var lignes = [];
+    groupes.forEach(function(g){
+      var haut = Math.round(g.getBoundingClientRect().top);
+      var l = lignes.filter(function(x){ return Math.abs(x.haut - haut) < 4; })[0];
+      if(!l){ l = { haut: haut, groupes: [] }; lignes.push(l); }
+      l.groupes.push(g);
+    });
+    lignes.sort(function(a, b){ return a.haut - b.haut; });
+    lignes.forEach(function(l, i){
+      l.groupes.sort(function(a, b){
+        return a.getBoundingClientRect().left - b.getBoundingClientRect().left;
+      });
+      var avant = 0;
+      l.groupes.forEach(function(g){
+        g.style.setProperty('--d', (40 + i * 70 + avant * 26) + 'ms');
+        avant += g.querySelectorAll('.c').length;
+      });
+    });
+  };
+  calerVague();
+  window.addEventListener('resize', calerVague);
+  Array.prototype.forEach.call(document.querySelectorAll('.craft__t'),
+    function(m){ enLettres(m, 20); });
+  Array.prototype.forEach.call(document.querySelectorAll('.who__t .m'),
+    function(m){ enLettres(m, 26); });
+  var pied = document.querySelector('.footmark');
+  if(pied) enLettres(pied, 34);
+
+  var targets = [];
+  Array.prototype.forEach.call(
+    document.querySelectorAll('.m, .f, .footmark, .mani, .punch__sticker'),
+    function(el){ el.classList.add('armed'); targets.push(el); }
+  );
+
+  var open = function(el){ el.classList.add('in'); };
+
+  /* la punchline joue à l'ouverture, sans attendre un geste */
+  if(hero){
+    requestAnimationFrame(function(){
+      Array.prototype.forEach.call(hero.querySelectorAll('.m, .f'), open);
+    });
+  }
+
+  if(!('IntersectionObserver' in window)){
+    targets.forEach(open);
+    return;
+  }
+  /* L'observateur ne se débranche plus après le premier passage :
+     il désarme aussi en sortie de champ. Une apparition redevient
+     donc jouable, et rejoue à chaque fois qu'on repasse devant.
+
+     Le seuil tombe à 0. Avec 0,08, un bloc plus haut que l'écran
+     n'atteint jamais 8 % de visibilité en remontant et resterait
+     invisible. À 0, le moindre pixel entré suffit. */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      e.target.classList.toggle('in', e.isIntersecting);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0 });
+
+  targets.forEach(function(el){ io.observe(el); });
+
+  /* le filet de chaque ligne se tire en même temps que son titre */
+  var lines = document.querySelectorAll('.craft li');
+  var io2 = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      e.target.classList.toggle('drawn', e.isIntersecting);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0 });
+  Array.prototype.forEach.call(lines, function(li){ io2.observe(li); });
+})();
+</script>
+
+<script>
+/* Le logotype de pied de page doit toucher les deux bords quelle
+   que soit la largeur.
+
+   Le piège : scrollWidth ne renvoie la largeur du contenu que
+   s'il déborde. Tant que le mot est plus étroit que la page, il
+   renvoie celle de la boîte, et le rapport calculé vaut 1. On
+   mesure donc le mot lui-même, dans un span en ligne, dont la
+   largeur est toujours celle du texte. */
+/* La pastille de la punchline se centre sur le bloc de texte, et
+   deux décalages libres permettent de la déplacer à partir de là.
+
+   Les dimensions se lisent en offsetWidth et non sur le rectangle
+   du client : la pastille est tournée et transformée pendant son
+   vol, et un rectangle du client renverrait la boîte englobante de
+   la rotation, pas la boîte de mise en page. */
+(function(){
+  var punch = document.querySelector('.punch');
+  var past  = punch && punch.querySelector('.punch__sticker');
+  if(!past) return;
+
+  function place(){
+    var rp = punch.getBoundingClientRect();
+    var w = past.offsetWidth, h = past.offsetHeight;
+    if(!w || !h || !rp.width) return;
+    var cs = getComputedStyle(past);
+    var dx = parseFloat(cs.getPropertyValue('--decal-x')) || 0;
+    var dy = parseFloat(cs.getPropertyValue('--decal-y')) || 0;
+    past.style.right  = 'auto';
+    past.style.bottom = 'auto';
+    past.style.left = ((rp.width  - w) / 2 + rp.width  * dx / 100) + 'px';
+    past.style.top  = ((rp.height - h) / 2 + rp.height * dy / 100) + 'px';
+  }
+
+  place();
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(place); }
+  window.addEventListener('load', place);
+  window.addEventListener('resize', place);
+})();
+
+(function(){
+  var box  = document.querySelector('.footmark');
+  var word = box && box.querySelector('.footmark__in');
+  if(!word) return;
+
+  function fit(){
+    var st = getComputedStyle(box);
+    var avail = box.clientWidth
+              - parseFloat(st.paddingLeft)
+              - parseFloat(st.paddingRight);
+    if(avail <= 0) return;
+    word.style.fontSize = '200px';
+    var w = word.getBoundingClientRect().width;
+    if(!w) return;
+    var fs = 200 * avail / w;
+
+    /* Une seule règle de trois ne suffit plus. Le mot est découpé en
+       lettres, et chaque boîte en ligne arrondit sa largeur au pixel
+       entier : la somme des arrondis ne suit pas le corps, elle pèse
+       proportionnellement bien plus à 40 px qu'à 200. Mesuré tel
+       quel, le logotype débordait de trente pixels. On rectifie donc
+       sur la largeur réellement obtenue, deux fois, ce qui suffit
+       largement à converger. */
+    for(var i = 0; i < 3; i++){
+      word.style.fontSize = fs + 'px';
+      var r = word.getBoundingClientRect().width;
+      if(!r) return;
+      if(Math.abs(r - avail) < 0.5) return;
+      fs = fs * avail / r;
+    }
+    word.style.fontSize = fs + 'px';
+  }
+
+  fit();
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(fit); }
+  window.addEventListener('load', fit);
+  window.addEventListener('resize', fit);
+})();
+</script>
+
+<script>
+/* ============================================================
+   LES PASTILLES DE « QUI SOMMES NOUS »
+
+   Découverte automatique. Tout fichier déposé dans
+   assets/pastilles/ sous un nom numéroté entre dans la scène, sans
+   toucher à la page : 9.svg, sticker10.svg, Sticker11.svg…
+
+   Un site statique ne peut pas lister un dossier du serveur. Le
+   script essaie donc les numéros un par un, et garde ceux qui
+   répondent. Il procède par lots de quatre en parallèle, et
+   s'arrête dès qu'un lot entier reste sans réponse : on peut
+   sauter des numéros, mais pas plus de trois d'affilée.
+
+   Chaque numéro absent laisse des erreurs 404 dans la console du
+   navigateur. Elles sont sans conséquence et invisibles pour les
+   visiteurs : c'est le prix d'un dossier qu'on ne peut pas lister.
+
+   Le 1 est réservé : c'est la pastille de la punchline.
+
+   Chaque fichier trouvé est lu en entier : son viewBox donne le
+   plan de travail, ce qui permet de vérifier que toutes les
+   pastilles partagent le même.
+
+   Ce script est hors du garde-fou « mouvement réduit » : la
+   découverte doit se faire pour tout le monde. Seule la séquence
+   d'apparition est réservée aux autres visiteurs.
+   ============================================================ */
+(function(){
+  "use strict";
+  var who   = document.getElementById('qui');
+  var stage = who && who.querySelector('.stage');
+  if(!stage) return;
+
+  var reduce  = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var DOSSIER = 'assets/pastilles/';
+  /* Trois écritures acceptées. Sticker avec majuscule surtout :
+     le Finder ne distingue pas les casses, GitHub Pages si. Un
+     « Sticker11.svg » marcherait en local et disparaîtrait en
+     ligne sans que rien ne le signale. */
+  var NOMS    = ['{n}.svg', 'sticker{n}.svg', 'Sticker{n}.svg'];
+  var PREMIER = 2, LOT = 4, MAX = 99;
+
+  var trouves = [];
+
+  /* En ligne, chaque fichier est redemandé au serveur à chaque
+     chargement, en mode no-cache : le navigateur revalide sa copie.
+     Si le fichier n'a pas changé, le serveur répond « inchangé » et
+     rien n'est retéléchargé ; s'il a changé, la nouvelle version
+     arrive. Sans ça, une pastille réexportée sous le même nom
+     restait affichée dans son ancienne version, parfois des heures.
+
+     Le dessin est ensuite servi depuis ce texte fraîchement reçu,
+     par une adresse blob, et non depuis son adresse d'origine : on
+     est ainsi certain que l'image affichée est celle qu'on vient de
+     lire, et pas une copie plus ancienne restée en mémoire.
+
+     Ouvert depuis le Finder, fetch ne fonctionne pas : on retombe
+     alors sur un simple chargement d'image. */
+  var local = location.protocol === 'file:';
+
+  function proportions(txt){
+    var vb = txt.match(/viewBox\s*=\s*["']\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)/);
+    if(vb) return parseFloat(vb[1]) / parseFloat(vb[2]);
+    var w = txt.match(/<svg[^>]*\swidth\s*=\s*["']([\d.]+)/),
+        h = txt.match(/<svg[^>]*\sheight\s*=\s*["']([\d.]+)/);
+    return (w && h) ? parseFloat(w[1]) / parseFloat(h[1]) : NaN;
+  }
+
+  function sonde(n, k, fin){
+    if(k >= NOMS.length) return fin(null);
+    var url = DOSSIER + NOMS[k].replace('{n}', n);
+    var suivant = function(){ sonde(n, k + 1, fin); };
+
+    if(local){
+      var img = new Image();
+      img.onload  = function(){
+        fin({ n: n, url: url, src: url, rapport: img.naturalWidth / img.naturalHeight });
+      };
+      img.onerror = suivant;
+      img.src = url;
+      return;
+    }
+
+    fetch(url, { cache: 'no-cache' })
+      .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+      .then(function(txt){
+        var blob = new Blob([txt], { type: 'image/svg+xml' });
+        fin({ n: n, url: url, src: URL.createObjectURL(blob), rapport: proportions(txt) });
+      })
+      .catch(suivant);
+  }
+
+  function lot(debut){
+    var fin = Math.min(debut + LOT, MAX + 1);
+    var attente = fin - debut, touches = 0;
+    if(attente <= 0) return termine();
+    for(var n = debut; n < fin; n++){
+      sonde(n, 0, function(r){
+        if(r){ trouves.push(r); touches++; }
+        if(--attente === 0){ touches ? lot(fin) : termine(); }
+      });
+    }
+  }
+
+  function termine(){
+    if(!trouves.length) return;
+    trouves.sort(function(a, b){ return a.n - b.n; });
+
+    /* Le plan de travail de référence est celui que partagent le
+       plus de pastilles. La scène en prend les proportions, pour
+       que la composition remplisse exactement son cadre. */
+    var compte = {}, ref = null;
+    trouves.forEach(function(t){
+      var cle = t.rapport.toFixed(2);
+      compte[cle] = (compte[cle] || 0) + 1;
+      if(!ref || compte[cle] > compte[ref]) ref = cle;
+    });
+    var modele = trouves.filter(function(t){ return t.rapport.toFixed(2) === ref; })[0];
+    stage.style.setProperty('--ratio', String(modele.rapport));
+
+    var hors = trouves.filter(function(t){ return t.rapport.toFixed(2) !== ref; });
+    if(hors.length && window.console){
+      console.warn('[Pastilles] ' + hors.length + ' fichier(s) sur un autre plan de travail que les autres : ' +
+        hors.map(function(t){ return t.url; }).join(', ') +
+        '. Vérifie leur placement : sur un plan de travail différent, une pastille est cadrée autrement que ses voisines.');
+    }
+
+    /* La classe de séquence est posée avant l'ajout des calques :
+       ils naissent cachés, aucun ne peut clignoter à l'écran le
+       temps que la séquence démarre. */
+    if(!reduce) stage.classList.add('sequence');
+
+    var sheets = trouves.map(function(t){
+      var d = document.createElement('div');
+      d.className = 'p';
+      d.setAttribute('aria-hidden', 'true');
+      d.style.setProperty('--src', 'url("' + t.src + '")');
+      stage.appendChild(d);
+      return d;
+    });
+
+    if(!reduce) sequence(sheets);
+    manipulation(sheets, trouves, modele.rapport);
+  }
+
+  /* La séquence : l'avance dans la section décide du nombre de
+     pastilles visibles. Réversible, puisqu'elle ne dépend que de
+     la position. */
+  function sequence(sheets){
+    var colle = who.querySelector('.who__sticky');
+    var pending = false;
+    function frame(){
+      pending = false;
+      var r = who.getBoundingClientRect();
+      /* La course se compte sur le cadre épinglé réel, et non sur la
+         fenêtre : sur téléphone il ne fait que 62 % de l'écran et
+         s'épingle à 19 % du haut. Sur ordinateur les deux méthodes
+         donnent la même chose. */
+      var haut = parseFloat(getComputedStyle(colle).top) || 0;
+      var course = r.height - colle.offsetHeight;
+      if(course <= 0) return;
+
+      /* Amorce à zéro : la séquence démarre à l'épinglage de la
+         scène, quand le titre atteint sa place au centre. */
+      var amorce = window.innerHeight * 0;
+      var p = Math.min(Math.max((haut + amorce - r.top) / (course + amorce), 0), 1);
+
+      var n = sheets.length;
+      var etale = 0.86;   /* part de la course occupée par les poses */
+      var duree = 0.26;   /* fenêtre de chaque pose */
+      /* Le pas se recalcule sur le nombre de pastilles : qu'il y en
+         ait six ou quinze, la séquence tient dans la même course.
+         Avec une seule, pas de division par zéro. */
+      var pas = n > 1 ? (etale - duree) / (n - 1) : 0;
+      for(var i = 0; i < n; i++){
+        var a = (p - i * pas) / duree;
+        sheets[i].classList.toggle('vu', a >= 0.5);
+      }
+    }
+    function onScroll(){
+      if(!pending){ pending = true; requestAnimationFrame(frame); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    frame();
+  }
+
+  /* ==========================================================
+     PRENDRE UNE PASTILLE
+
+     Un clic sur une pastille la passe au premier plan, et on peut
+     la faire glisser où l'on veut dans la scène.
+
+     Le clic est jugé sur le dessin, pas sur la boîte. Chaque
+     pastille est un calque qui couvre toute la scène, vide autour
+     du dessin : juger sur la boîte reviendrait à toujours prendre
+     le calque du dessus, même à un endroit où il est transparent.
+     Chaque calque est donc rendu une fois dans un canevas, on en
+     garde le canal alpha, et un clic prend la plus haute pastille
+     dont l'encre est à cet endroit.
+
+     Le déplacement est gardé en fraction de la scène et non en
+     pixels : il reste juste quand la fenêtre change de taille.
+     Il n'est pas conservé d'une visite à l'autre.
+     ========================================================== */
+  function manipulation(sheets, infos, R){
+    var W = 600, H = Math.round(W / R);
+    var alphas = [], boites = [], off = [], sommet = 30, prise = null;
+
+    /* Géométrie propre à chaque calque : un déplacement T et un
+       grossissement k autour du centre de son encre O, tous en
+       fraction de la scène. Identité sur ordinateur ; sur téléphone,
+       c'est ce qui recompose la scène à la verticale. */
+    var geo = sheets.map(function(){ return { tx: 0, ty: 0, ox: .5, oy: .5, k: 1 }; });
+
+    /* Ouverte comme un fichier, la page ne peut pas lire les pixels
+       des pastilles : le navigateur l'interdit. On le dit dans la
+       console plutôt que de rater en silence. */
+    if(location.protocol === 'file:' && window.console){
+      console.warn('[Pastilles] Page ouverte depuis le Finder : les pastilles ne peuvent pas être déplacées. ' +
+        'Ouvre-la par le serveur, en double-cliquant sur _lancer-le-site.command, ' +
+        'ou à l\'adresse http://localhost:8742/index2.html');
+    }
+
+    infos.forEach(function(t, i){
+      off[i] = { x: 0, y: 0 };
+      var img = new Image();
+      img.onload = function(){
+        /* rendu en « contain », comme le fond du calque, pour que le
+           masque tombe exactement sur ce qui est affiché */
+        var r = img.naturalWidth / img.naturalHeight, w, h;
+        if(r > R){ w = W; h = W / r; } else { h = H; w = H * r; }
+        try{
+          var cv = document.createElement('canvas');
+          cv.width = W; cv.height = H;
+          var ctx = cv.getContext('2d', { willReadFrequently: true });
+          ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+          var d = ctx.getImageData(0, 0, W, H).data, a = new Uint8Array(W * H);
+          var x0 = W, x1 = -1, y0 = H, y1 = -1;
+          for(var k = 0; k < a.length; k++){
+            a[k] = d[k * 4 + 3];
+            if(a[k] > 24){
+              var x = k % W, y = (k - x) / W;
+              if(x < x0) x0 = x; if(x > x1) x1 = x;
+              if(y < y0) y0 = y; if(y > y1) y1 = y;
+            }
+          }
+          alphas[i] = a;
+          if(x1 >= 0) boites[i] = { x: x0 / W, y: y0 / H, w: (x1 - x0 + 1) / W, h: (y1 - y0 + 1) / H };
+          disposer();
+        }catch(e){
+          /* ouvert depuis le Finder, le navigateur interdit de lire
+             les pixels d'un fichier local : la pastille reste
+             affichée, simplement pas manipulable */
+        }
+      };
+      img.src = t.src;
+    });
+
+    /* LA SCÈNE SUR TÉLÉPHONE
+
+       Sur ordinateur, la composition est large et chaque calque garde
+       sa place d'origine. Sur un téléphone, elle serait écrasée dans
+       la largeur de l'écran. Elle y est donc recomposée à la
+       verticale, d'après la maquette portrait : 668 px de large,
+       « SOMMES » centré à 616 px de haut.
+
+       Pour chaque pastille : le centre de son encre et sa largeur
+       dans la maquette. Le script en déduit, sur l'écran réel, de
+       combien la déplacer et la grossir. Une pastille sans entrée
+       ici garde sa place d'origine. */
+    var MAQUETTE = { largeur: 668, ancre: 616 };
+    var PORTRAIT = {
+       2: { x: 440, y: 288, l: 285 },    3: { x: 525, y: 461, l: 115 },
+       4: { x: 267, y: 580, l: 198 },    5: { x: 391, y: 608, l: 127 },
+       6: { x: 261, y: 290, l: 102 },    7: { x: 234, y: 376, l: 273 },
+       8: { x: 193, y: 451, l: 310 },    9: { x: 401, y: 476, l: 182 },
+      10: { x: 320, y: 762, l: 504 },   11: { x: 293, y: 878, l: 138 },
+      12: { x: 454, y: 914, l: 314 },
+      13: { x: 334, y: 610, l: 330 },   14: { x: 480, y: 690, l: 150 }
+    };
+    /* ordre d'empilement de la maquette, du dessous au dessus : il ne
+       diffère de l'ordre des numéros que pour « On est pas là pour
+       plaisanter » et le téléphone, qui passent sur « Ça ne fait
+       grandir personne » */
+    var ORDRE_PORTRAIT = [2, 3, 6, 7, 8, 4, 5, 9, 10, 11, 12, 13, 14];
+    var telephone = matchMedia('(max-width: 760px)');
+
+    function disposer(){
+      var b = stage.getBoundingClientRect();
+      if(!b.width) return;
+      /* l'ancre : le centre de la ligne « sommes » du titre */
+      var lignes = stage.querySelectorAll('.who__t .m');
+      var ancre = lignes[1] ? lignes[1].getBoundingClientRect() : b;
+      var ancreY = ancre.top + ancre.height / 2;
+      var s = window.innerWidth / MAQUETTE.largeur;
+
+      sheets.forEach(function(el, i){
+        var n = infos[i].n, cible = PORTRAIT[n], bo = boites[i], g = geo[i];
+        if(telephone.matches && cible && bo){
+          g.ox = bo.x + bo.w / 2;
+          g.oy = bo.y + bo.h / 2;
+          g.k  = (cible.l * s) / (bo.w * b.width);
+          g.tx = (cible.x * s - b.left) / b.width - g.ox;
+          g.ty = (ancreY + (cible.y - MAQUETTE.ancre) * s - b.top) / b.height - g.oy;
+          var rang = ORDRE_PORTRAIT.indexOf(n);
+          /* une pastille absente de la liste passe au-dessus de toutes */
+          if(rang < 0) rang = ORDRE_PORTRAIT.length + i;
+          if(!(parseInt(el.style.zIndex, 10) > 29)) el.style.zIndex = rang + 1;
+        } else {
+          /* ordi : tout le groupe grossit depuis le centre de la
+             scène, le titre garde sa taille (--gros, en CSS) */
+          g.tx = g.ty = 0; g.ox = g.oy = .5;
+          g.k = parseFloat(getComputedStyle(stage).getPropertyValue('--gros')) || 1;
+          if(!(parseInt(el.style.zIndex, 10) > 29)) el.style.zIndex = '';
+        }
+        el.style.transformOrigin = (g.ox * 100) + '% ' + (g.oy * 100) + '%';
+        el.style.translate = (g.tx * 100) + '% ' + (g.ty * 100) + '%';
+        el.style.scale = String(g.k);
+      });
+    }
+    window.addEventListener('resize', disposer);
+    if(telephone.addEventListener) telephone.addEventListener('change', disposer);
+
+    function visible(i){
+      return !stage.classList.contains('sequence') || sheets[i].classList.contains('vu');
+    }
+    function niveau(i){ return parseInt(sheets[i].style.zIndex, 10) || 0; }
+
+    /* la plus haute pastille dont l'encre est sous le pointeur */
+    function touche(cx, cy){
+      var b = stage.getBoundingClientRect();
+      var fx = (cx - b.left) / b.width, fy = (cy - b.top) / b.height;
+      var ordre = sheets.map(function(_, i){ return i; })
+        .sort(function(a, c){ return (niveau(c) - niveau(a)) || (c - a); });
+      for(var k = 0; k < ordre.length; k++){
+        var i = ordre[k], a = alphas[i];
+        if(!a || !visible(i)) continue;
+        /* On remonte la chaîne des transformations à l'envers :
+           déplacement T, grossissement k autour de O, puis le
+           déplacement fait à la main. */
+        var g = geo[i];
+        var lx = g.ox + ((fx - g.tx - g.ox) / g.k - off[i].x) / zoom[i];
+        var ly = g.oy + ((fy - g.ty - g.oy) / g.k - off[i].y) / zoom[i];
+        var px = Math.floor(lx * W), py = Math.floor(ly * H);
+        if(px >= 0 && py >= 0 && px < W && py < H && a[py * W + px] > 24) return i;
+      }
+      return -1;
+    }
+
+    function applique(i){
+      sheets[i].style.transform =
+        'translate(' + (off[i].x * 100) + '%, ' + (off[i].y * 100) + '%)' +
+        (zoom[i] !== 1 ? ' scale(' + zoom[i] + ')' : '');
+    }
+
+    /* Sur téléphone, la pastille tenue grossit de 25 % avec un petit
+       rebond, et reprend sa taille quand on la lâche. Le grossissement
+       est animé à la main, image par image, et non par une transition
+       CSS : une transition sur transform ralentirait aussi le
+       déplacement, et la pastille traînerait derrière le doigt. */
+    var zoom = sheets.map(function(){ return 1; });
+    var anims = [], fins = [];
+    var TENUE = 1.25;
+    function rebond(p){          /* dépasse à peine la cible, puis s'y pose */
+      var c = 1.1, u = p - 1;
+      return 1 + (c + 1) * u * u * u + c * u * u;
+    }
+    function zoome(i, cible){
+      cancelAnimationFrame(anims[i]);
+      var depart = zoom[i], t0 = performance.now(), duree = 130;
+      (function pas(){
+        /* l'heure lue ici, pas celle que passe le navigateur : la sienne
+           peut précéder t0, et la courbe partirait à l'envers */
+        var p = Math.max(0, Math.min(1, (performance.now() - t0) / duree));
+        zoom[i] = depart + (cible - depart) * rebond(p);
+        applique(i);
+        if(p < 1) anims[i] = requestAnimationFrame(pas);
+        else { zoom[i] = cible; applique(i); }
+      })();
+      /* filet : si le navigateur saute des images, la taille finale
+         est posée quand même */
+      clearTimeout(fins[i]);
+      fins[i] = setTimeout(function(){
+        cancelAnimationFrame(anims[i]); zoom[i] = cible; applique(i);
+      }, duree + 60);
+    }
+
+    stage.addEventListener('pointerdown', function(e){
+      if(e.button !== 0) return;
+      var i = touche(e.clientX, e.clientY);
+      if(i < 0) return;
+      e.preventDefault();
+      sheets[i].style.zIndex = ++sommet;
+      prise = { i: i, x: e.clientX, y: e.clientY, ox: off[i].x, oy: off[i].y };
+      if(telephone.matches) zoome(i, TENUE);
+      sheets[i].classList.remove('gelee');
+      sheets[i].classList.add('prise');
+      dernier = { x: e.clientX, y: e.clientY, t: performance.now() };
+      try{ stage.setPointerCapture(e.pointerId); }catch(err){}
+      stage.style.cursor = 'grabbing';
+    });
+
+    stage.addEventListener('pointermove', function(e){
+      if(prise){
+        var b = stage.getBoundingClientRect();
+        var kk = geo[prise.i].k;
+        off[prise.i].x = prise.ox + (e.clientX - prise.x) / b.width / kk;
+        off[prise.i].y = prise.oy + (e.clientY - prise.y) / b.height / kk;
+        applique(prise.i);
+        etire(prise.i, e.clientX, e.clientY);
+      } else if(e.pointerType === 'mouse'){
+        stage.style.cursor = touche(e.clientX, e.clientY) >= 0 ? 'grab' : '';
+      }
+    });
+
+    /* L'ÉTIREMENT
+
+       La vitesse du doigt, en pixels par milliseconde, décide de
+       combien la pastille s'allonge. Elle s'allonge dans le sens du
+       geste et s'amincit d'autant dans l'autre, comme un élastique
+       qu'on tire : le volume a l'air conservé. Plafonné à 18 %,
+       au-delà le dessin se déforme trop pour rester lisible. */
+    var dernier = null;
+    function etire(i, x, y){
+      var t = performance.now();
+      if(!dernier){ dernier = { x: x, y: y, t: t }; return; }
+      var dt = Math.max(t - dernier.t, 8);
+      var vx = (x - dernier.x) / dt, vy = (y - dernier.y) / dt;
+      dernier = { x: x, y: y, t: t };
+      var v = Math.min(Math.sqrt(vx * vx + vy * vy) / 3.2, 1);
+      var etirement = v * .18;
+      /* l'angle du geste : l'allongement suit sa direction */
+      var a = Math.atan2(vy, vx);
+      var horizontal = Math.abs(Math.cos(a));
+      var sx = 1 + etirement * horizontal - etirement * (1 - horizontal) * .6;
+      var sy = 1 + etirement * (1 - horizontal) - etirement * horizontal * .6;
+      var el = sheets[i];
+      el.style.setProperty('--sx', sx.toFixed(3));
+      el.style.setProperty('--sy', sy.toFixed(3));
+      el.style.setProperty('--rot', (Math.max(-1, Math.min(1, vx / 4)) * 2).toFixed(2) + 'deg');
+    }
+
+    function lache(){
+      if(!prise) return;
+      var i = prise.i, el = sheets[i];
+      if(zoom[i] !== 1) zoome(i, 1);
+      /* retour au repos : la gelée part de l'état étiré et s'amortit */
+      el.classList.remove('prise');
+      el.style.removeProperty('--sx');
+      el.style.removeProperty('--sy');
+      el.style.removeProperty('--rot');
+      el.classList.add('gelee');
+      setTimeout(function(){ el.classList.remove('gelee'); }, 640);
+      dernier = null;
+      prise = null;
+      stage.style.cursor = '';
+    }
+    stage.addEventListener('pointerup', lache);
+    stage.addEventListener('pointercancel', lache);
+
+    /* Au doigt : un geste qui commence sur une pastille la déplace
+       au lieu de faire défiler la page. Ailleurs dans la scène, le
+       défilement reste normal. Les écouteurs sont déclarés non
+       passifs, seule façon de pouvoir annuler le défilement. */
+    stage.addEventListener('touchstart', function(e){
+      var t = e.touches[0];
+      if(t && touche(t.clientX, t.clientY) >= 0) e.preventDefault();
+    }, { passive: false });
+    stage.addEventListener('touchmove', function(e){
+      if(prise) e.preventDefault();
+    }, { passive: false });
+  }
+
+  lot(PREMIER);
+})();
+</script>
+
+</body>
+</html>
