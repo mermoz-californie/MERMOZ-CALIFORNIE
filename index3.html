@@ -819,21 +819,16 @@ a{ color: inherit; text-decoration: none; }
      lui-même, image par image : le mouvement de repos est coupé */
   animation: none;
 }
-/* Les quatre quartiers du pincement. Le dessin entier s'efface le
-   temps qu'ils le remplacent, sinon on le verrait dessous. */
-.stage .p.coupe > .img{ background-image: none; }
-.stage .p > .img > .q{
+/* Le canevas de la gélatine vient se poser dans la pastille
+   tenue, à la place de son dessin. Il déborde de moitié tout
+   autour, la matière s'étirant hors du cadre quand on tire. */
+.stage .p.gele > .img{ background-image: none; }
+.stage .p > canvas.gel{
   position: absolute;
-  background-repeat: no-repeat;
-  backface-visibility: hidden;
-  will-change: transform;
-  display: none;
+  left: -50%; top: -50%;
+  width: 200%; height: 200%;
+  pointer-events: none;
 }
-.stage .p.coupe > .img > .q{ display: block; }
-.stage .p > .img > .hg{ transform-origin: left top; }
-.stage .p > .img > .hd{ transform-origin: right top; }
-.stage .p > .img > .bg{ transform-origin: left bottom; }
-.stage .p > .img > .bd{ transform-origin: right bottom; }
 /* Le script relève la déformation en cours avant de couper le
    mouvement de repos, et la réécrit dans --sx et --sy : la
    pastille reprend exactement où elle en était, sans à-coup. */
@@ -1595,7 +1590,7 @@ a{ color: inherit; text-decoration: none; }
       .then(function(r){ if(!r.ok) throw 0; return r.text(); })
       .then(function(txt){
         var blob = new Blob([txt], { type: 'image/svg+xml' });
-        fin({ n: n, url: url, src: URL.createObjectURL(blob), rapport: proportions(txt) });
+        fin({ n: n, url: url, src: URL.createObjectURL(blob), rapport: proportions(txt), texte: txt });
       })
       .catch(suivant);
   }
@@ -1933,167 +1928,241 @@ a{ color: inherit; text-decoration: none; }
 
     /* LA GÉLATINE
 
-       Le principe est celui du pincement : la pastille se déforme à
-       l'endroit exact où on l'attrape, et elle suit le doigt en
-       même temps.
+       La pastille qu'on tient se déforme comme une matière molle :
+       le point saisi reste sous le doigt, et le reste du dessin
+       traîne derrière, d'autant plus qu'il en est loin.
 
-       À la prise, son dessin est découpé en quatre au point saisi.
-       Chaque quartier est ancré par son coin extérieur, si bien que
-       les bords de la pastille ne bougent pas : seule la matière
-       entre le bord et le point saisi s'étire. Quand la main part à
-       droite, les quartiers de gauche s'allongent et ceux de droite
-       se compriment d'autant, exactement comme une gelée qu'on
-       pince et qu'on tire.
+       Le dessin n'est pas découpé en morceaux, sinon on verrait des
+       plis aux coupures. Il est posé sur un filet de 40 sur 40
+       cases, peint par la carte graphique, et ce sont les points du
+       filet qu'on déplace : la déformation est continue.
 
-       Ce qui commande tout, c'est le retard : l'écart entre le
-       doigt et la pastille, qui la rattrape toujours avec un temps
-       de retard. Ce retard est porté par un ressort, une valeur qui
-       ne se pose jamais du premier coup sur sa cible : elle la
-       dépasse, revient, redépasse moins loin. Au lâcher, la cible
-       redevient zéro et c'est ce même ressort qui fait trembler la
-       pastille jusqu'au repos.
+       Un seul canevas sert pour toute la page. Il vient se poser
+       dans la pastille tenue, à la place de son dessin, et repart
+       quand elle s'est reposée. Une page n'a droit qu'à une
+       poignée de contextes graphiques : en ouvrir un par pastille
+       les épuiserait.
 
-       Tout est écrit image par image, sans transition ni animation
-       CSS : c'est le seul moyen d'avoir le même rendu sur Chrome et
-       sur Safari.
+       Le retard du dessin sur le doigt est porté par un ressort :
+       une valeur qui ne se pose jamais du premier coup sur sa
+       cible, elle la dépasse, revient, redépasse moins loin. C'est
+       ce va-et-vient qui fait la gélatine, pendant le geste comme
+       au lâcher.
 
-       Au premier contact, le mouvement de repos de la pastille
-       s'arrête pour de bon : elle ne bouge plus que sous la main. */
-    var RAIDEUR = .17, AMORTI = .78;   /* la mollesse de la gelée */
-    var GAIN = 1.35;                   /* combien le retard déforme */
-    var boucle = null;
+       Les quatre réglages ont été trouvés sur la démo
+       _demo-gelatine.html, qui sert de banc d'essai. */
+    var PINCEMENT = 1.9;   /* combien le retard déforme */
+    var ETENDUE   = .44;   /* la portée autour du point saisi */
+    var RAIDEUR   = .05;   /* la vivacité du retour, au lâcher */
+    var REBONDS   = .85;   /* l'amortissement : plus haut, plus ça gigote */
+    var MARGE     = .5;    /* le débord autorisé autour de la pastille */
+    var CASES     = 40;    /* finesse du filet */
+
+    var boucle = null, prisEn = -1;
     var vise = { x: 0, y: 0 }, tenu = { x: 0, y: 0 };
-    var pate = sheets.map(function(){
-      return { x: 0, y: 0, vx: 0, vy: 0, mx: 0, my: 0, L: 0, H: 0, ech: 1, vif: false, quarts: null };
-    });
+    var gel = { gx: .5, gy: .5, x: 0, y: 0, vx: 0, vy: 0 };
+    var toile = null, gl = null, mailleN = 0, uGrab, uLag, uRayon, texture;
+    var textures = [];     /* le dessin de chaque pastille, rastérisé une fois */
 
-    /* Les quatre quartiers, créés une seule fois par pastille. */
-    function quartiers(i){
-      var d = pate[i];
-      if(d.quarts) return d.quarts;
-      var noms = ['hg', 'hd', 'bg', 'bd'], liste = [];
-      for(var k = 0; k < 4; k++){
-        var el = document.createElement('i');
-        el.className = 'q ' + noms[k];
-        calques[i].appendChild(el);
-        liste.push(el);
+    function compile(type, source){
+      var s = gl.createShader(type);
+      gl.shaderSource(s, source); gl.compileShader(s);
+      if(!gl.getShaderParameter(s, gl.COMPILE_STATUS) && window.console) console.warn(gl.getShaderInfoLog(s));
+      return s;
+    }
+
+    /* le canevas et son programme, montés au premier besoin */
+    function atelier(){
+      if(toile !== null) return toile;
+      toile = document.createElement('canvas');
+      toile.className = 'gel';
+      gl = toile.getContext('webgl', { premultipliedAlpha: true, antialias: true });
+      if(!gl){ toile = false; return false; }
+
+      var SOMMET = [
+        'attribute vec2 aPos;',
+        'uniform vec2 uGrab;',
+        'uniform vec2 uLag;',
+        'uniform float uRayon;',
+        'varying vec2 vUV;',
+        'void main(){',
+        '  vUV = aPos;',
+        '  float d = distance(aPos, uGrab) / max(uRayon, 0.0001);',
+        '  float traine = 1.0 - exp(-d * d);',
+        '  vec2 p = aPos - uLag * traine;',
+        '  gl_Position = vec4(p.x * 2.0 - 1.0, 1.0 - p.y * 2.0, 0.0, 1.0);',
+        '}'
+      ].join('\n');
+      var FRAGMENT = [
+        'precision mediump float;',
+        'uniform sampler2D uTex;',
+        'varying vec2 vUV;',
+        'void main(){ gl_FragColor = texture2D(uTex, vUV); }'
+      ].join('\n');
+
+      var prog = gl.createProgram();
+      gl.attachShader(prog, compile(gl.VERTEX_SHADER, SOMMET));
+      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAGMENT));
+      gl.linkProgram(prog); gl.useProgram(prog);
+
+      var pts = [];
+      for(var j = 0; j < CASES; j++){
+        for(var k = 0; k < CASES; k++){
+          var x0 = k / CASES, x1 = (k + 1) / CASES, y0 = j / CASES, y1 = (j + 1) / CASES;
+          pts.push(x0, y0, x1, y0, x0, y1, x1, y0, x1, y1, x0, y1);
+        }
       }
-      d.quarts = liste;
-      return liste;
+      mailleN = pts.length / 2;
+      var buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pts), gl.STATIC_DRAW);
+      var aPos = gl.getAttribLocation(prog, 'aPos');
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+      uGrab = gl.getUniformLocation(prog, 'uGrab');
+      uLag = gl.getUniformLocation(prog, 'uLag');
+      uRayon = gl.getUniformLocation(prog, 'uRayon');
+
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      gl.clearColor(0, 0, 0, 0);
+
+      texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      return toile;
     }
 
-    /* Le découpage au point saisi : chaque quartier montre sa part
-       du dessin, en décalant le fond d'autant. */
-    function decoupe(i){
-      var d = pate[i], qs = quartiers(i), src = sheets[i].style.getPropertyValue('--src');
-      var boites = [
-        [0,    0,    d.mx,        d.my],
-        [d.mx, 0,    d.L - d.mx,  d.my],
-        [0,    d.my, d.mx,        d.H - d.my],
-        [d.mx, d.my, d.L - d.mx,  d.H - d.my]
-      ];
-      for(var k = 0; k < 4; k++){
-        var b = boites[k], el = qs[k];
-        el.style.left = b[0] + 'px';
-        el.style.top = b[1] + 'px';
-        el.style.width = Math.max(b[2], 1) + 'px';
-        el.style.height = Math.max(b[3], 1) + 'px';
-        el.style.backgroundImage = src;
-        el.style.backgroundSize = d.L + 'px ' + d.H + 'px';
-        el.style.backgroundPosition = (-b[0]) + 'px ' + (-b[1]) + 'px';
-        el.style.transform = 'scale(1,1)';
+    /* Le dessin d'une pastille, rastérisé au format du calque avec
+       sa marge de débord. Gardé en mémoire : on ne le refait pas à
+       chaque prise. */
+    function dessinDe(i, L, H, pret){
+      var large = Math.round(L * 2 * (1 + MARGE * 2));
+      var haut  = Math.round(H * 2 * (1 + MARGE * 2));
+      var fait = textures[i];
+      if(fait && fait.width === large && fait.height === haut) return pret(fait);
+
+      var img = new Image();
+      img.onload = function(){
+        var c = document.createElement('canvas');
+        c.width = large; c.height = haut;
+        c.getContext('2d').drawImage(img, L * MARGE * 2, H * MARGE * 2, L * 2, H * 2);
+        textures[i] = c;
+        pret(c);
+      };
+      img.onerror = function(){ pret(null); };
+      /* le fichier est déjà en mémoire sous forme d'adresse blob ;
+         on lui écrit sa taille en clair, sinon Safari, qui ne
+         devine pas la taille d'un SVG sans largeur déclarée, la
+         rend nulle */
+      var src = infos[i].src;
+      if(infos[i].texte){
+        var svg = infos[i].texte.replace(/<svg\b/, '<svg width="' + (L * 2) + '" height="' + (H * 2) + '"');
+        src = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
       }
+      img.src = src;
     }
 
-    function borne(v, mini, maxi){ return Math.max(mini, Math.min(maxi, v)); }
-
-    /* Les quatre facteurs découlent du retard : le point de coupe
-       se déplace, les coins restent. */
-    function pose(i){
-      var d = pate[i], qs = d.quarts;
-      if(!qs) return;
-      var g = borne((d.mx + d.x) / d.mx, .3, 2.6);
-      var dr = borne((d.L - d.mx - d.x) / (d.L - d.mx), .3, 2.6);
-      var h = borne((d.my + d.y) / d.my, .3, 2.6);
-      var b = borne((d.H - d.my - d.y) / (d.H - d.my), .3, 2.6);
-      qs[0].style.transform = 'scale(' + g.toFixed(4) + ',' + h.toFixed(4) + ')';
-      qs[1].style.transform = 'scale(' + dr.toFixed(4) + ',' + h.toFixed(4) + ')';
-      qs[2].style.transform = 'scale(' + g.toFixed(4) + ',' + b.toFixed(4) + ')';
-      qs[3].style.transform = 'scale(' + dr.toFixed(4) + ',' + b.toFixed(4) + ')';
+    function dessine(){
+      if(!gl || prisEn < 0) return;
+      var e = 1 / (1 + MARGE * 2);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform2f(uGrab, (gel.gx + MARGE) * e, (gel.gy + MARGE) * e);
+      gl.uniform2f(uLag, gel.x * e, gel.y * e);
+      gl.uniform1f(uRayon, ETENDUE);
+      gl.drawArrays(gl.TRIANGLES, 0, mailleN);
     }
 
-    function ressort(valeur, vitesse, cible){
-      vitesse = (vitesse + (cible - valeur) * RAIDEUR) * AMORTI;
-      return [valeur + vitesse, vitesse];
+    function ressort(v, vit, cible){
+      vit = (vit + (cible - v) * RAIDEUR) * REBONDS;
+      return [v + vit, vit];
     }
 
     function etire(i, x, y){ vise.x = x; vise.y = y; }
 
     function tourne(){
       boucle = null;
-      var encore = false;
+      if(prisEn < 0) return;
+      var i = prisEn, cx = 0, cy = 0;
 
-      for(var i = 0; i < pate.length; i++){
-        var d = pate[i];
-        if(!d.vif) continue;
-        var tenue = !!(prise && prise.i === i);
-
-        var cx = 0, cy = 0;
-        if(tenue){
-          /* le retard du doigt sur la pastille, ramené à l'échelle
-             du dessin pour que la déformation soit la même quelle
-             que soit la taille à l'écran */
-          var ex = vise.x - tenu.x, ey = vise.y - tenu.y;
-          tenu.x += ex * .30; tenu.y += ey * .30;
-          cx = borne(ex / d.ech * GAIN, -d.L * .45, d.L * .45);
-          cy = borne(ey / d.ech * GAIN, -d.H * .45, d.H * .45);
-        }
-
-        var r;
-        r = ressort(d.x, d.vx, cx); d.x = r[0]; d.vx = r[1];
-        r = ressort(d.y, d.vy, cy); d.y = r[0]; d.vy = r[1];
-
-        var dort = !tenue &&
-          Math.abs(d.x) < .4 && Math.abs(d.y) < .4 &&
-          Math.abs(d.vx) < .4 && Math.abs(d.vy) < .4;
-
-        if(dort){
-          d.x = d.y = d.vx = d.vy = 0;
-          d.vif = false;
-          sheets[i].classList.remove('coupe');
-          pose(i);
-        } else {
-          pose(i);
-          encore = true;
-        }
+      if(prise && prise.i === i){
+        var b = sheets[i].getBoundingClientRect();
+        var ex = vise.x - tenu.x, ey = vise.y - tenu.y;
+        tenu.x += ex * .30; tenu.y += ey * .30;
+        cx = Math.max(-.75, Math.min(.75, ex / b.width * PINCEMENT));
+        cy = Math.max(-.75, Math.min(.75, ey / b.height * PINCEMENT));
       }
 
-      if(encore) boucle = requestAnimationFrame(tourne);
+      if(prise && prise.i === i){
+        /* Sous la main, la déformation colle au geste : pas de
+           ressort, sinon la pastille ballotte pendant qu'on la
+           tire. On garde la variation d'une image à l'autre, elle
+           servira d'élan au lâcher. */
+        gel.vx = cx - gel.x; gel.vy = cy - gel.y;
+        gel.x = cx; gel.y = cy;
+      } else {
+        /* Lâchée, elle revient au repos par un ressort : il
+           dépasse, revient, redépasse moins loin. La gélatine
+           tremble là, et là seulement. */
+        var r;
+        r = ressort(gel.x, gel.vx, 0); gel.x = r[0]; gel.vx = r[1];
+        r = ressort(gel.y, gel.vy, 0); gel.y = r[0]; gel.vy = r[1];
+      }
+      dessine();
+
+      var dort = !(prise && prise.i === i) &&
+        Math.abs(gel.x) < .0006 && Math.abs(gel.y) < .0006 &&
+        Math.abs(gel.vx) < .0006 && Math.abs(gel.vy) < .0006;
+
+      if(dort) range();
+      else boucle = requestAnimationFrame(tourne);
     }
 
     function relance(){ if(!boucle) boucle = requestAnimationFrame(tourne); }
 
-    /* La prise : on note où le doigt tombe dans le dessin, on
-       découpe, et le mouvement de repos s'arrête pour de bon. */
+    /* le canevas repart, la pastille reprend son dessin normal */
+    function range(){
+      if(prisEn < 0) return;
+      sheets[prisEn].classList.remove('gele');
+      if(toile && toile.parentNode) toile.parentNode.removeChild(toile);
+      gel.x = gel.y = gel.vx = gel.vy = 0;
+      prisEn = -1;
+    }
+
+    /* La prise : le mouvement de repos s'arrête pour de bon, le
+       canevas vient se poser sur la pastille, et le point saisi
+       devient le centre de la déformation. */
     function fige(i, cx, cy){
-      var d = pate[i], el = sheets[i], b = el.getBoundingClientRect();
-      d.L = el.offsetWidth; d.H = el.offsetHeight;
-      d.ech = b.width / d.L || 1;
+      var el = sheets[i];
+      el.classList.add('prise');
+      if(atelier() === false) return;      /* pas de WebGL : on déplace sans déformer */
+
+      if(prisEn >= 0 && prisEn !== i) range();
+      prisEn = i;
+
       /* le point saisi, ramené dans le repère du dessin */
-      var g = geo[i];
-      var sb = stage.getBoundingClientRect();
+      var g = geo[i], sb = stage.getBoundingClientRect();
       var fx = (cx - sb.left) / sb.width, fy = (cy - sb.top) / sb.height;
-      var lx = g.ox + ((fx - g.tx - g.ox) / g.k - off[i].x) / zoom[i];
-      var ly = g.oy + ((fy - g.ty - g.oy) / g.k - off[i].y) / zoom[i];
-      d.mx = borne(lx * d.L, d.L * .12, d.L * .88);
-      d.my = borne(ly * d.H, d.H * .12, d.H * .88);
-      d.x = d.y = d.vx = d.vy = 0;
-      d.vif = true;
-      el.classList.add('prise', 'coupe');
-      decoupe(i);
-      /* une pincée à la prise, pour qu'on sente qu'on la tient */
-      d.vx = d.L * .012; d.vy = d.H * .008;
-      pose(i);
+      gel.gx = Math.max(0, Math.min(1, g.ox + ((fx - g.tx - g.ox) / g.k - off[i].x) / zoom[i]));
+      gel.gy = Math.max(0, Math.min(1, g.oy + ((fy - g.ty - g.oy) / g.k - off[i].y) / zoom[i]));
+      gel.x = gel.y = gel.vx = gel.vy = 0;
+
+      var L = el.offsetWidth, H = el.offsetHeight;
+      dessinDe(i, L, H, function(source){
+        if(!source || prisEn !== i) return;
+        toile.width = source.width; toile.height = source.height;
+        el.appendChild(toile);
+        el.classList.add('gele');
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+        gl.viewport(0, 0, source.width, source.height);
+        relance();
+      });
     }
 
     function lache(){
@@ -2102,7 +2171,7 @@ a{ color: inherit; text-decoration: none; }
       if(zoom[i] !== 1) zoome(i, 1);
       prise = null;
       stage.style.cursor = '';
-      relance();   /* le ressort ramène tout au repos en gigotant */
+      relance();   /* le ressort ramène le dessin au repos en gigotant */
     }
 
     stage.addEventListener('pointerup', lache);

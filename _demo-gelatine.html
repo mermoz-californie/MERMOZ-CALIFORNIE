@@ -6,182 +6,391 @@
 <title>Démo gélatine</title>
 <style>
 /* ============================================================
-   DÉMO : LA GÉLATINE EN QUATRE QUARTIERS
+   DÉMO : DEUX ÉTIQUETTES EN GÉLATINE, SANS CASSURE
 
-   Le principe de l'exemple du chat. À la prise, l'image est
-   découpée en quatre au point exact où l'on clique. Chaque
-   quartier est ensuite étiré séparément, ancré par son coin
-   extérieur : celui du haut à gauche s'accroche au coin haut
-   gauche, etc. Le point de découpe, lui, suit le doigt.
+   La version en quatre quartiers montrait des plis aux coins et
+   des traits aux jointures : chaque quartier se déformait pour
+   lui-même, et deux morceaux voisins ne tombaient jamais sur le
+   même pixel.
 
-   Résultat : la matière s'étire là où on tire et reste en place
-   ailleurs, au lieu de se déformer d'un bloc. Au lâcher, les
-   quartiers reviennent à 1 avec une courbe élastique.
+   Ici, plus de morceaux du tout. Le dessin est posé sur un filet
+   de 40 sur 40 cases, peint par la carte graphique. Attraper
+   l'étiquette déplace les points du filet autour du point saisi,
+   de moins en moins loin à mesure qu'on s'en éloigne, jusqu'à
+   zéro sur les bords. La matière s'étire d'un seul tenant :
+   aucun pli, aucune jointure.
 
-   Ce fichier commence par un tiret bas : il ne sera jamais
-   publié en ligne.
+   La version en quartiers reste à côté, dans
+   _demo-gelatine-quartiers.html, pour comparer.
+
+   Le nom commence par un tiret bas : GitHub Pages ignore ces
+   fichiers, la démo ne sera jamais publiée.
    ============================================================ */
 :root{
   --noir:  #222221;
   --blanc: #E0DFD9;
   --vert:  #4AD66D;
+  --filet: rgba(224, 223, 217, .16);
 }
 *{ box-sizing: border-box; }
+html, body{ height: 100%; }
 body{
-  margin: 0; min-height: 100svh;
+  margin: 0;
   background: var(--noir); color: var(--blanc);
-  font: 500 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 28px; padding: 40px 20px;
+  font: 500 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column;
+  overflow: hidden;
 }
-h1{ font-size: 15px; letter-spacing: .18em; text-transform: uppercase; margin: 0; font-weight: 600; }
-p{ margin: 0; max-width: 34em; text-align: center; color: rgba(224,223,217,.6); }
+.tete{
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  padding: 14px 22px; border-bottom: 1px solid var(--filet);
+}
+.tete h1{ font-size: 12px; letter-spacing: .18em; text-transform: uppercase; margin: 0; font-weight: 600; }
+.tete p{ margin: 0; color: rgba(224,223,217,.55); }
+.tete a{ color: var(--vert); }
 
-.jeu{ display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+.reglages{
+  display: flex; gap: 20px; flex-wrap: wrap;
+  padding: 10px 22px; border-bottom: 1px solid var(--filet);
+}
+.reglage{ display: flex; align-items: center; gap: 9px; }
+.reglage label{ font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: rgba(224,223,217,.55); }
+.reglage output{ font-variant-numeric: tabular-nums; min-width: 3.2em; }
+input[type=range]{ accent-color: var(--vert); width: 120px; }
 
-/* le bocal : il porte les quartiers et reçoit le doigt */
-.bocal{
-  position: relative;
-  width: min(42vw, 420px);
-  aspect-ratio: 1;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-.bocal:active{ cursor: grabbing; }
-.bocal__nom{
-  position: absolute; left: 0; right: 0; bottom: -26px;
-  text-align: center; font-size: 11px; letter-spacing: .14em;
-  text-transform: uppercase; color: rgba(224,223,217,.45);
-}
-/* l'image entière, visible au repos */
-.entier{
-  position: absolute; inset: 0;
-  background: center / contain no-repeat var(--src);
-}
-/* les quatre quartiers, cachés tant qu'on ne tient rien */
-.quartier{
+.terrain{ position: relative; flex: 1; overflow: hidden; }
+
+/* une étiquette : un canevas qui se déplace, et dont le contenu
+   se déforme tout seul */
+.etiq{
   position: absolute;
-  background-repeat: no-repeat;
-  backface-visibility: hidden;
+  touch-action: none; user-select: none;
   will-change: transform;
-  display: none;
+  /* le clic est jugé sur le dessin par le terrain : les boîtes
+     elles-mêmes ne doivent rien intercepter */
+  pointer-events: none;
 }
-.bocal.tenu .entier{ visibility: hidden; }
-.bocal.tenu .quartier{ display: block; }
-.hg{ transform-origin: left top; }
-.hd{ transform-origin: right top; }
-.bg{ transform-origin: left bottom; }
-.bd{ transform-origin: right bottom; }
-/* le retour au repos : une courbe qui dépasse, donc qui tremble */
-.bocal.repos .quartier{
-  transition: transform .55s cubic-bezier(.18, 1.7, .32, 1);
-  transform: scale(1, 1);
-}
+.terrain{ cursor: default; }
+.etiq:active{ cursor: grabbing; }
+.etiq canvas{ display: block; width: 100%; height: 100%; }
 </style>
 </head>
 <body>
 
-<h1>La gélatine en quatre quartiers</h1>
-<p>Attrape une pastille et tire. L'image se coupe en quatre à l'endroit exact où tu cliques : la matière s'étire du côté où tu tires, et reste en place de l'autre. Lâche, et les quartiers reviennent en tremblant.</p>
+<div class="tete">
+  <h1>Gélatine sans cassure</h1>
+  <p>Attrape, déplace, lâche. La déformation part du point saisi et s'éteint vers les bords, d'un seul tenant. <a href="_demo-gelatine-quartiers.html">Voir l'ancienne version en quartiers</a></p>
+</div>
 
-<div class="jeu">
-  <div class="bocal" data-src="assets/pastilles/1.svg">
-    <div class="entier"></div>
-    <div class="quartier hg"></div><div class="quartier hd"></div>
-    <div class="quartier bg"></div><div class="quartier bd"></div>
-    <span class="bocal__nom">1.svg</span>
-  </div>
-  <div class="bocal" data-src="assets/pastilles/13.svg">
-    <div class="entier"></div>
-    <div class="quartier hg"></div><div class="quartier hd"></div>
-    <div class="quartier bg"></div><div class="quartier bd"></div>
-    <span class="bocal__nom">13.svg</span>
-  </div>
+<div class="reglages">
+  <div class="reglage"><label for="gain">Pincement</label><input id="gain" type="range" min="0" max="10" step=".1" value="5.6"><output id="gainV">5.60</output></div>
+  <div class="reglage"><label for="rayon">Étendue</label><input id="rayon" type="range" min=".05" max="2" step=".01" value="0.65"><output id="rayonV">0.65</output></div>
+  <div class="reglage"><label for="raideur">Raideur</label><input id="raideur" type="range" min=".05" max=".4" step=".01" value="0.15"><output id="raideurV">0.15</output></div>
+  <div class="reglage"><label for="amorti">Rebonds</label><input id="amorti" type="range" min=".6" max=".95" step=".01" value="0.84"><output id="amortiV">0.84</output></div>
+</div>
+
+<div class="terrain" id="terrain">
+  <div class="etiq" data-src="assets/pastilles/1.svg" style="left: 5%; top: 22%; width: min(34vw, 420px);"></div>
+  <div class="etiq" data-src="assets/autres_pastilles/contact.svg" style="left: 58%; top: 26%; width: min(22vw, 260px);"></div>
 </div>
 
 <script>
 (function(){
   "use strict";
 
-  document.querySelectorAll('.bocal').forEach(function(bocal){
-    var src = bocal.dataset.src;
-    var entier = bocal.querySelector('.entier');
-    entier.style.setProperty('--src', 'url("' + src + '")');
+  var R = { gain: 5.6, rayon: .65, raideur: .15, amorti: .84 };
+  ['gain', 'rayon', 'raideur', 'amorti'].forEach(function(nom){
+    var c = document.getElementById(nom), o = document.getElementById(nom + 'V');
+    c.addEventListener('input', function(){ R[nom] = parseFloat(c.value); o.textContent = c.value; });
+  });
 
-    var q = {
-      hg: bocal.querySelector('.hg'), hd: bocal.querySelector('.hd'),
-      bg: bocal.querySelector('.bg'), bd: bocal.querySelector('.bd')
-    };
-    var prise = null;
+  /* Le filet : 40 cases de côté. Plus il est fin, plus la
+     déformation est douce, et le coût reste négligeable. */
+  var CASES = 40;
 
-    /* Le découpage : quatre boîtes qui se partagent l'image, et
-       qui décalent son fond pour que chacune montre sa part. */
-    function coupe(mx, my, L, H){
-      var parts = [
-        [q.hg, 0,  0,  mx,     my],
-        [q.hd, mx, 0,  L - mx, my],
-        [q.bg, 0,  my, mx,     H - my],
-        [q.bd, mx, my, L - mx, H - my]
-      ];
-      parts.forEach(function(p){
-        var el = p[0];
-        el.style.left = p[1] + 'px';
-        el.style.top = p[2] + 'px';
-        el.style.width = Math.max(p[3], 0) + 'px';
-        el.style.height = Math.max(p[4], 0) + 'px';
-        el.style.backgroundImage = 'url("' + src + '")';
-        el.style.backgroundSize = L + 'px ' + H + 'px';
-        el.style.backgroundPosition = (-p[1]) + 'px ' + (-p[2]) + 'px';
-        el.style.transform = 'scale(1, 1)';
-      });
+  var SOMMET = [
+    'attribute vec2 aPos;',
+    'uniform vec2 uGrab;',      /* le point saisi, en 0..1 */
+    'uniform vec2 uLag;',       /* le retard, en fraction de la taille */
+    'uniform float uRayon;',    /* l etendue de la deformation */
+    'varying vec2 vUV;',
+    'void main(){',
+    '  vUV = aPos;',
+    /* Le point tenu reste sous le doigt, et toute la matière
+       traîne derrière, d'autant plus qu'elle est loin du point
+       saisi : l'étiquette s'étire en entier, des deux côtés. */
+    '  float d = distance(aPos, uGrab) / max(uRayon, 0.0001);',
+    '  float traine = 1.0 - exp(-d * d);',
+    '  vec2 p = aPos - uLag * traine;',
+    '  gl_Position = vec4(p.x * 2.0 - 1.0, 1.0 - p.y * 2.0, 0.0, 1.0);',
+    '}'
+  ].join('\n');
+
+  var FRAGMENT = [
+    'precision mediump float;',
+    'uniform sampler2D uTex;',
+    'varying vec2 vUV;',
+    'void main(){ gl_FragColor = texture2D(uTex, vUV); }'
+  ].join('\n');
+
+  function compile(gl, type, source){
+    var s = gl.createShader(type);
+    gl.shaderSource(s, source); gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(s));
+    return s;
+  }
+
+  /* le maillage : une grille de triangles, en coordonnées 0..1 */
+  function maille(n){
+    var pts = [];
+    for(var j = 0; j < n; j++){
+      for(var i = 0; i < n; i++){
+        var x0 = i / n, x1 = (i + 1) / n, y0 = j / n, y1 = (j + 1) / n;
+        pts.push(x0, y0, x1, y0, x0, y1,  x1, y0, x1, y1, x0, y1);
+      }
+    }
+    return new Float32Array(pts);
+  }
+
+  var lot = [];
+  var terrain = document.getElementById('terrain');
+
+  /* Le clic est jugé sur le dessin, pas sur la boîte : les
+     étiquettes sont des rectangles largement vides, et sans ce
+     tri on attraperait celle du dessus même en cliquant à côté
+     de son dessin. On parcourt donc de la plus haute à la plus
+     basse, et on prend la première dont l'encre est sous le
+     doigt. */
+  terrain.addEventListener('pointermove', function(e){
+    var sur = false;
+    for(var i = lot.length - 1; i >= 0 && !sur; i--) sur = lot[i].surEncre(e.clientX, e.clientY);
+    terrain.style.cursor = sur ? 'grab' : '';
+  });
+
+  terrain.addEventListener('pointerdown', function(e){
+    for(var i = lot.length - 1; i >= 0; i--){
+      if(lot[i].surEncre(e.clientX, e.clientY)){
+        e.preventDefault();
+        lot[i].attrape(e);
+        return;
+      }
+    }
+  });
+
+  document.querySelectorAll('.etiq').forEach(function(etiq){
+    var canvas = document.createElement('canvas');
+    etiq.appendChild(canvas);
+    var gl = canvas.getContext('webgl', { premultipliedAlpha: true, antialias: true });
+    if(!gl){ etiq.textContent = 'WebGL indisponible'; return; }
+
+    var prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, SOMMET));
+    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAGMENT));
+    gl.linkProgram(prog); gl.useProgram(prog);
+
+    var pts = maille(CASES);
+    var buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, pts, gl.STATIC_DRAW);
+    var aPos = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    var uGrab = gl.getUniformLocation(prog, 'uGrab');
+    var uLag = gl.getUniformLocation(prog, 'uLag');
+    var uRayon = gl.getUniformLocation(prog, 'uRayon');
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.clearColor(0, 0, 0, 0);
+
+    var tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    var pret = false, cadre = { marge: 0, ech: 1 }, encre = null;
+
+    /* Le SVG est rastérisé une fois, à deux fois la taille
+       affichée : le filet a besoin d'une image, pas d'un dessin
+       vectoriel.
+
+       Le fichier est lu d'abord comme texte, pour deux raisons.
+       Ses proportions sont dans son viewBox, et rien d'autre :
+       sans largeur ni hauteur déclarées, Safari répond zéro quand
+       on les demande à l'image, et le dessin se perd dans un
+       canevas de taille nulle. On lui écrit donc sa taille en
+       clair avant de l'afficher.
+
+       Un PNG transparent éviterait cette gymnastique, mais il est
+       figé à sa résolution d'export, là où le SVG se rastérise
+       toujours à la taille utile. */
+    function proportions(txt){
+      var vb = txt.match(/viewBox\s*=\s*["']\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)/);
+      if(vb) return parseFloat(vb[1]) / parseFloat(vb[2]);
+      var w = txt.match(/<svg[^>]*\swidth\s*=\s*["']([\d.]+)/),
+          h = txt.match(/<svg[^>]*\sheight\s*=\s*["']([\d.]+)/);
+      return (w && h) ? parseFloat(w[1]) / parseFloat(h[1]) : 1;
     }
 
-    /* L'étirement : le rapport entre la nouvelle position du doigt
-       et celle de la prise donne le facteur de chaque quartier. Les
-       deux quartiers du côté opposé reçoivent le facteur inverse,
-       sinon l'image se déchirerait au point de coupe. */
-    function tire(x, y){
-      var r = bocal.getBoundingClientRect();
-      var nx = Math.max(6, Math.min(x - r.left, r.width - 6));
-      var ny = Math.max(6, Math.min(y - r.top, r.height - 6));
-      var sx = nx / prise.mx, sy = ny / prise.my;
-      var ix = (r.width - nx) / (r.width - prise.mx);
-      var iy = (r.height - ny) / (r.height - prise.my);
-      q.hg.style.transform = 'scale(' + sx + ',' + sy + ')';
-      q.hd.style.transform = 'scale(' + ix + ',' + sy + ')';
-      q.bg.style.transform = 'scale(' + sx + ',' + iy + ')';
-      q.bd.style.transform = 'scale(' + ix + ',' + iy + ')';
-    }
+    fetch(etiq.dataset.src).then(function(r){ return r.text(); }).then(function(txt){
+      var rapport = proportions(txt);
+      var L = etiq.clientWidth;
+      var H = Math.round(L / rapport);
+      etiq.style.height = H + 'px';
 
-    bocal.addEventListener('pointerdown', function(e){
-      e.preventDefault();
-      var r = bocal.getBoundingClientRect();
-      var mx = Math.max(6, Math.min(e.clientX - r.left, r.width - 6));
-      var my = Math.max(6, Math.min(e.clientY - r.top, r.height - 6));
-      prise = { mx: mx, my: my };
-      bocal.classList.remove('repos');
-      bocal.classList.add('tenu');
-      coupe(mx, my, r.width, r.height);
-      bocal.setPointerCapture(e.pointerId);
+      /* la taille écrite en clair dans le fichier servi */
+      var svg = txt.replace(/<svg\b/, '<svg width="' + (L * 2) + '" height="' + (H * 2) + '"');
+      var url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+
+      var img = new Image();
+      img.onload = function(){
+        /* Le dessin traîne hors de sa boîte quand on tire : le
+           canevas est donc plus grand que l'étiquette, avec une
+           marge tout autour, et le dessin est peint au milieu. */
+        var MARGE = .5;
+        var large = Math.round(L * 2 * (1 + MARGE * 2));
+        var haut  = Math.round(H * 2 * (1 + MARGE * 2));
+        canvas.width = large; canvas.height = haut;
+        canvas.style.position = 'absolute';
+        canvas.style.left = (-L * MARGE) + 'px';
+        canvas.style.top = (-H * MARGE) + 'px';
+        canvas.style.width = (L * (1 + MARGE * 2)) + 'px';
+        canvas.style.height = (H * (1 + MARGE * 2)) + 'px';
+
+        var c2 = document.createElement('canvas');
+        c2.width = large; c2.height = haut;
+        c2.getContext('2d').drawImage(img, L * MARGE * 2, H * MARGE * 2, L * 2, H * 2);
+
+        /* La carte de l'encre : le dessin seul, en petit, dont on
+           ne garde que la transparence. Elle sert à juger si le
+           doigt tombe sur le dessin ou sur le vide autour. */
+        var cw = 180, ch = Math.max(1, Math.round(cw / (L / H)));
+        var c3 = document.createElement('canvas');
+        c3.width = cw; c3.height = ch;
+        c3.getContext('2d').drawImage(img, 0, 0, cw, ch);
+        try{
+          var px = c3.getContext('2d').getImageData(0, 0, cw, ch).data;
+          encre = { w: cw, h: ch, a: new Uint8Array(cw * ch) };
+          for(var n = 0; n < cw * ch; n++) encre.a[n] = px[n * 4 + 3];
+        }catch(err){ encre = null; }
+        URL.revokeObjectURL(url);
+
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c2);
+        gl.viewport(0, 0, large, haut);
+        cadre = { marge: MARGE, ech: 1 / (1 + MARGE * 2) };
+        pret = true;
+        dessine();
+      };
+      img.onerror = function(){ etiq.textContent = 'image illisible'; };
+      img.src = url;
     });
 
-    bocal.addEventListener('pointermove', function(e){
-      if(prise) tire(e.clientX, e.clientY);
+    function dessine(){
+      if(!pret) return;
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      /* passage du repère de l'étiquette à celui du canevas */
+      gl.uniform2f(uGrab, (gel.gx + cadre.marge) * cadre.ech, (gel.gy + cadre.marge) * cadre.ech);
+      gl.uniform2f(uLag, gel.x * cadre.ech, gel.y * cadre.ech);
+      gl.uniform1f(uRayon, R.rayon);
+      gl.drawArrays(gl.TRIANGLES, 0, pts.length / 2);
+    }
+
+    /* l'état : la position de l'étiquette, le point saisi, et le
+       retard porté par un ressort */
+    var pos = { x: 0, y: 0 };
+    var gel = { gx: .5, gy: .5, x: 0, y: 0, vx: 0, vy: 0 };
+    var prise = null, suivi = { x: 0, y: 0 }, vise = { x: 0, y: 0 }, boucle = null;
+
+    function borne(v, m, M){ return Math.max(m, Math.min(M, v)); }
+    function ressort(v, vit, cible){
+      vit = (vit + (cible - v) * R.raideur) * R.amorti;
+      return [v + vit, vit];
+    }
+
+    function tourne(){
+      boucle = null;
+      var cx = 0, cy = 0;
+      if(prise){
+        var ex = vise.x - suivi.x, ey = vise.y - suivi.y;
+        suivi.x += ex * .30; suivi.y += ey * .30;
+        pos.x = prise.px + (suivi.x - prise.x);
+        pos.y = prise.py + (suivi.y - prise.y);
+        etiq.style.transform = 'translate(' + pos.x + 'px,' + pos.y + 'px)';
+        /* le retard, ramené en fraction de l'étiquette */
+        cx = borne(ex / etiq.clientWidth * R.gain, -.75, .75);
+        cy = borne(ey / etiq.clientHeight * R.gain, -.75, .75);
+      }
+      if(prise){
+        /* Sous la main, la déformation colle au geste : pas de
+           ressort, sinon l'étiquette ballotte pendant qu'on la
+           tire. On garde quand même la variation d'une image à
+           l'autre : elle servira d'élan au moment du lâcher. */
+        gel.vx = cx - gel.x; gel.vy = cy - gel.y;
+        gel.x = cx; gel.y = cy;
+      } else {
+        /* Lâchée, elle revient au repos par un ressort : il
+           dépasse, revient, redépasse moins loin. C'est là, et là
+           seulement, que la gélatine tremble. */
+        var r;
+        r = ressort(gel.x, gel.vx, 0); gel.x = r[0]; gel.vx = r[1];
+        r = ressort(gel.y, gel.vy, 0); gel.y = r[0]; gel.vy = r[1];
+      }
+      dessine();
+
+      var dort = !prise &&
+        Math.abs(gel.x) < .0006 && Math.abs(gel.y) < .0006 &&
+        Math.abs(gel.vx) < .0006 && Math.abs(gel.vy) < .0006;
+      if(dort){ gel.x = gel.y = gel.vx = gel.vy = 0; dessine(); }
+      else boucle = requestAnimationFrame(tourne);
+    }
+
+    /* le doigt tombe-t-il sur le dessin ? */
+    function surEncre(x, y){
+      if(!pret) return false;
+      var b = etiq.getBoundingClientRect();
+      if(x < b.left || x > b.right || y < b.top || y > b.bottom) return false;
+      if(!encre) return true;
+      var i = Math.floor((x - b.left) / b.width * encre.w);
+      var j = Math.floor((y - b.top) / b.height * encre.h);
+      if(i < 0 || j < 0 || i >= encre.w || j >= encre.h) return false;
+      return encre.a[j * encre.w + i] > 24;
+    }
+
+    function attrape(e){
+      var b = etiq.getBoundingClientRect();
+      gel.gx = borne((e.clientX - b.left) / b.width, 0, 1);
+      gel.gy = borne((e.clientY - b.top) / b.height, 0, 1);
+      prise = { x: e.clientX, y: e.clientY, px: pos.x, py: pos.y };
+      vise.x = suivi.x = e.clientX; vise.y = suivi.y = e.clientY;
+      etiq.parentNode.appendChild(etiq);     /* au premier plan */
+      if(!boucle) boucle = requestAnimationFrame(tourne);
+    }
+
+    /* la liste des étiquettes, pour que le terrain choisisse
+       laquelle est sous le doigt */
+    lot.push({ el: etiq, surEncre: surEncre, attrape: attrape });
+
+    /* Le suivi se fait sur la fenêtre : la boîte de l'étiquette
+       n'intercepte plus rien, c'est le terrain qui décide de la
+       prise, et le geste doit continuer même en sortant du
+       dessin. */
+    window.addEventListener('pointermove', function(e){
+      if(prise){ vise.x = e.clientX; vise.y = e.clientY; }
     });
 
     function lache(){
       if(!prise) return;
       prise = null;
-      bocal.classList.add('repos');
-      /* une fois les quartiers revenus, on remontre l'image entière */
-      setTimeout(function(){
-        bocal.classList.remove('tenu', 'repos');
-      }, 560);
+      if(!boucle) boucle = requestAnimationFrame(tourne);
     }
-    bocal.addEventListener('pointerup', lache);
-    bocal.addEventListener('pointercancel', lache);
+    window.addEventListener('pointerup', lache);
+    window.addEventListener('pointercancel', lache);
   });
 })();
 </script>

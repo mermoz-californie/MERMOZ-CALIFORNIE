@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Démo gélatine</title>
+<style>
+/* ============================================================
+   DÉMO : DEUX ÉTIQUETTES EN GÉLATINE
+
+   Terrain d'essai avant de porter l'effet dans index3.html.
+
+   Attrape une étiquette et déplace-la. Elle se déforme à
+   l'endroit exact où tu l'as prise : son dessin est découpé en
+   quatre à ce point, chaque quartier étant ancré par son coin
+   extérieur. Les bords ne bougent donc pas, seule la matière
+   entre le bord et le point saisi s'étire.
+
+   Les réglages sont en haut du script, et les trois molettes
+   sont aussi sur la page pour essayer en direct.
+
+   Le nom commence par un tiret bas : GitHub Pages ignore ces
+   fichiers, la démo ne sera jamais publiée.
+   ============================================================ */
+:root{
+  --noir:  #222221;
+  --blanc: #E0DFD9;
+  --vert:  #4AD66D;
+  --filet: rgba(224, 223, 217, .16);
+}
+*{ box-sizing: border-box; }
+html, body{ height: 100%; }
+body{
+  margin: 0;
+  background: var(--noir); color: var(--blanc);
+  font: 500 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.tete{
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  padding: 16px 22px; border-bottom: 1px solid var(--filet);
+}
+.tete h1{
+  font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+  margin: 0; font-weight: 600;
+}
+.tete p{ margin: 0; color: rgba(224,223,217,.55); }
+
+/* les molettes */
+.reglages{
+  display: flex; gap: 22px; flex-wrap: wrap;
+  padding: 12px 22px; border-bottom: 1px solid var(--filet);
+}
+.reglage{ display: flex; align-items: center; gap: 10px; }
+.reglage label{
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(224,223,217,.55);
+}
+.reglage output{ font-variant-numeric: tabular-nums; min-width: 3.2em; }
+input[type=range]{ accent-color: var(--vert); width: 130px; }
+
+/* le terrain */
+.terrain{ position: relative; flex: 1; overflow: hidden; }
+
+/* une étiquette : la boîte se déplace, le dessin se déforme */
+.etiq{
+  position: absolute;
+  width: clamp(200px, 26vw, 340px);
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  will-change: transform;
+}
+.etiq:active{ cursor: grabbing; }
+.etiq__img{
+  position: relative;
+  width: 100%;
+  background: center / contain no-repeat var(--src);
+}
+.etiq.coupe .etiq__img{ background-image: none; }
+.q{
+  position: absolute;
+  background-repeat: no-repeat;
+  backface-visibility: hidden;
+  will-change: transform;
+  display: none;
+}
+.etiq.coupe .q{ display: block; }
+.hg{ transform-origin: left top; }
+.hd{ transform-origin: right top; }
+.bg{ transform-origin: left bottom; }
+.bd{ transform-origin: right bottom; }
+</style>
+</head>
+<body>
+
+<div class="tete">
+  <h1>Deux étiquettes en gélatine</h1>
+  <p>Attrape, déplace, lâche. La déformation part du point saisi, et l'étiquette reste sous le doigt.</p>
+</div>
+
+<div class="reglages">
+  <div class="reglage">
+    <label for="gain">Pincement</label>
+    <input id="gain" type="range" min="0" max="3" step=".05" value="1.35">
+    <output id="gainV">1.35</output>
+  </div>
+  <div class="reglage">
+    <label for="raideur">Raideur</label>
+    <input id="raideur" type="range" min=".05" max=".4" step=".01" value="0.17">
+    <output id="raideurV">0.17</output>
+  </div>
+  <div class="reglage">
+    <label for="amorti">Rebonds</label>
+    <input id="amorti" type="range" min=".6" max=".95" step=".01" value="0.78">
+    <output id="amortiV">0.78</output>
+  </div>
+</div>
+
+<div class="terrain" id="terrain">
+  <div class="etiq" data-src="assets/pastilles/1.svg" data-ratio="301.49/111" style="left: 6%; top: 18%;">
+    <div class="etiq__img"></div>
+  </div>
+  <div class="etiq" data-src="assets/autres_pastilles/contact.svg" data-ratio="1" style="left: 52%; top: 26%;">
+    <div class="etiq__img"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* les trois molettes */
+  var R = { gain: 1.35, raideur: .17, amorti: .78 };
+  ['gain', 'raideur', 'amorti'].forEach(function(nom){
+    var curseur = document.getElementById(nom), sortie = document.getElementById(nom + 'V');
+    curseur.addEventListener('input', function(){
+      R[nom] = parseFloat(curseur.value);
+      sortie.textContent = curseur.value;
+    });
+  });
+
+  var terrain = document.getElementById('terrain');
+
+  document.querySelectorAll('.etiq').forEach(function(etiq){
+    var src = 'url("' + etiq.dataset.src + '")';
+    var img = etiq.querySelector('.etiq__img');
+    img.style.setProperty('--src', src);
+    img.style.aspectRatio = etiq.dataset.ratio;
+
+    /* les quatre quartiers, créés une fois pour toutes */
+    var qs = ['hg', 'hd', 'bg', 'bd'].map(function(nom){
+      var el = document.createElement('i');
+      el.className = 'q ' + nom;
+      img.appendChild(el);
+      return el;
+    });
+
+    /* l'état : la position de l'étiquette, et le retard qui la
+       déforme. Le retard est porté par un ressort : une valeur qui
+       ne se pose jamais du premier coup sur sa cible, elle la
+       dépasse, revient, redépasse moins loin. */
+    var pos = { x: 0, y: 0 };
+    var gel = { x: 0, y: 0, vx: 0, vy: 0, mx: 0, my: 0, L: 0, H: 0 };
+    var prise = null, suivi = { x: 0, y: 0 }, vise = { x: 0, y: 0 }, boucle = null;
+
+    function borne(v, mini, maxi){ return Math.max(mini, Math.min(maxi, v)); }
+
+    /* le découpage au point saisi */
+    function decoupe(){
+      var boites = [
+        [0,       0,       gel.mx,          gel.my],
+        [gel.mx,  0,       gel.L - gel.mx,  gel.my],
+        [0,       gel.my,  gel.mx,          gel.H - gel.my],
+        [gel.mx,  gel.my,  gel.L - gel.mx,  gel.H - gel.my]
+      ];
+      boites.forEach(function(b, k){
+        var el = qs[k];
+        el.style.left = b[0] + 'px';
+        el.style.top = b[1] + 'px';
+        el.style.width = Math.max(b[2], 1) + 'px';
+        el.style.height = Math.max(b[3], 1) + 'px';
+        el.style.backgroundImage = src;
+        el.style.backgroundSize = gel.L + 'px ' + gel.H + 'px';
+        el.style.backgroundPosition = (-b[0]) + 'px ' + (-b[1]) + 'px';
+      });
+    }
+
+    /* le point de coupe se déplace, les coins restent : les quatre
+       facteurs en découlent */
+    function pose(){
+      var g  = borne((gel.mx + gel.x) / gel.mx, .3, 2.6);
+      var d  = borne((gel.L - gel.mx - gel.x) / (gel.L - gel.mx), .3, 2.6);
+      var h  = borne((gel.my + gel.y) / gel.my, .3, 2.6);
+      var b  = borne((gel.H - gel.my - gel.y) / (gel.H - gel.my), .3, 2.6);
+      qs[0].style.transform = 'scale(' + g.toFixed(4) + ',' + h.toFixed(4) + ')';
+      qs[1].style.transform = 'scale(' + d.toFixed(4) + ',' + h.toFixed(4) + ')';
+      qs[2].style.transform = 'scale(' + g.toFixed(4) + ',' + b.toFixed(4) + ')';
+      qs[3].style.transform = 'scale(' + d.toFixed(4) + ',' + b.toFixed(4) + ')';
+    }
+
+    function place(){
+      etiq.style.transform = 'translate(' + pos.x + 'px,' + pos.y + 'px)';
+    }
+
+    function ressort(valeur, vitesse, cible){
+      vitesse = (vitesse + (cible - valeur) * R.raideur) * R.amorti;
+      return [valeur + vitesse, vitesse];
+    }
+
+    function tourne(){
+      boucle = null;
+      var cx = 0, cy = 0;
+
+      if(prise){
+        /* l'étiquette court après le doigt : l'écart entre les deux
+           est le retard, et c'est lui qui déforme */
+        var ex = vise.x - suivi.x, ey = vise.y - suivi.y;
+        suivi.x += ex * .30; suivi.y += ey * .30;
+        pos.x = prise.px + (suivi.x - prise.x);
+        pos.y = prise.py + (suivi.y - prise.y);
+        place();
+        cx = borne(ex * R.gain, -gel.L * .45, gel.L * .45);
+        cy = borne(ey * R.gain, -gel.H * .45, gel.H * .45);
+      }
+
+      var r;
+      r = ressort(gel.x, gel.vx, cx); gel.x = r[0]; gel.vx = r[1];
+      r = ressort(gel.y, gel.vy, cy); gel.y = r[0]; gel.vy = r[1];
+      pose();
+
+      var dort = !prise &&
+        Math.abs(gel.x) < .4 && Math.abs(gel.y) < .4 &&
+        Math.abs(gel.vx) < .4 && Math.abs(gel.vy) < .4;
+
+      if(dort){
+        gel.x = gel.y = gel.vx = gel.vy = 0;
+        pose();
+        etiq.classList.remove('coupe');
+      } else {
+        boucle = requestAnimationFrame(tourne);
+      }
+    }
+
+    etiq.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      var b = img.getBoundingClientRect();
+      gel.L = img.offsetWidth; gel.H = img.offsetHeight;
+      gel.mx = borne(e.clientX - b.left, gel.L * .12, gel.L * .88);
+      gel.my = borne(e.clientY - b.top,  gel.H * .12, gel.H * .88);
+      gel.x = gel.y = gel.vx = gel.vy = 0;
+      prise = { x: e.clientX, y: e.clientY, px: pos.x, py: pos.y };
+      vise.x = suivi.x = e.clientX; vise.y = suivi.y = e.clientY;
+      etiq.classList.add('coupe');
+      decoupe();
+      /* la pincée de la prise */
+      gel.vx = gel.L * .012; gel.vy = gel.H * .008;
+      etiq.parentNode.appendChild(etiq);   /* au premier plan */
+      try{ etiq.setPointerCapture(e.pointerId); }catch(err){}
+      if(!boucle) boucle = requestAnimationFrame(tourne);
+    });
+
+    etiq.addEventListener('pointermove', function(e){
+      if(prise){ vise.x = e.clientX; vise.y = e.clientY; }
+    });
+
+    function lache(){
+      if(!prise) return;
+      prise = null;
+      if(!boucle) boucle = requestAnimationFrame(tourne);
+    }
+    etiq.addEventListener('pointerup', lache);
+    etiq.addEventListener('pointercancel', lache);
+  });
+})();
+</script>
+</body>
+</html>
