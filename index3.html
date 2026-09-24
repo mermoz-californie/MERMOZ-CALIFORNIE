@@ -108,6 +108,41 @@ body{
 }
 
 a{ color: inherit; text-decoration: none; }
+
+/* ============================================================
+   LE CURSEUR
+
+   Repris de index.html : un point qui colle au pointeur, un
+   anneau qui le suit avec du retard. Les deux sont peints en
+   différence, donc ils s'inversent sur ce qu'ils survolent et
+   restent visibles sur le noir comme sur les pastilles claires.
+
+   Le curseur du système est masqué, sauf sur téléphone, où il
+   n'y a pas de pointeur et où ces deux ronds ne serviraient à
+   rien. Un visiteur au clavier ou à l'écran tactile n'est donc
+   jamais privé de repère. */
+body{ cursor: none; }
+#curseur, #curseur-anneau{
+  position: fixed; left: 0; top: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+}
+#curseur{
+  width: 8px; height: 8px;
+  background: var(--blanc);
+  z-index: 9999;
+}
+#curseur-anneau{
+  width: 36px; height: 36px;
+  border: 1px solid var(--blanc);
+  z-index: 9998;
+}
+@media (max-width: 768px), (pointer: coarse){
+  #curseur, #curseur-anneau{ display: none; }
+  body{ cursor: auto; }
+}
 :focus-visible{ outline: 1.5px solid var(--rose); outline-offset: 4px; }
 /* La sélection : surlignage rose, texte en noir, quel que soit
    le texte sélectionné. ::selection ne s'hérite pas, d'où le
@@ -1131,6 +1166,9 @@ a{ color: inherit; text-decoration: none; }
 <body>
 
 <!-- ============================ EN-TÊTE ============================ -->
+<div id="curseur" aria-hidden="true"></div>
+<div id="curseur-anneau" aria-hidden="true"></div>
+
 <header class="top">
   <a class="top__logo" href="#top">Mermoz <span class="top__l2">Californie<sup>®</sup></span></a>
   <span class="top__tag">Studio de création</span>
@@ -1209,6 +1247,35 @@ a{ color: inherit; text-decoration: none; }
 <footer class="footmark"><span class="footmark__in">Mermoz Californie<sup>&reg;</sup></span></footer>
 
 <script>
+/* ============================================================
+   LE CURSEUR
+
+   Le point suit le pointeur au pixel près, l'anneau rattrape un
+   dixième de son retard à chaque image : c'est ce décalage qui
+   donne la souplesse. Rien ne tourne tant que la souris n'a pas
+   bougé une première fois.
+   ============================================================ */
+(function(){
+  "use strict";
+  if(matchMedia('(pointer: coarse)').matches) return;
+  var point = document.getElementById('curseur');
+  var anneau = document.getElementById('curseur-anneau');
+  if(!point || !anneau) return;
+  var mx = 0, my = 0, ax = 0, ay = 0, lance = false;
+
+  document.addEventListener('mousemove', function(e){
+    mx = e.clientX; my = e.clientY;
+    if(!lance){ ax = mx; ay = my; lance = true; tourne(); }
+  });
+
+  function tourne(){
+    point.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%, -50%)';
+    ax += (mx - ax) * .1; ay += (my - ay) * .1;
+    anneau.style.transform = 'translate(' + ax + 'px,' + ay + 'px) translate(-50%, -50%)';
+    requestAnimationFrame(tourne);
+  }
+})();
+
 (function(){
   "use strict";
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1970,7 +2037,7 @@ a{ color: inherit; text-decoration: none; }
 
        Les quatre réglages ont été trouvés sur la démo
        _demo-gelatine.html, qui sert de banc d'essai. */
-    var PINCEMENT = 1.9;   /* combien le retard déforme */
+    var PINCEMENT = .55;   /* combien le retard déforme */
     var ETENDUE   = .44;   /* la portée autour du point saisi */
     var RAIDEUR   = .05;   /* la vivacité du retour, au lâcher */
     var REBONDS   = .85;   /* l'amortissement : plus haut, plus ça gigote */
@@ -2145,12 +2212,19 @@ a{ color: inherit; text-decoration: none; }
            qu'on voyait sur les gestes très rapides. Le seuil vaut
            la portée de la déformation, elle-même proportionnelle
            au dessin. */
-        /* Le plafond reste loin du seuil de repli. À .66 on
-           tombait pile dessus : le filet se croisait par endroits,
-           d'où les pointes et les cassures. */
-        var plafond = ETENDUE * Math.max(gel.taille, .05) * .34;
-        cx = Math.max(-plafond, Math.min(plafond, ex / b.width * PINCEMENT));
-        cy = Math.max(-plafond, Math.min(plafond, ey / b.height * PINCEMENT));
+        /* Le plafond du retard, en deçà du seuil de repli : au-delà
+           de ce seuil deux points voisins du filet se croisent, et
+           le dessin se referme sur lui-même.
+
+           L'approche est progressive et non brutale : un butoir net
+           collait la déformation à sa valeur maximale pendant tout
+           le geste, et la pastille semblait figée déformée. Ici
+           elle s'en approche sans jamais l'atteindre, donc elle
+           continue de répondre à la main. */
+        var plafond = ETENDUE * Math.max(gel.taille, .05) * .60;
+        var doux = function(v){ return plafond * Math.tanh(v / plafond); };
+        cx = doux(ex / b.width * PINCEMENT);
+        cy = doux(ey / b.height * PINCEMENT);
       }
 
       if(prise && prise.i === i){
