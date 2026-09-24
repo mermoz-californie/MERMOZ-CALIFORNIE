@@ -794,21 +794,7 @@ a{ color: inherit; text-decoration: none; }
    geste : le calque interne s'allonge d'un côté et s'amincit de
    l'autre, les deux variables étant écrites par le script. Le
    mouvement de repos est coupé, il se battrait avec celui-ci. */
-.stage .p.prise::after{
-  animation: none;
-  transform: scale(var(--sx, 1), var(--sy, 1)) rotate(var(--rot, 0deg));
-  transition: transform 90ms ease-out;
-}
-/* Au lâcher, elle tremblote et se repose. */
-.stage .p.gelee::after{ animation: gelee .62s var(--ease) 1; }
-@keyframes gelee{
-  0%   { transform: scale(1.13, .88); }
-  28%  { transform: scale(.93, 1.08); }
-  52%  { transform: scale(1.05, .965); }
-  72%  { transform: scale(.98, 1.018); }
-  88%  { transform: scale(1.008, .994); }
-  100% { transform: scale(1, 1); }
-}
+
 .stage .p:nth-child(4n+1)::after{ animation: gelatine  5.2s var(--ease) infinite; }
 .stage .p:nth-child(4n+2)::after{ animation: balancier 6.4s var(--ease) infinite; }
 .stage .p:nth-child(4n+3)::after{ animation: pompe     4.6s ease-in-out infinite; }
@@ -828,6 +814,20 @@ a{ color: inherit; text-decoration: none; }
 .stage .p:nth-child(12)::after{ animation-delay: 1300ms; }
 .stage .p:nth-child(13)::after{ animation-delay: 3000ms; }
 .stage .p:nth-child(14)::after{ animation-delay: 1900ms; }
+
+.stage .p.prise::after,
+.stage .p.gelee::after{
+  animation: none;
+  transform: scale(var(--sx, 1), var(--sy, 1)) rotate(var(--rot, 0deg));
+}
+/* Le script relève la déformation en cours avant de couper le
+   mouvement de repos, et la réécrit dans --sx et --sy : la
+   pastille reprend exactement où elle en était, sans à-coup. */
+.stage .p.prise::after{ transition: transform 110ms ease-out; }
+/* Au lâcher, elle revient au repos en dépassant puis en
+   revenant : c'est la courbe qui fait la gélatine, pas une
+   animation à part, donc aucun saut au raccord. */
+.stage .p.gelee::after{ transition: transform .62s cubic-bezier(.18, 1.6, .32, 1); }
 .stage.sequence .p{ visibility: hidden; }
 .stage.sequence .p.vu{ visibility: visible; }
 
@@ -1890,8 +1890,7 @@ a{ color: inherit; text-decoration: none; }
       sheets[i].style.zIndex = ++sommet;
       prise = { i: i, x: e.clientX, y: e.clientY, ox: off[i].x, oy: off[i].y };
       if(telephone.matches) zoome(i, TENUE);
-      sheets[i].classList.remove('gelee');
-      sheets[i].classList.add('prise');
+      fige(i);
       dernier = { x: e.clientX, y: e.clientY, t: performance.now() };
       try{ stage.setPointerCapture(e.pointerId); }catch(err){}
       stage.style.cursor = 'grabbing';
@@ -1918,6 +1917,36 @@ a{ color: inherit; text-decoration: none; }
        qu'on tire : le volume a l'air conservé. Plafonné à 18 %,
        au-delà le dessin se déforme trop pour rester lisible. */
     var dernier = null;
+
+    /* Geler le mouvement de repos sans à-coup : on lit la
+       déformation de l'instant dans la matrice du calque interne,
+       on la recopie dans les variables, puis on coupe l'animation.
+       La valeur affichée ne change pas d'un cheveu. */
+    function fige(i){
+      var el = sheets[i];
+      var m = getComputedStyle(el, '::after').transform;
+      var sx = 1, sy = 1, rot = 0;
+      var n = m && m.match(/matrix\(([^)]+)\)/);
+      if(n){
+        var v = n[1].split(',').map(parseFloat);
+        sx = Math.sqrt(v[0] * v[0] + v[1] * v[1]) || 1;
+        sy = Math.sqrt(v[2] * v[2] + v[3] * v[3]) || 1;
+        rot = Math.atan2(v[1], v[0]) * 180 / Math.PI;
+      }
+      el.classList.remove('gelee');
+      el.style.setProperty('--sx', sx.toFixed(3));
+      el.style.setProperty('--sy', sy.toFixed(3));
+      el.style.setProperty('--rot', rot.toFixed(2) + 'deg');
+      el.classList.add('prise');
+      /* une pincée à la prise, pour qu'on sente qu'on la tient */
+      requestAnimationFrame(function(){
+        if(prise && prise.i === i){
+          el.style.setProperty('--sx', (sx * 1.06).toFixed(3));
+          el.style.setProperty('--sy', (sy * .95).toFixed(3));
+        }
+      });
+    }
+
     function etire(i, x, y){
       var t = performance.now();
       if(!dernier){ dernier = { x: x, y: y, t: t }; return; }
@@ -1941,13 +1970,20 @@ a{ color: inherit; text-decoration: none; }
       if(!prise) return;
       var i = prise.i, el = sheets[i];
       if(zoom[i] !== 1) zoome(i, 1);
-      /* retour au repos : la gelée part de l'état étiré et s'amortit */
+      /* retour au repos : les variables reviennent à 1, la courbe
+         élastique fait le tremblement, puis le mouvement de repos
+         reprend à son point zéro, qui vaut lui aussi 1 */
       el.classList.remove('prise');
-      el.style.removeProperty('--sx');
-      el.style.removeProperty('--sy');
-      el.style.removeProperty('--rot');
       el.classList.add('gelee');
-      setTimeout(function(){ el.classList.remove('gelee'); }, 640);
+      el.style.setProperty('--sx', '1');
+      el.style.setProperty('--sy', '1');
+      el.style.setProperty('--rot', '0deg');
+      setTimeout(function(){
+        el.classList.remove('gelee');
+        el.style.removeProperty('--sx');
+        el.style.removeProperty('--sy');
+        el.style.removeProperty('--rot');
+      }, 660);
       dernier = null;
       prise = null;
       stage.style.cursor = '';
