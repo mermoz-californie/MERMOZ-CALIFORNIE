@@ -355,7 +355,12 @@ body{ cursor: none; }
      vers le bord de la fenêtre sans se resserrer sous le texte. */
   padding: clamp(9px, 1.1vw, 17px) var(--edge) clamp(16px, 1.9vw, 28px);
   background: var(--noir);
+  /* En descendant, le bandeau se retire par le haut ; en remontant,
+     il revient. La transition porte sur translate seul : le bandeau
+     ne disparaît pas d'un coup, il glisse. */
+  transition: translate var(--mid) var(--ease);
 }
+.top.partie{ translate: 0 -110%; }
 .top__logo{
   font-family: var(--object);   /* v3 */
   font-weight: 700;
@@ -1046,11 +1051,11 @@ body{ cursor: none; }
     padding-inline: 8px;
   }
   /* l'adresse tient sur une seule ligne : le bouton fait ~96 % de l'écran */
-  .contact__mail{ font-size: min(5.6vw, 30px); white-space: nowrap; }
+  .contact__mail{ font-size: min(4.7vw, 26px); white-space: nowrap; }
   .contact__pastille{
-    width: 3.63em;
-    right: calc(15% - 1.815em);
-    bottom: 1.395em;
+    width: 3.20em;
+    right: calc(15% - 1.6em);
+    bottom: 1.30em;
   }
 }
 
@@ -1236,6 +1241,48 @@ body{ cursor: none; }
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(montre);
   else montre();
   setTimeout(montre, 2000);   /* filet : jamais de page vide */
+})();
+</script>
+
+<script>
+/* ============================================================
+   L'EN-TÊTE QUI S'EFFACE
+
+   On descend : le bandeau du haut se retire par le haut, et la
+   page reste seule. On remonte : il revient.
+
+   Deux précautions. Un seuil, pour qu'il ne parte pas au premier
+   pixel et ne clignote pas sur les petites secousses. Et un
+   retour immédiat dès qu'on revient tout en haut, sans quoi il
+   resterait caché sur un bond de défilement.
+   ============================================================ */
+(function demarre(){
+  "use strict";
+  /* ce script est placé avant l'en-tête dans la page : on attend
+     donc que le document soit construit pour aller le chercher */
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', demarre);
+    return;
+  }
+  var top = document.querySelector('.top');
+  if(!top) return;
+  var SEUIL = 90;     /* en deçà, le bandeau reste toujours là */
+  var JEU = 6;        /* secousse ignorée */
+  var precedent = window.scrollY, attente = false;
+
+  function lis(){
+    attente = false;
+    var y = window.scrollY;
+    var ecart = y - precedent;
+    if(Math.abs(ecart) < JEU) return;
+    if(y <= SEUIL) top.classList.remove('partie');
+    else top.classList.toggle('partie', ecart > 0);
+    precedent = y;
+  }
+
+  window.addEventListener('scroll', function(){
+    if(!attente){ attente = true; requestAnimationFrame(lis); }
+  }, { passive: true });
 })();
 </script>
 
@@ -1633,7 +1680,21 @@ body{ cursor: none; }
     });
   }, { rootMargin: '0px 0px -12% 0px', threshold: 0 });
 
-  targets.forEach(function(el){ io.observe(el); });
+  /* Le logotype de pied de page échappe à cette bande morte.
+
+     Il est bas et collé au bas de la page : sur téléphone, il tient
+     tout entier dans les douze pour cent ignorés, si bien qu'il
+     n'était jamais déclenché et restait sous son masque. Il a donc
+     son propre observateur, qui regarde l'écran entier. */
+  var ioBas = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      e.target.classList.toggle('in', e.isIntersecting);
+    });
+  }, { rootMargin: '0px', threshold: 0 });
+
+  targets.forEach(function(el){
+    (el.classList.contains('footmark') ? ioBas : io).observe(el);
+  });
 
   /* le filet de chaque ligne se tire en même temps que son titre */
   var lines = document.querySelectorAll('.craft li');
