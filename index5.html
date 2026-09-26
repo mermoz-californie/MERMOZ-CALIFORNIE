@@ -1066,9 +1066,21 @@ body{ cursor: none; }
    vw, ajusté au tracking.
    ============================================================ */
 .footmark{
+  /* Le logotype du bas est fixe, comme celui du haut : les deux se
+     relaient selon le sens du geste. En descendant, celui du haut
+     part et celui du bas arrive ; en remontant, l'inverse.
+
+     La page reçoit en bas une marge de la hauteur du logotype,
+     posée par le script : sans elle, le dernier bloc passerait
+     dessous. */
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 49;
   padding: 0 var(--edge) clamp(8px, 1.1vw, 18px);
   overflow: hidden;
+  background: var(--noir);
+  translate: 0 110%;
+  transition: translate var(--mid) var(--ease);
 }
+.footmark.venue{ translate: 0 0; }
 .footmark__in{
   display: inline-block;
   white-space: nowrap;
@@ -1266,23 +1278,36 @@ body{ cursor: none; }
   }
   var top = document.querySelector('.top');
   if(!top) return;
-  var SEUIL = 90;     /* en deçà, le bandeau reste toujours là */
+  var bas = document.querySelector('.footmark');
+  var SEUIL = 90;     /* en deçà, le bandeau du haut reste toujours là */
   var JEU = 6;        /* secousse ignorée */
-  var precedent = window.scrollY, attente = false;
+  var precedent = window.scrollY;
+
+  /* la page se réserve en bas la place du logotype fixe */
+  function marge(){
+    if(bas) document.body.style.paddingBottom = bas.offsetHeight + 'px';
+  }
+  marge();
+  window.addEventListener('resize', marge);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(marge);
+
+  function montre(descend){
+    top.classList.toggle('partie', descend);
+    if(bas) bas.classList.toggle('venue', descend);
+  }
 
   function lis(){
-    attente = false;
     var y = window.scrollY;
     var ecart = y - precedent;
     if(Math.abs(ecart) < JEU) return;
-    if(y <= SEUIL) top.classList.remove('partie');
-    else top.classList.toggle('partie', ecart > 0);
+    /* tout en haut, c'est toujours le logotype du haut */
+    montre(y > SEUIL && ecart > 0);
     precedent = y;
   }
 
-  window.addEventListener('scroll', function(){
-    if(!attente){ attente = true; requestAnimationFrame(lis); }
-  }, { passive: true });
+  /* Pas d'attente d'image ici : deux classes à basculer ne coûtent
+     rien, et le bandeau répond alors au geste sans retard. */
+  window.addEventListener('scroll', lis, { passive: true });
 })();
 </script>
 
