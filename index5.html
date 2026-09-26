@@ -355,12 +355,7 @@ body{ cursor: none; }
      vers le bord de la fenêtre sans se resserrer sous le texte. */
   padding: clamp(9px, 1.1vw, 17px) var(--edge) clamp(16px, 1.9vw, 28px);
   background: var(--noir);
-  /* En descendant, le bandeau se retire par le haut ; en remontant,
-     il revient. La transition porte sur translate seul : le bandeau
-     ne disparaît pas d'un coup, il glisse. */
-  transition: translate var(--mid) var(--ease);
 }
-.top.partie{ translate: 0 -110%; }
 .top__logo{
   font-family: var(--object);   /* v3 */
   font-weight: 700;
@@ -374,7 +369,7 @@ body{ cursor: none; }
   font-weight: 500;
   /* v3 : remonté au-dessus du sommet des capitales */
   position: relative;
-  top: -.22em;
+  top: -.14em;   /* v5 : redescendu très légèrement, sur ordinateur */
 }
 .top__tag{
   font-family: var(--sf);
@@ -1066,21 +1061,11 @@ body{ cursor: none; }
    vw, ajusté au tracking.
    ============================================================ */
 .footmark{
-  /* Le logotype du bas est fixe, comme celui du haut : les deux se
-     relaient selon le sens du geste. En descendant, celui du haut
-     part et celui du bas arrive ; en remontant, l'inverse.
-
-     La page reçoit en bas une marge de la hauteur du logotype,
-     posée par le script : sans elle, le dernier bloc passerait
-     dessous. */
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 49;
-  padding: 0 var(--edge) clamp(8px, 1.1vw, 18px);
+  /* la marge du haut laisse passer le ® relevé, que le cadre qui
+     coupe rognerait sans elle */
+  padding: clamp(6px, .6vw, 12px) var(--edge) clamp(8px, 1.1vw, 18px);
   overflow: hidden;
-  background: var(--noir);
-  translate: 0 110%;
-  transition: translate var(--mid) var(--ease);
 }
-.footmark.venue{ translate: 0 0; }
 .footmark__in{
   display: inline-block;
   white-space: nowrap;
@@ -1103,7 +1088,7 @@ body{ cursor: none; }
      au dernier fût. */
   vertical-align: super;
   position: relative;
-  top: -.52em;   /* v3 : remonté */
+  top: -.78em;   /* v3 : remonté, sans sortir du cadre qui coupe */
   left: .1em;
 }
 
@@ -1134,6 +1119,28 @@ body{ cursor: none; }
 
   .contact{ padding-bottom: 56px; }
 
+  /* LE RELAIS DES DEUX LOGOTYPES, SUR TÉLÉPHONE SEULEMENT
+
+     On descend : celui du haut se retire par le haut, celui du bas
+     arrive. On remonte : l'inverse. Les deux sont donc fixes, et la
+     page se réserve en bas la hauteur du second, posée par le
+     script, sans quoi le dernier bloc passerait dessous.
+
+     Sur ordinateur, rien de tout ça : le bandeau reste en place et
+     le logotype du bas garde sa place en fin de page. */
+  .top{ transition: translate var(--mid) var(--ease); }
+  .top.partie{ translate: 0 -110%; }
+  .footmark{
+    /* le ® remonte au-dessus des capitales : quelques pixels de
+       marge en haut, sinon le cadre qui coupe le rogne */
+    padding-top: 9px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 49;
+    background: var(--noir);
+    translate: 0 110%;
+    transition: translate var(--mid) var(--ease);
+  }
+  .footmark.venue{ translate: 0 0; }
+
   /* La section s'allonge : 210 % de l'écran, soit un écran entier
      de défilement pendant lequel la scène reste épinglée. Les onze
      pastilles s'y posent une à une, au fil du geste, environ tous
@@ -1156,6 +1163,7 @@ body{ cursor: none; }
   /* Le logo passe sur deux lignes, plus gros : « MERMOZ » au-dessus,
      « CALIFORNIE® » en dessous. Chaque mot garde sa ligne entière. */
   .top__logo{ font-size: 24px; line-height: .92; white-space: nowrap; }
+  .top__logo sup{ top: -.22em; }   /* le téléphone garde sa hauteur */
   .top__l2{ display: block; }
   .top__tag{ font-size: 12px; line-height: 1.25; max-width: 11em; }
 
@@ -1279,16 +1287,27 @@ body{ cursor: none; }
   var top = document.querySelector('.top');
   if(!top) return;
   var bas = document.querySelector('.footmark');
+  var telephone = matchMedia('(max-width: 760px)');
   var SEUIL = 90;     /* en deçà, le bandeau du haut reste toujours là */
   var JEU = 6;        /* secousse ignorée */
   var precedent = window.scrollY;
 
-  /* la page se réserve en bas la place du logotype fixe */
+  /* Sur téléphone seulement : la page se réserve en bas la place du
+     logotype fixe. Sur ordinateur, les deux logotypes gardent leur
+     comportement d'origine et le script se met en retrait. */
   function marge(){
-    if(bas) document.body.style.paddingBottom = bas.offsetHeight + 'px';
+    if(!bas) return;
+    if(telephone.matches){
+      document.body.style.paddingBottom = bas.offsetHeight + 'px';
+    } else {
+      document.body.style.paddingBottom = '';
+      top.classList.remove('partie');
+      bas.classList.remove('venue');
+    }
   }
   marge();
   window.addEventListener('resize', marge);
+  if(telephone.addEventListener) telephone.addEventListener('change', marge);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(marge);
 
   function montre(descend){
@@ -1297,6 +1316,7 @@ body{ cursor: none; }
   }
 
   function lis(){
+    if(!telephone.matches) return;
     var y = window.scrollY;
     var ecart = y - precedent;
     if(Math.abs(ecart) < JEU) return;
