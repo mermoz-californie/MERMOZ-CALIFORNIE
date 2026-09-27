@@ -931,13 +931,30 @@ body{ cursor: none; }
   88%  { transform: scale(.985, 1.012); }
   100% { transform: scale(1, 1); }
 }
-.stage .p.pose > .img{ animation: pose .62s cubic-bezier(.22, 1, .3, 1) both; }
-
 .stage .p.prise > .img{
   /* pendant la manipulation, le script écrit la déformation
      lui-même, image par image : le mouvement de repos est coupé */
   animation: none;
 }
+/* LE RETRAIT
+
+   Une pastille qui s'en va ne s'efface plus d'un coup : elle
+   s'étire une dernière fois, puis se rétracte. C'est la pose jouée
+   à l'envers, en plus court, pour ne pas retarder le défilement. */
+@keyframes depose{
+  0%   { transform: scale(1, 1); }
+  30%  { transform: scale(1.12, .9); }
+  100% { transform: scale(.3, .3); }
+}
+
+/* La pose et le retrait passent après la règle ci-dessus, donc
+   l'emportent : une pastille déjà manipulée rejoue quand même son
+   arrivée et son départ. Son mouvement de repos, lui, reste
+   éteint. */
+.stage .p.pose > .img{ animation: pose .62s cubic-bezier(.22, 1, .3, 1) both; }
+.stage .p.sort > .img{ animation: depose .34s cubic-bezier(.4, 0, .7, .2) both; }
+/* le temps de son retrait, elle reste visible */
+.stage.sequence .p.sort{ visibility: visible; }
 /* Les autres pastilles mettent leur mouvement de repos en pause le
    temps de la manipulation : quinze calques grands comme l'écran
    qui s'animent pendant qu'on en déforme un, ça se paie sur
@@ -2036,10 +2053,21 @@ Nous créons une résonance affective durable entre votre marque et son audience
      pour que le mouvement de repos reprenne la main. */
   function tombe(el){
     clearTimeout(el.minuteurPose);
-    el.classList.remove('pose');
+    clearTimeout(el.minuteurSort);
+    el.classList.remove('pose', 'sort');
     void el.offsetWidth;
     el.classList.add('pose');
     el.minuteurPose = setTimeout(function(){ el.classList.remove('pose'); }, 660);
+  }
+
+  /* Le retrait, quand on remonte : même principe à l'envers. */
+  function repart(el){
+    clearTimeout(el.minuteurPose);
+    clearTimeout(el.minuteurSort);
+    el.classList.remove('pose', 'sort');
+    void el.offsetWidth;
+    el.classList.add('sort');
+    el.minuteurSort = setTimeout(function(){ el.classList.remove('sort'); }, 340);
   }
 
   function sequence(sheets){
@@ -2086,8 +2114,9 @@ Nous créons une résonance affective durable entre votre marque et son audience
       var pas = n > 1 ? (etale - duree) / (n - 1) : 0;
       for(var i = 0; i < n; i++){
         var a = (p - i * pas) / duree;
-        var ici = a >= 0.5;
-        if(ici && !sheets[i].classList.contains('vu')) tombe(sheets[i]);
+        var ici = a >= 0.5, etait = sheets[i].classList.contains('vu');
+        if(ici && !etait) tombe(sheets[i]);
+        else if(!ici && etait) repart(sheets[i]);
         sheets[i].classList.toggle('vu', ici);
       }
     }
