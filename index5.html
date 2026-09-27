@@ -90,7 +90,7 @@ License: 	The WebFont(s) listed in this document must follow the YouWorkForThem
    ============================================================ */
 @font-face{
   font-family: 'PPObjectSans';
-  src: url('assets/fonts/PPObjectSans/PPObjectSans-Bold.woff') format('woff');
+  src: url('assets/fonts/PPObjectSans/PPObjectSans-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -2147,7 +2147,13 @@ Nous créons une résonance affective durable entre votre marque et son audience
      Il n'est pas conservé d'une visite à l'autre.
      ========================================================== */
   function manipulation(sheets, infos, R){
-    var W = 600, H = Math.round(W / R);
+    /* La finesse du masque d'encre, celui qui dit si le doigt tombe
+       sur le dessin. 600 points de large obligeaient à lire deux
+       cent mille pixels par pastille au chargement, soit trois
+       millions en tout : de quoi bloquer un téléphone une bonne
+       fraction de seconde. À 340, la précision reste de l'ordre du
+       pixel à l'écran, pour trois fois moins de travail. */
+    var W = 340, H = Math.round(W / R);
     /* le calque d'image de chaque pastille : c'est lui qu'on déforme */
     var calques = sheets.map(function(el){ return el.querySelector('.img'); });
     var alphas = [], boites = [], off = [], sommet = 30, prise = null;
@@ -2167,10 +2173,26 @@ Nous créons une résonance affective durable entre votre marque et son audience
         'ou à l\'adresse http://localhost:8742/index2.html');
     }
 
+    /* Les quinze masques arrivent les uns après les autres : on ne
+       remet la scène en place qu'une fois par image, et non quinze
+       fois de suite. */
+    var attente = false;
+    function replace(){
+      if(attente) return;
+      attente = true;
+      requestAnimationFrame(function(){ attente = false; disposer(); });
+    }
+
+    /* Le calcul des masques attend un moment creux quand le
+       navigateur sait en donner un : l'affichage de la page passe
+       avant la possibilité d'attraper une pastille. */
+    var calme = window.requestIdleCallback || function(f){ return setTimeout(f, 60); };
+
     infos.forEach(function(t, i){
       off[i] = { x: 0, y: 0 };
       var img = new Image();
-      img.onload = function(){
+      img.onload = function(){ calme(function(){ masque(img, i); }); };
+      function masque(img, i){
         /* rendu en « contain », comme le fond du calque, pour que le
            masque tombe exactement sur ce qui est affiché */
         var r = img.naturalWidth / img.naturalHeight, w, h;
@@ -2192,13 +2214,13 @@ Nous créons une résonance affective durable entre votre marque et son audience
           }
           alphas[i] = a;
           if(x1 >= 0) boites[i] = { x: x0 / W, y: y0 / H, w: (x1 - x0 + 1) / W, h: (y1 - y0 + 1) / H };
-          disposer();
+          replace();
         }catch(e){
           /* ouvert depuis le Finder, le navigateur interdit de lire
              les pixels d'un fichier local : la pastille reste
              affichée, simplement pas manipulable */
         }
-      };
+      }
       img.src = t.src;
     });
 
