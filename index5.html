@@ -1114,7 +1114,8 @@ body{ cursor: none; }
 .footmark{
   /* la marge du haut laisse passer le ® relevé, que le cadre qui
      coupe rognerait sans elle */
-  padding: clamp(6px, .6vw, 12px) var(--edge) clamp(8px, 1.1vw, 18px);
+  /* la marge basse remonte le logotype dans la page */
+  padding: clamp(6px, .6vw, 12px) var(--edge) clamp(13px, 1.6vw, 26px);
   overflow: hidden;
 }
 .footmark__in{
@@ -1183,8 +1184,10 @@ body{ cursor: none; }
   .top.partie{ translate: 0 -110%; }
   .footmark{
     /* le ® remonte au-dessus des capitales : quelques pixels de
-       marge en haut, sinon le cadre qui coupe le rogne */
+       marge en haut, sinon le cadre qui coupe le rogne. La marge
+       basse, elle, remonte le logotype au-dessus du bord. */
     padding-top: 9px;
+    padding-bottom: 15px;
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 49;
     background: var(--noir);
     translate: 0 110%;
@@ -1232,7 +1235,7 @@ body{ cursor: none; }
   .craft__n{ font-size: 12px; }
   /* plus que doublés : sur une colonne de 320 px, « Branding » a la
      place de monter jusque vers 290 px de large */
-  .craft__t{ font-size: clamp(26px, 14.5vw, 64px); }   /* v3 */
+  .craft__t{ font-size: clamp(23px, 12.2vw, 54px); }   /* v5 : un peu plus petit */
   .craft__d{ font-size: 14px; line-height: 1.4; }
 
   /* le manifeste se lit, il ne se regarde pas : corps plus fort,
