@@ -938,6 +938,11 @@ body{ cursor: none; }
      lui-même, image par image : le mouvement de repos est coupé */
   animation: none;
 }
+/* Les autres pastilles mettent leur mouvement de repos en pause le
+   temps de la manipulation : quinze calques grands comme l'écran
+   qui s'animent pendant qu'on en déforme un, ça se paie sur
+   téléphone. */
+.stage.manip .p > .img{ animation-play-state: paused; }
 /* Le canevas de la gélatine vient se poser dans la pastille
    tenue, à la place de son dessin. Il déborde de moitié tout
    autour, la matière s'étirant hors du cadre quand on tire. */
@@ -2352,12 +2357,20 @@ Nous créons une résonance affective durable entre votre marque et son audience
     var ETENDUE   = .80;   /* la portée autour du point saisi */
     var RAIDEUR   = .05;   /* la vivacité du retour, au lâcher */
     var REBONDS   = .85;   /* l'amortissement : plus haut, plus ça gigote */
-    var MARGE     = .5;    /* le débord autorisé autour de la pastille */
+    /* Le canevas de la gélatine est plus grand que la pastille, pour
+       laisser la matière déborder, et plus fin que l'écran, pour
+       rester net. Les deux se multiplient : à 0,5 de marge et deux
+       fois la densité, il couvrait seize fois la surface du calque.
+       Sur un téléphone, c'était trop lourd, d'où les à-coups au
+       déplacement. Ces deux valeurs sont donc allégées au doigt. */
+    var tactile   = matchMedia('(pointer: coarse), (max-width: 760px)').matches;
+    var MARGE     = tactile ? .30 : .5;   /* le débord autorisé autour de la pastille */
+    var DENSITE   = tactile ? 1.3 : 2;    /* finesse du dessin rastérisé */
     /* Le filet couvre tout le calque, et le dessin n'en occupe
        qu'une partie : il faut donc beaucoup de cases pour que le
        dessin lui-même en reçoive assez, sans quoi ses contours se
        facettent dès qu'on tire. */
-    var CASES     = 140;   /* finesse du filet */
+    var CASES     = tactile ? 70 : 140;   /* finesse du filet */
 
     var boucle = null, prisEn = -1;
     var avant = { x: 0, y: 0 };   /* position à l'image précédente */
@@ -2449,8 +2462,8 @@ Nous créons une résonance affective durable entre votre marque et son audience
        sa marge de débord. Gardé en mémoire : on ne le refait pas à
        chaque prise. */
     function dessinDe(i, L, H, pret){
-      var large = Math.round(L * 2 * (1 + MARGE * 2));
-      var haut  = Math.round(H * 2 * (1 + MARGE * 2));
+      var large = Math.round(L * DENSITE * (1 + MARGE * 2));
+      var haut  = Math.round(H * DENSITE * (1 + MARGE * 2));
       var fait = textures[i];
       if(fait && fait.width === large && fait.height === haut) return pret(fait);
 
@@ -2458,7 +2471,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
       img.onload = function(){
         var c = document.createElement('canvas');
         c.width = large; c.height = haut;
-        c.getContext('2d').drawImage(img, L * MARGE * 2, H * MARGE * 2, L * 2, H * 2);
+        c.getContext('2d').drawImage(img, L * MARGE * DENSITE, H * MARGE * DENSITE, L * DENSITE, H * DENSITE);
         textures[i] = c;
         pret(c);
       };
@@ -2469,7 +2482,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
          rend nulle */
       var src = infos[i].src;
       if(infos[i].texte){
-        var svg = infos[i].texte.replace(/<svg\b/, '<svg width="' + (L * 2) + '" height="' + (H * 2) + '"');
+        var svg = infos[i].texte.replace(/<svg\b/, '<svg width="' + Math.round(L * DENSITE) + '" height="' + Math.round(H * DENSITE) + '"');
         src = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
       }
       img.src = src;
@@ -2568,6 +2581,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
 
     /* le canevas repart, la pastille reprend son dessin normal */
     function range(){
+      stage.classList.remove('manip');
       if(prisEn < 0) return;
       sheets[prisEn].classList.remove('gele');
       if(toile && toile.parentNode) toile.parentNode.removeChild(toile);
@@ -2581,6 +2595,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
     function fige(i, cx, cy){
       var el = sheets[i];
       el.classList.add('prise');
+      stage.classList.add('manip');
       if(atelier() === false) return;      /* pas de WebGL : on déplace sans déformer */
 
       if(prisEn >= 0 && prisEn !== i) range();
