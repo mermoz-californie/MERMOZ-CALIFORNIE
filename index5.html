@@ -943,14 +943,17 @@ body{ cursor: none; }
    qui s'animent pendant qu'on en déforme un, ça se paie sur
    téléphone. */
 .stage.manip .p > .img{ animation-play-state: paused; }
-/* Le canevas de la gélatine vient se poser dans la pastille
-   tenue, à la place de son dessin. Il déborde de moitié tout
-   autour, la matière s'étirant hors du cadre quand on tire. */
+/* Le canevas de la gélatine vient se poser dans la pastille tenue,
+   à la place de son dessin.
+
+   Sa place et sa taille sont écrites par le script : il ne couvre
+   que le dessin, avec une marge autour pour le laisser déborder
+   quand on tire. Le calque, lui, fait toute la scène, et le dessin
+   n'en occupe qu'un coin : un canevas de la taille du calque
+   revenait à peindre dix fois trop de pixels à chaque image. */
 .stage .p.gele > .img{ background-image: none; }
 .stage .p > canvas.gel{
   position: absolute;
-  left: -50%; top: -50%;
-  width: 200%; height: 200%;
   pointer-events: none;
 }
 /* Le script relève la déformation en cours avant de couper le
@@ -2364,8 +2367,8 @@ Nous créons une résonance affective durable entre votre marque et son audience
        Sur un téléphone, c'était trop lourd, d'où les à-coups au
        déplacement. Ces deux valeurs sont donc allégées au doigt. */
     var tactile   = matchMedia('(pointer: coarse), (max-width: 760px)').matches;
-    var MARGE     = tactile ? .30 : .5;   /* le débord autorisé autour de la pastille */
-    var DENSITE   = tactile ? 1.3 : 2;    /* finesse du dessin rastérisé */
+    var MARGE     = .45;   /* le débord autorisé autour du dessin */
+    var DENSITE   = 2;     /* finesse du dessin rastérisé */
     /* Le filet couvre tout le calque, et le dessin n'en occupe
        qu'une partie : il faut donc beaucoup de cases pour que le
        dessin lui-même en reçoive assez, sans quoi ses contours se
@@ -2376,7 +2379,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
     var avant = { x: 0, y: 0 };   /* position à l'image précédente */
     var elan = null;              /* la course qui continue après le lâcher */
     var vise = { x: 0, y: 0 }, tenu = { x: 0, y: 0 };
-    var gel = { gx: .5, gy: .5, x: 0, y: 0, vx: 0, vy: 0, taille: 1 };
+    var gel = { gx: .5, gy: .5, x: 0, y: 0, vx: 0, vy: 0, taille: 1, zone: { x: 0, y: 0, w: 1, h: 1 } };
     var toile = null, gl = null, mailleN = 0, uGrab, uLag, uRayon, texture;
     var textures = [];     /* le dessin de chaque pastille, rastérisé une fois */
 
@@ -2461,9 +2464,18 @@ Nous créons une résonance affective durable entre votre marque et son audience
     /* Le dessin d'une pastille, rastérisé au format du calque avec
        sa marge de débord. Gardé en mémoire : on ne le refait pas à
        chaque prise. */
+    /* La zone utile d'une pastille : sa boîte d'encre, élargie de la
+       marge de débord. Tout est en fractions du calque. */
+    function zone(i){
+      var bo = boites[i] || { x: 0, y: 0, w: 1, h: 1 };
+      var mx = bo.w * MARGE, my = bo.h * MARGE;
+      return { x: bo.x - mx, y: bo.y - my, w: bo.w + mx * 2, h: bo.h + my * 2 };
+    }
+
     function dessinDe(i, L, H, pret){
-      var large = Math.round(L * DENSITE * (1 + MARGE * 2));
-      var haut  = Math.round(H * DENSITE * (1 + MARGE * 2));
+      var z = zone(i);
+      var large = Math.max(2, Math.round(z.w * L * DENSITE));
+      var haut  = Math.max(2, Math.round(z.h * H * DENSITE));
       var fait = textures[i];
       if(fait && fait.width === large && fait.height === haut) return pret(fait);
 
@@ -2471,7 +2483,11 @@ Nous créons une résonance affective durable entre votre marque et son audience
       img.onload = function(){
         var c = document.createElement('canvas');
         c.width = large; c.height = haut;
-        c.getContext('2d').drawImage(img, L * MARGE * DENSITE, H * MARGE * DENSITE, L * DENSITE, H * DENSITE);
+        /* le dessin entier est peint à la taille du calque, décalé
+           pour que seule la zone utile tombe dans le canevas */
+        c.getContext('2d').drawImage(img,
+          -z.x * L * DENSITE, -z.y * H * DENSITE,
+          L * DENSITE, H * DENSITE);
         textures[i] = c;
         pret(c);
       };
@@ -2490,16 +2506,17 @@ Nous créons une résonance affective durable entre votre marque et son audience
 
     function dessine(){
       if(!gl || prisEn < 0) return;
-      var e = 1 / (1 + MARGE * 2);
+      var z = gel.zone;
       gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.uniform2f(uGrab, (gel.gx + MARGE) * e, (gel.gy + MARGE) * e);
-      gl.uniform2f(uLag, gel.x * e, gel.y * e);
+      /* passage du repère du calque à celui du canevas recadré */
+      gl.uniform2f(uGrab, (gel.gx - z.x) / z.w, (gel.gy - z.y) / z.h);
+      gl.uniform2f(uLag, gel.x / z.w, gel.y / z.h);
       /* La portée est donnée en proportion du dessin, pas du
          calque : un calque couvre toute la scène et le dessin n'en
          occupe qu'un coin, si bien qu'une portée comptée sur le
          calque engloberait le dessin entier, qui suivrait le doigt
          sans se déformer. */
-      gl.uniform1f(uRayon, ETENDUE * gel.taille * e);
+      gl.uniform1f(uRayon, ETENDUE * gel.taille / z.w);
       gl.drawArrays(gl.TRIANGLES, 0, mailleN);
     }
 
@@ -2611,11 +2628,18 @@ Nous créons une résonance affective durable entre votre marque et son audience
          le retard se mesurent sur lui */
       var bo = boites[i];
       gel.taille = bo ? Math.max(bo.w, bo.h) : 1;
+      gel.zone = zone(i);
 
       var L = el.offsetWidth, H = el.offsetHeight;
       dessinDe(i, L, H, function(source){
         if(!source || prisEn !== i) return;
         toile.width = source.width; toile.height = source.height;
+        /* le canevas se pose exactement sur la zone utile */
+        var z = gel.zone;
+        toile.style.left   = (z.x * 100) + '%';
+        toile.style.top    = (z.y * 100) + '%';
+        toile.style.width  = (z.w * 100) + '%';
+        toile.style.height = (z.h * 100) + '%';
         el.appendChild(toile);
         el.classList.add('gele');
         gl.bindTexture(gl.TEXTURE_2D, texture);
