@@ -2258,6 +2258,54 @@ Nous créons une résonance affective durable entre votre marque et son audience
       return -1;
     }
 
+    /* LE CADRE
+
+       Une pastille ne peut pas quitter la scène : on n'autorise
+       qu'un dixième de sa taille au-dehors, de chaque côté.
+
+       Le calcul part de sa boîte d'encre, ramenée en fractions de
+       la scène par la chaîne des transformations : déplacement de
+       la mise en page, grossissement autour de son centre, puis le
+       déplacement fait à la main. La correction est renvoyée dans
+       ce dernier, donc divisée par le grossissement.
+
+       Le résultat dit aussi de quel côté ça a buté, ce qui permet
+       de faire rebondir une pastille lancée. */
+    var DEHORS = .10;
+
+    /* Les limites : celles de la fenêtre visible, et non celles de
+       la scène. Sur téléphone la composition déborde volontairement
+       de son cadre, qui est plus étroit que l'écran : mesurer sur la
+       scène repoussait les pastilles vers le centre dès le premier
+       geste. Tout est ramené en fractions de la scène, le repère
+       dans lequel travaillent les déplacements. */
+    function limites(){
+      var b = stage.getBoundingClientRect();
+      var v = who.getBoundingClientRect();
+      if(!b.width || !b.height) return null;
+      return {
+        x0: (Math.min(v.left, 0) - b.left) / b.width,
+        x1: (Math.max(v.right, window.innerWidth) - b.left) / b.width,
+        y0: (Math.max(v.top, 0) - b.top) / b.height,
+        y1: (Math.min(v.bottom, window.innerHeight) - b.top) / b.height
+      };
+    }
+
+    function cadre(i){
+      var bo = boites[i], g = geo[i], lim = limites();
+      if(!bo || !lim) return 0;
+      var z = zoom[i] || 1;
+      var largeur = bo.w * g.k * z, hauteur = bo.h * g.k * z;
+      var gauche = g.tx + g.ox + ((bo.x - g.ox) * z + off[i].x) * g.k;
+      var haut   = g.ty + g.oy + ((bo.y - g.oy) * z + off[i].y) * g.k;
+      var choc = 0;
+      if(gauche < lim.x0 - DEHORS * largeur){ off[i].x += (lim.x0 - DEHORS * largeur - gauche) / g.k; choc |= 1; }
+      else if(gauche + largeur > lim.x1 + DEHORS * largeur){ off[i].x -= (gauche + largeur - lim.x1 - DEHORS * largeur) / g.k; choc |= 1; }
+      if(haut < lim.y0 - DEHORS * hauteur){ off[i].y += (lim.y0 - DEHORS * hauteur - haut) / g.k; choc |= 2; }
+      else if(haut + hauteur > lim.y1 + DEHORS * hauteur){ off[i].y -= (haut + hauteur - lim.y1 - DEHORS * hauteur) / g.k; choc |= 2; }
+      return choc;
+    }
+
     function applique(i){
       sheets[i].style.transform =
         'translate(' + (off[i].x * 100) + '%, ' + (off[i].y * 100) + '%)' +
@@ -2301,7 +2349,9 @@ Nous créons une résonance affective durable entre votre marque et son audience
       var i = touche(e.clientX, e.clientY);
       if(i < 0) return;
       e.preventDefault();
-      sheets[i].style.zIndex = ++sommet;
+      /* L'ordre d'empilement ne change plus à la prise : une
+         pastille attrapée reste à sa place dans la pile, elle ne
+         passe pas devant les autres. */
       prise = { i: i, x: e.clientX, y: e.clientY, ox: off[i].x, oy: off[i].y };
       if(telephone.matches) zoome(i, TENUE);
       fige(i, e.clientX, e.clientY);
@@ -2320,6 +2370,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
         avant.x = off[prise.i].x; avant.y = off[prise.i].y;
         off[prise.i].x = prise.ox + (e.clientX - prise.x) / b.width / kk;
         off[prise.i].y = prise.oy + (e.clientY - prise.y) / b.height / kk;
+        cadre(prise.i);
         applique(prise.i);
         etire(prise.i, e.clientX, e.clientY);
       } else if(e.pointerType === 'mouse'){
@@ -2352,11 +2403,11 @@ Nous créons une résonance affective durable entre votre marque et son audience
 
        Les quatre réglages ont été trouvés sur la démo
        _demo-gelatine.html, qui sert de banc d'essai. */
-    var PINCEMENT = .55;   /* combien le retard déforme, sur ordinateur */
+    var PINCEMENT = .78;   /* combien le retard déforme, sur ordinateur */
     /* Au doigt, le geste est plus lent et la pastille plus petite
        à l'écran : à réglage égal, la déformation se voyait à peine.
        Elle est donc poussée sur téléphone. */
-    var PINCEMENT_DOIGT = 1.6;
+    var PINCEMENT_DOIGT = 2.3;
     var ETENDUE   = .80;   /* la portée autour du point saisi */
     var RAIDEUR   = .05;   /* la vivacité du retour, au lâcher */
     var REBONDS   = .85;   /* l'amortissement : plus haut, plus ça gigote */
@@ -2368,7 +2419,20 @@ Nous créons une résonance affective durable entre votre marque et son audience
        déplacement. Ces deux valeurs sont donc allégées au doigt. */
     var tactile   = matchMedia('(pointer: coarse), (max-width: 760px)').matches;
     var MARGE     = .45;   /* le débord autorisé autour du dessin */
-    var DENSITE   = 2;     /* finesse du dessin rastérisé */
+
+    /* La finesse du dessin rastérisé. Elle ne peut pas être une
+       constante : la pastille est agrandie par la mise en page,
+       puis encore par le zoom du toucher, et l'écran d'un téléphone
+       compte deux à trois points par pixel. À densité fixe, l'image
+       se retrouvait étirée bien au-delà de sa définition, donc
+       floue. On multiplie donc tout, plafonné pour ne pas fabriquer
+       des images démesurées. */
+    function densite(i){
+      var ecran = window.devicePixelRatio || 1;
+      var agrandi = (geo[i] && geo[i].k) || 1;
+      if(tactile) agrandi *= TENUE;        /* le zoom du toucher */
+      return Math.max(1.5, Math.min(4, ecran * agrandi));
+    }
     /* Le filet couvre tout le calque, et le dessin n'en occupe
        qu'une partie : il faut donc beaucoup de cases pour que le
        dessin lui-même en reçoive assez, sans quoi ses contours se
@@ -2473,7 +2537,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
     }
 
     function dessinDe(i, L, H, pret){
-      var z = zone(i);
+      var z = zone(i), DENSITE = densite(i);
       var large = Math.max(2, Math.round(z.w * L * DENSITE));
       var haut  = Math.max(2, Math.round(z.h * H * DENSITE));
       var fait = textures[i];
@@ -2534,6 +2598,10 @@ Nous créons une résonance affective durable entre votre marque et son audience
       if(elan){
         var e = elan;
         off[e.i].x += e.x; off[e.i].y += e.y;
+        /* elle s'arrête au bord, sans rebondir */
+        var choc = cadre(e.i);
+        if(choc & 1) e.x = 0;
+        if(choc & 2) e.y = 0;
         e.x *= .84; e.y *= .84;   /* freinage après le lâcher */
         applique(e.i);
         if(Math.abs(e.x) < .0002 && Math.abs(e.y) < .0002) elan = null;
@@ -2562,7 +2630,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
            le geste, et la pastille semblait figée déformée. Ici
            elle s'en approche sans jamais l'atteindre, donc elle
            continue de répondre à la main. */
-        var plafond = ETENDUE * Math.max(gel.taille, .05) * .60;
+        var plafond = ETENDUE * Math.max(gel.taille, .05) * .66;
         var doux = function(v){ return plafond * Math.tanh(v / plafond); };
         var force = telephone.matches ? PINCEMENT_DOIGT : PINCEMENT;
         cx = doux(ex / b.width * force);
