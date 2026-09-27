@@ -2183,6 +2183,9 @@ Nous créons une résonance affective durable entre votre marque et son audience
        plaisanter » et le téléphone, qui passent sur « Ça ne fait
        grandir personne » */
     var ORDRE_PORTRAIT = [2, 3, 6, 7, 8, 4, 5, 9, 10, 11, 12, 13, 14, 15, 16];
+    /* toutes les pastilles de la mise en page téléphone sont
+       grossies d'autant, sans toucher à leurs places */
+    var GROSSEUR_DOIGT = 1.10;
     var telephone = matchMedia('(max-width: 760px)');
 
     function disposer(){
@@ -2199,7 +2202,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
         if(telephone.matches && cible && bo){
           g.ox = bo.x + bo.w / 2;
           g.oy = bo.y + bo.h / 2;
-          g.k  = (cible.l * s) / (bo.w * b.width);
+          g.k  = (cible.l * GROSSEUR_DOIGT * s) / (bo.w * b.width);
           g.tx = (cible.x * s - b.left) / b.width - g.ox;
           g.ty = (ancreY + (cible.y - MAQUETTE.ancre) * s - b.top) / b.height - g.oy;
           var rang = ORDRE_PORTRAIT.indexOf(n);
