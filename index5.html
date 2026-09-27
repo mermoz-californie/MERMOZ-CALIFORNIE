@@ -2194,6 +2194,9 @@ Nous créons une résonance affective durable entre votre marque et son audience
     /* toutes les pastilles de la mise en page téléphone sont
        grossies d'autant, sans toucher à leurs places */
     var GROSSEUR_DOIGT = 1.10;
+    /* les tailles particulières sur ordinateur, par numéro de
+       pastille : 1 laisse la taille commune */
+    var TAILLES_ORDI = { 15: .90 };
     var telephone = matchMedia('(max-width: 760px)');
 
     function disposer(){
@@ -2221,7 +2224,17 @@ Nous créons une résonance affective durable entre votre marque et son audience
           /* ordi : tout le groupe grossit depuis le centre de la
              scène, le titre garde sa taille (--gros, en CSS) */
           g.tx = g.ty = 0; g.ox = g.oy = .5;
-          g.k = parseFloat(getComputedStyle(stage).getPropertyValue('--gros')) || 1;
+          var gros = parseFloat(getComputedStyle(stage).getPropertyValue('--gros')) || 1;
+          /* une pastille peut avoir sa taille à elle. Le
+             grossissement partant du centre de la scène, la réduire
+             la rapprocherait de ce centre : le déplacement
+             ci-dessous l'en empêche, elle reste sur place. */
+          var f = TAILLES_ORDI[n] || 1;
+          g.k = gros * f;
+          if(f !== 1 && bo){
+            g.tx = (bo.x + bo.w / 2 - .5) * gros * (1 - f);
+            g.ty = (bo.y + bo.h / 2 - .5) * gros * (1 - f);
+          }
           if(!(parseInt(el.style.zIndex, 10) > 29)) el.style.zIndex = '';
         }
         el.style.transformOrigin = (g.ox * 100) + '% ' + (g.oy * 100) + '%';
@@ -2425,7 +2438,7 @@ Nous créons une résonance affective durable entre votre marque et son audience
 
        Les quatre réglages ont été trouvés sur la démo
        _demo-gelatine.html, qui sert de banc d'essai. */
-    var PINCEMENT = .78;   /* combien le retard déforme, sur ordinateur */
+    var PINCEMENT = 1.05;  /* combien le retard déforme, sur ordinateur */
     /* Au doigt, le geste est plus lent et la pastille plus petite
        à l'écran : à réglage égal, la déformation se voyait à peine.
        Elle est donc poussée sur téléphone. */
