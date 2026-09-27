@@ -1970,9 +1970,19 @@ Nous créons une résonance affective durable entre votre marque et son audience
     }
   }
 
+  /* L'ordre d'arrivée des pastilles. Par défaut c'est celui des
+     numéros ; les paires écrites ici passent l'une avant l'autre
+     sans qu'on ait à renommer les fichiers, ce qui déplacerait
+     aussi leurs places sur téléphone. */
+  var AVANT = { 12: 11 };   /* la 12 arrive juste avant la 11 */
+
+  function rang(n){
+    return AVANT[n] ? AVANT[n] - .5 : n;
+  }
+
   function termine(){
     if(!trouves.length) return;
-    trouves.sort(function(a, b){ return a.n - b.n; });
+    trouves.sort(function(a, b){ return rang(a.n) - rang(b.n); });
 
     /* Le plan de travail de référence est celui que partagent le
        plus de pastilles. La scène en prend les proportions, pour
