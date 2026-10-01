@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* essai : index6.html?cover=1 étend la page sous l'heure et la barre d'adresse (iPhone) */
+if(/[?&]cover=1/.test(location.search)){
+  document.documentElement.classList.add('cover');
+  document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1, viewport-fit=cover');
+}
+</script>
 <!-- les barres du navigateur (heure, adresse) prennent la couleur du site : le noir -->
 <meta name="theme-color" content="#101010">
 <meta name="color-scheme" content="dark">
@@ -227,7 +234,7 @@ a{ color: inherit; text-decoration: none; }
   position: relative; z-index: 3;
   display: inline-block; white-space: nowrap; min-height: 1.2em;
   /* le texte se pose une fois le contour tracé et le ruban arrêté */
-  --d: calc(var(--db, 0s) + 1.7s);
+  --d: calc(var(--db, 0s) + .8s);
   --p: 34ms;
 }
 .bouton .trace{ display: none; }
@@ -310,7 +317,7 @@ a{ color: inherit; text-decoration: none; }
    Le tracé est un rectangle SVG dont le script règle les dimensions
    sur celles du bouton. Le ruban est fabriqué par le script. */
 .js .bouton .trace{
-  display: block;
+  display: none;   /* le contour qui se trace est retiré : le ruban arrive directement */
   position: absolute; inset: 0; width: 100%; height: 100%;
   overflow: visible; pointer-events: none;
   z-index: 2;
@@ -359,7 +366,7 @@ a{ color: inherit; text-decoration: none; }
   to  { visibility: visible; stroke-dashoffset: 0; }
 }
 .js .est-la .apb .rub{
-  animation: monte .8s cubic-bezier(.6, 0, .2, 1) calc(var(--db, 0s) + .85s) forwards;
+  animation: monte .8s cubic-bezier(.6, 0, .2, 1) var(--db, 0s) forwards;
 }
 @keyframes monte{
   from{ visibility: visible; transform: translateY(20%); }
@@ -487,6 +494,19 @@ html.direct{ scroll-snap-type: none !important; overscroll-behavior: none; touch
 html.direct body{ overflow: hidden; height: 100%; }
 /* la page ne défile plus : elle ne fait qu'un écran de haut */
 html.direct .passage{ height: 100svh; }
+
+/* essai ?cover=1 : le ruban couvre tout l'écran, y compris sous l'heure et la barre
+   d'adresse ; les textes, eux, restent dans la zone libre */
+html.cover.direct .passage__colle{ position: fixed; inset: 0; height: auto; }
+html.cover.direct .ecran{
+  min-height: 0;
+  padding-top: calc(6vh + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 86px);
+}
+html.cover.direct .ecran--deux > .entete,
+html.cover.direct .volet > .entete{
+  padding-top: calc(clamp(20px, 3.4vh, 36px) + env(safe-area-inset-top, 0px));
+}
 
 /* les lisières (smartphone) : voir le balisage */
 .rive{ display: none; }
@@ -641,9 +661,21 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
 .ecran--deux > .entete .signe--entete{ grid-column: 2; grid-row: 1; justify-self: center; }
 .ecran--deux > .entete .bouton{
   grid-column: 3; grid-row: 1; justify-self: end;
-  font-size: clamp(10px, .8vw, 12px);
-  padding: .85em 1.6em;
+  font-size: clamp(9px, .68vw, 11px);
+  padding: .75em 1.4em;
 }
+/* en haut à droite : un simple contour blanc qui se trace, sans fond ni ruban */
+.js .ecran--deux > .entete .bouton{
+  --texte: var(--blanc);
+  background: transparent;
+  transition: transform .35s var(--ease), background-color .3s ease, color .3s ease;
+}
+.js .ecran--deux > .entete .bouton .trace{ display: block; }
+.js .ecran--deux > .entete .bouton .trace rect{ stroke-width: 1; }
+.js .ecran--deux > .entete .bouton.rempli .trace rect{ stroke: var(--blanc); }
+.js .ecran--deux > .entete .bouton::before,
+.js .ecran--deux > .entete .bouton .rub{ display: none; }
+.js .ecran--deux > .entete .bouton:hover{ background: var(--blanc); --texte: var(--noir); }
 
 
 /* Les cinq bandes forment un seul ruban : elles se touchent,
@@ -743,14 +775,14 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
       </div>
 
       <h1 class="phrase">
-        <span class="phrase__ligne lettres" style="--d:1450ms" data-pas="46">Cherchez</span>
+        <span class="phrase__ligne lettres" style="--d:1450ms" data-pas="46">Chercher</span>
         <span class="phrase__mot" id="roue" aria-live="polite"></span>
       </h1>
 
       <div class="pied">
         <p class="signature">
-          <span class="lettres" style="--d:2150ms" data-pas="16">Pour créer une résonance affective</span>
-          <b class="lettres" style="--d:2300ms" data-pas="24">entre les marques et leur public.</b>
+          <span class="lettres" style="--d:2150ms" data-pas="16">Trouver la résonance affective</span>
+          <b class="lettres" style="--d:2300ms" data-pas="24">de votre marque.</b>
         </p>
         <a class="bouton apb" style="--db:2450ms" href="mailto:creation@mermoz-californie.com"
            aria-label="Nous contacter"><svg class="trace" aria-hidden="true"><rect/></svg><span class="bouton__txt lettres" aria-hidden="true">Nous contacter</span></a>
@@ -778,7 +810,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
           <path class="forme" mask="url(#trait-mc2)" d="M914.07,1329.44c36.13-27.37,81.09-61.44,124.95-82.62,12.81-6.21,30.41-14.71,39.72,2.16,9.62,17.4-6.12,27.28-29.94,42.21-20.52,12.87-41.91,44.4-33.63,63.75,5.65,13.18,12.3,16.78,16.81,18.34,23.72,8.24,73.63-21,113.24-42.6,30.96-16.88,60.21-32.82,86.27-38.49,12.59-2.67,24.93,7.57,22.98,21.89-1.07,7.84-7.34,13.79-15.07,15.49-20.7,4.55-48.76,19.85-75.9,34.65-39.86,21.73-80.83,44.07-116.13,44.07-7.96,0-15.63-1.13-22.92-3.66-17.57-6.09-30.83-19.35-39.42-39.41-3.96-9.26-5.62-18.73-5.42-28.09.08-3.69-4.01-5.93-6.99-3.76-12.45,9.07-24.4,18.13-35.48,26.53-48.95,37.08-67.26,50.96-84.58,37.2-15.65-12.44-5.83-34.42-1.1-44.98,4.66-10.43,11.89-23.09,21.39-37.66,5.72-8.77,21.56-31.21,20.31-35.53-1.05-3.63-13.94,4.56-26.08,15.41-16.82,15.03-34.41,27.23-49,39.1-50.31,40.95-67.24,54.76-84.63,40.08-16.92-14.26-10.59-33.27,42.33-127.11,10.87-19.28,16.76-30.8,21.69-41.34,4.57-9.77-.56-7.98-2.92-6.3-27.56,19.63-73.57,58.93-137.54,117.51-158.38,145.03-297.03,69.1-302.86,65.79-9.18-5.21-12.4-16.87-7.19-26.04,5.2-9.16,16.82-12.36,25.98-7.23,5.08,2.82,121.24,64.79,258.27-60.69,149.98-137.34,182.87-154.54,205.57-136.5,18.76,14.91,12.2,43.82-27.72,113.59-12.06,21.08-43.19,66.28-22.51,48.06l55.54-47.73c1.12-.97,2.31-1.93,3.48-2.83,44.45-34.11,70.42-48.45,87.99-33.14,20.29,17.65,8.71,41.98-15.39,80.17-18.45,29.24-8.07,22.73-4.11,19.72"/>
         </svg>
         <a class="logo lettres" href="#" style="--d:0ms" data-pas="46">Mermoz Californie<sup>®</sup></a>
-        <a class="bouton apb" style="--db:950ms" href="mailto:creation@mermoz-californie.com"
+        <a class="bouton apb" style="--db:400ms" href="mailto:creation@mermoz-californie.com"
            aria-label="Nous contacter"><svg class="trace" aria-hidden="true"><rect/></svg><span class="bouton__txt lettres" aria-hidden="true">Nous contacter</span></a>
       </header>
 
@@ -786,8 +818,8 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
         <p class="surtitre lettres" style="--d:0ms" data-pas="30">La résonance affective</p>
 
         <div class="manifeste" style="--d:100ms">
-          <p class="lettres" data-pas="12">La résonance affective, c’est le moment où un message cesse d’être une information pour devenir un souvenir. Un sourire, un pincement, une phrase qu’on répète à table. Ce qui reste quand la publicité est finie.</p>
-          <p class="lettres" data-pas="12">On ne choisit pas une marque parce qu’elle a raison. On la choisit parce qu’elle nous a touchés au bon endroit, au bon moment.</p>
+          <p class="lettres" data-pas="12">Nous cherchons à créer le moment où un message cesse d’être une information pour devenir un souvenir, un sourire, un pincement, une phrase qu’on répète à table. Ce qui reste quand le message publicitaire ou la signature est racontée.
+          Nous sommes convaincus qu'on ne choisit pas une marque parce qu’elle a raison. On la choisit parce qu’elle nous a touchés au bon endroit, au bon moment.</p>
         </div>
       </div>
 
@@ -922,7 +954,9 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
   sonde.setAttribute('aria-hidden', 'true');
   sonde.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;visibility:hidden;pointer-events:none';
   document.body.appendChild(sonde);
-  var bordBas = 100, riveEtat = '', riveT = 0;
+  var bordBas = 100, riveEtat = '', riveT = 0, riveDernier = 0;
+  /* à essayer en cas d'accroc : index6.html?rives=0 laisse les barres noires pendant le ruban */
+  var rivesVivantes = !/[?&]rives=0/.test(location.search);
   function mesureBord(){
     /* le ruban se dessine en vh ; l'écran visible peut être plus court (barres de Safari) */
     var vh = sonde.offsetHeight / 100;
@@ -940,10 +974,17 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
     if(!directe || !riveHaut) return;
     if(visible){
       clearTimeout(riveT);
+      if(!rivesVivantes) return;
+      /* chaque changement de couleur oblige Safari à recalculer la teinte de ses barres :
+         on les espace pour ne pas lui faire perdre d'images quand les bandes se
+         succèdent vite au bord de l'écran */
+      var maintenant = performance.now();
+      if(!document.documentElement.classList.contains('cover') && maintenant - riveDernier < 110) return;
       var h = couleurA(.2, tops, hauteurs), b = couleurA(bordBas - .2, tops, hauteurs);
       var cle = h + '|' + b;
       if(cle === riveEtat) return;
       riveEtat = cle;
+      riveDernier = maintenant;
       riveHaut.style.backgroundColor = h;
       riveBas.style.backgroundColor = b;
     } else if(riveEtat !== 'repos'){
@@ -1314,13 +1355,13 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
     }
     [].forEach.call(ecran.querySelectorAll('.bouton'), function(b){
       clearTimeout(b._rempli);
-      b._rempli = setTimeout(function(){ b.classList.add('rempli'); }, delaiBouton(b) + 1700);
+      b._rempli = setTimeout(function(){ b.classList.add('rempli'); }, delaiBouton(b) + 850);
       clearTimeout(b._ferme);
       b._ferme = setTimeout(function(){ b.classList.add('ferme'); }, delaiBouton(b) + 1100);   /* le tracé dure 1,05 s */
     });
     /* à l'entrée du premier écran, le mot qui défile attend son tour */
     if(ecran === ecranUn){
-      /* le défilement des mots attend la fin de l'introduction : « Cherchez »
+      /* le défilement des mots attend la fin de l'introduction : « Chercher »
          d'abord, puis le premier mot, puis seulement les suivants */
       window.__introFin = performance.now() + 2850;
       /* un mot qui était encore en train de partir ne doit pas réapparaître */
