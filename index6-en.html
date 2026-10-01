@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mermoz Californie</title>
+<meta name="description" content="Independent advertising creative studio in Paris. Creating resonance between brands and their audience.">
+
+<!-- la police du grand mot est sur le site : on la demande tout de
+     suite, en même temps que la page -->
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/PPWoodland/PPWoodland-Regular.woff2">
+
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* ============================================================
+   01. TYPOGRAPHIES
+
+   Deux polices, pas plus.
+
+   PP Woodland porte la phrase. Elle est servie depuis le site, en
+   woff2, le format le plus léger.
+
+   Le reste est en SF Pro, celle du système Apple. Elle n'est pas
+   chargée : la pile système la sert nativement sur Mac et sur
+   iPhone, ce qui donne le dessin exact, zéro octet téléchargé, et
+   aucune question de licence. Ailleurs, la pile retombe sur la
+   grotesque du système.
+   ============================================================ */
+@font-face{
+  font-family: 'PPObjectSans';
+  src: url('assets/fonts/PPObjectSans/PPObjectSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: 'PP Woodland';
+  src: url('assets/fonts/PPWoodland/PPWoodland-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+/* Object Sans n'existe dans le dossier qu'en Bold : pour le
+   manifeste en capitales fines, on prend le Mori Extralight, la
+   grotesque la plus légère dont on dispose. */
+@font-face{
+  font-family: 'PP Mori';
+  src: url('assets/fonts/PPMori/PPMori-Extralight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root{
+  --woodland: 'PP Woodland', Georgia, 'Times New Roman', serif;
+  --object: 'PPObjectSans', 'Helvetica Neue', Arial, sans-serif;
+  --mori: 'PP Mori', 'Helvetica Neue', Arial, sans-serif;
+  --sf: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro',
+        'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+/* ============================================================
+   02. COULEURS, relevées sur la maquette
+   ============================================================ */
+  --noir:  #101010;
+  --blanc: #FFFFFF;
+  --bleu:  #0074FF;
+  --bleu-clair: #2C8CFF;
+  --cyan:   #81DDFF;
+  --jaune:  #EDFF9B;
+  --rose:   #F4BDD2;
+  --corail: #F94144;
+  --gris:  #9A9A9A;
+
+  --ease: cubic-bezier(.16, 1, .3, 1);
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  background: var(--noir);
+  color: var(--blanc);
+  font-family: var(--sf);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* Un écran : tout est centré dedans, et il fait exactement la
+   hauteur de la fenêtre. */
+.ecran{
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(46px, 7vh, 86px);
+  padding: 6vh 24px;
+}
+
+a{ color: inherit; text-decoration: none; }
+:focus-visible{ outline: 2px solid var(--bleu); outline-offset: 4px; }
+::selection{ background: var(--bleu); color: var(--blanc); }
+
+/* ============================================================
+   03. LE LOGOTYPE
+   ============================================================ */
+.logo{
+  display: inline-block;
+  font-weight: 700;
+  font-size: clamp(15px, 1.15vw, 21px);
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+}
+.logo sup{
+  font-size: .44em;
+  vertical-align: super;
+  position: relative;
+  top: -.12em;
+}
+
+/* ============================================================
+   04. LA PHRASE
+
+   « Look for » ne bouge pas, le mot qui suit se remplace en
+   boucle. Les deux lignes sont donc empilées et centrées.
+
+   Le mot sortant et le mot entrant occupent la même place : le
+   sortant est en position absolue au-dessus du bloc, sans quoi la
+   ligne sauterait à chaque changement.
+   ============================================================ */
+.phrase{
+  font-family: var(--woodland);
+  font-weight: 400;
+  font-size: clamp(44px, 5.2vw, 92px);
+  line-height: 1.12;
+  letter-spacing: -.01em;
+}
+.phrase__ligne{ display: block; }
+.phrase__mot{
+  position: relative;
+  display: block;
+  /* la hauteur d'une ligne, réservée une fois pour toutes */
+  height: 1.12em;
+}
+.mot{
+  position: absolute;
+  /* Centré sur l'axe de la page, et non dans la boîte du titre.
+
+     La boîte, elle, ne fait que la largeur de « Look for » : un mot
+     plus long la débordait des deux côtés, et le centrage flottait
+     d'un mot à l'autre. En partant du milieu puis en reculant de la
+     moitié de sa propre largeur, chaque mot tombe exactement sur le
+     même axe, quelle que soit sa longueur. */
+  left: 50%;
+  display: block;
+  white-space: nowrap;
+  transition: opacity .5s var(--ease), transform .7s var(--ease), filter .5s var(--ease);
+}
+/* l'état de repos : posé, net */
+.mot.est-la{ opacity: 1; transform: translate(-50%, 0); filter: blur(0); }
+/* il arrive d'en bas, à peine flou */
+/* il arrive en place : ce sont ses lettres qui basculent (voir L'APPARITION) */
+.mot.arrive{ opacity: 1; transform: translate(-50%, 0); filter: blur(0); }
+/* il s'en va vers le haut */
+.mot.part{ opacity: 0; transform: translate(-50%, -.42em); filter: blur(6px); }
+
+/* ============================================================
+   05. LA SIGNATURE ET LE BOUTON
+   ============================================================ */
+.pied{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(22px, 3.4vh, 34px);
+}
+.signature{
+  font-size: clamp(14px, 1.05vw, 18px);
+  line-height: 1.45;
+  margin: 0;
+}
+.signature > b{ font-weight: 700; display: block; }
+.signature > span{ display: block; font-weight: 400; color: #E6E6E6; }
+
+.bouton{
+  --c: var(--bleu);              /* la couleur finale du bouton */
+  --c-survol: #2C8CFF;           /* la même, au survol */
+  --texte: var(--blanc);         /* la couleur de son texte */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-block;
+  color: var(--texte);
+  font-size: clamp(14px, 1.05vw, 18px);
+  font-weight: 500;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: .95em 1.7em;
+  border-radius: 999px;
+  transition: transform .35s var(--ease);
+}
+/* la couleur est portée par un calque uni (le ruban, lui, passe devant
+   à l'apparition) */
+.bouton::before{
+  content: '';
+  position: absolute; inset: 0; z-index: -1;
+  border-radius: inherit;
+  background: var(--c);
+  transition: background-color .35s var(--ease);
+}
+.bouton__txt{
+  position: relative; z-index: 3;
+  display: inline-block; white-space: nowrap; min-height: 1.2em;
+  /* le texte se pose une fois le contour tracé et le ruban arrêté */
+  --d: calc(var(--db, 0s) + 1.7s);
+  --p: 34ms;
+}
+.bouton .trace{ display: none; }
+.bouton:hover::before{ background: var(--c-survol); }
+.bouton:hover{ transform: translateY(-2px); }
+.bouton:active{ transform: translateY(0); }
+
+/* les couleurs de bouton */
+.bouton[data-couleur="cyan"]  { --c: var(--cyan);  --c-survol: #A6E9FF; --texte: var(--noir); }
+.bouton[data-couleur="jaune"] { --c: var(--jaune); --c-survol: #F7FFBF; --texte: var(--noir); }
+.bouton[data-couleur="rose"]  { --c: var(--rose);  --c-survol: #F9D4E2; --texte: var(--noir); }
+.bouton[data-couleur="corail"],
+.bouton[data-couleur="orange"]{ --c: var(--corail); --c-survol: #FF6B6E; --texte: var(--blanc); }
+
+/* ============================================================
+   05 ter. L'APPARITION
+
+   Chaque écran a un état « posé » (la classe .est-la) que le script
+   lui donne quand il arrive, et lui retire quand il s'en va. Les
+   textes se composent alors lettre par lettre, chacune basculant
+   vers l'avant comme un volet ; le bouton se trace puis se remplit.
+
+   Tout est écrit pour la sortie comme pour l'entrée : à l'arrivée
+   le mouvement est long et décalé lettre à lettre, au départ il est
+   bref, pour que l'écran soit prêt à rejouer dès qu'on revient.
+
+   Sans script (classe « js » absente), rien n'est caché.
+   ============================================================ */
+.w{ display: inline-block; white-space: nowrap; }
+.c{ display: inline-block; }
+.sr{
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* La lettre repliée : couchée vers l'arrière, pivotant sur son pied.
+   Le retard d'une lettre vient de trois choses : le délai de son
+   élément (--d), sa ligne (--l, pour le manifeste) et son rang dans
+   cette ligne (--i), multiplié par le pas propre au texte (--p). */
+.js .lettres .c,
+.js .mot .c{
+  opacity: 0;
+  transform-origin: 50% 100%;
+  transform: rotateX(-100deg) translateY(.2em);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.js .est-la .lettres .c{
+  opacity: 1;
+  transform: none;
+  transition: opacity .5s ease calc(var(--d, 0s) + var(--l, 0) * 150ms + var(--i, 0) * var(--p, 38ms)),
+              transform .9s var(--ease) calc(var(--d, 0s) + var(--l, 0) * 150ms + var(--i, 0) * var(--p, 38ms));
+}
+
+/* Le mot qui défile bascule de la même façon. Le premier, à
+   l'entrée de l'écran, attend son tour (--dm) ; les suivants
+   enchaînent aussitôt. Celui qui part reste posé : c'est son bloc
+   qui s'efface. */
+.js .est-la .mot.est-la .c{
+  opacity: 1;
+  transform: none;
+  transition: opacity .45s ease calc(var(--dm, 0s) + var(--i, 0) * 34ms),
+              transform .85s var(--ease) calc(var(--dm, 0s) + var(--i, 0) * 34ms);
+}
+.js .mot.part .c{ opacity: 1; transform: none; transition: none; }
+
+/* LE BOUTON
+
+   Trois temps :
+     1. un trait dessine le contour de la pilule, d'un seul geste ;
+     2. le ruban de la page la traverse en 0,8 s : les couleurs
+        défilent et la dernière, celle du bouton, se fixe ;
+     3. le texte se pose, lettre à lettre.
+
+   La couleur finale se règle avec l'attribut data-couleur du bouton :
+   bleu (par défaut), cyan, jaune, rose, ou corail (aussi : orange).
+   Les quatre autres couleurs défilent d'abord, dans l'ordre du ruban,
+   puis la couleur choisie arrive en dernier et s'arrête.
+
+   Le tracé est un rectangle SVG dont le script règle les dimensions
+   sur celles du bouton. Le ruban est fabriqué par le script. */
+.js .bouton .trace{
+  display: block;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none;
+  z-index: 2;
+}
+.js .bouton .trace rect{
+  fill: none; stroke: #fff; stroke-width: 1.5;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  transition: stroke-dashoffset .3s ease, stroke .25s ease;
+}
+
+/* le ruban : cinq bandes empilées, cinq fois la hauteur du bouton,
+   posées sous la pilule ; il monte de quatre hauteurs et laisse la
+   dernière bande en place */
+.js .bouton .rub{
+  position: absolute; left: 0; right: 0; top: 0; height: 500%;
+  z-index: 1;
+  display: flex; flex-direction: column;
+  transform: translateY(20%);
+  pointer-events: none;
+}
+.js .bouton .rub i{ display: block; flex: 1; }
+.k-corail{ background: var(--corail); }
+.k-rose  { background: var(--rose); }
+.k-jaune { background: var(--jaune); }
+.k-cyan  { background: var(--cyan); }
+.k-bleu  { background: var(--bleu); }
+
+/* le calque uni de la couleur finale n'apparaît qu'à la fin, quand le
+   ruban s'est arrêté : c'est lui qui réagit au survol */
+.js .apb::before{ opacity: 0; }
+.js .est-la .apb .trace rect{
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.05s cubic-bezier(.65, 0, .25, 1) var(--db, 0s),
+              stroke .25s ease;
+}
+.js .est-la .apb .rub{
+  animation: monte .8s cubic-bezier(.6, 0, .2, 1) calc(var(--db, 0s) + .85s) both;
+}
+@keyframes monte{
+  from{ transform: translateY(20%); }
+  to  { transform: translateY(-80%); }
+}
+/* la couleur est posée (classe ajoutée par le script) : le contour et
+   le calque uni prennent sa couleur, le ruban s'efface */
+.js .est-la .bouton.rempli::before{ opacity: 1; }
+.js .est-la .bouton.rempli .rub{ display: none; }
+.js .est-la .bouton.rempli .trace rect{ stroke: var(--c); }
+
+/* ============================================================
+   05 quater. L'ENCRE
+
+   Les textes du premier écran passent devant les bandes. Blancs sur
+   le jaune, ils disparaissent : le script leur donne donc le noir du
+   site (classe .encre-noire) tant que la bande jaune est derrière
+   eux, et ils redeviennent blancs dès qu'elle est passée. Les
+   autres bandes ne changent rien : c'est l'attribut data-encre="noir"
+   posé sur une bande qui lui donne ce pouvoir.
+   Le changement se fait en douceur, quand le bord d'une bande
+   traverse le milieu du texte.
+   ============================================================ */
+.logo, .phrase__ligne, .phrase__mot, .signature > b, .signature > span{
+  transition: color .3s ease;
+}
+.logo.encre-noire, .phrase__ligne.encre-noire, .phrase__mot.encre-noire,
+.signature > b.encre-noire, .signature > span.encre-noire{
+  color: var(--noir);
+}
+/* le contour du bouton, tant qu'il n'est pas rempli de bleu */
+.js .bouton.encre-noire .trace rect{ stroke: var(--noir); }
+
+/* ============================================================
+   05 bis. LE BALAYAGE DE COULEUR
+
+   Cinq bandes montent l'une après l'autre, recouvrent l'écran,
+   puis continuent leur route et découvrent le second écran resté
+   dessous. C'est le balayage de la référence.
+
+   Le mouvement est lié au défilement, et non à une horloge : on
+   avance et on recule à la vitesse qu'on veut, l'effet suit.
+   ============================================================ */
+.passage{ position: relative; height: 320vh; }
+
+/* LA MAIN SUR LE DÉFILEMENT
+
+   Le ruban suit le doigt : il avance tant qu'on pousse, il s'arrête
+   où on s'arrête. À la relâche seulement, la page se cale sur la
+   section la plus proche — pas assez poussé, elle revient ; assez
+   poussé, elle passe. C'est l'accrochage du navigateur, celui de
+   Gleeden, avec deux points : le haut du passage, où le premier
+   écran est en place, et sa fin, où le second l'a remplacé.
+
+   Le second point n'est pas le passage lui-même : un bloc ne fournit
+   qu'une seule accroche, celle de son bord haut. Il en faut donc un
+   second, invisible, posé là où l'animation se termine. */
+html{ scroll-snap-type: y mandatory; }
+.arret{
+  position: absolute; left: 0; width: 1px;
+  pointer-events: none; opacity: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.arret--un{ top: 0; height: 100svh; }
+.arret--deux{ bottom: 0; height: 100svh; }
+
+.passage__colle{
+  position: sticky; top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* l'ordre de superposition : les bandes montent derrière le
+   logotype, la phrase et le bouton, puis le second écran arrive
+   par-dessus tout.
+
+   Le premier écran porte lui-même le numéro de plan : dès que le
+   script lui donne une opacité, il devient un calque à part entière
+   et le rang de ses enfants ne compte plus que vis-à-vis de lui. */
+.ecran--un{ position: absolute; inset: 0; z-index: 3; will-change: opacity; }
+.bandes{ position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.ecran--deux{
+  position: absolute; inset: 0; z-index: 4;
+  background: var(--noir);
+  gap: clamp(30px, 5vh, 54px);
+  transform: translateY(var(--y2, 105vh));
+  will-change: transform;
+}
+.ecran--deux > *{ position: relative; z-index: 1; }
+.manifeste{
+  font-family: var(--mori);
+  font-weight: 200;
+  text-transform: uppercase;
+  font-size: clamp(14px, 1.3vw, 21px);
+  line-height: 1.55;
+  letter-spacing: .05em;
+  max-width: 28em;
+  margin: 0;
+}
+
+/* L'EN-TÊTE DU SECOND ÉCRAN
+
+   Le logotype en haut à gauche, une devise en haut à droite, petite
+   et fine. Posés en haut de l'écran sans compter dans la mise en
+   page : le manifeste reste centré. */
+.ecran--deux > .entete{
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  padding: clamp(20px, 3.4vh, 36px) clamp(20px, 3vw, 44px);
+  text-align: left;
+}
+.ecran--deux > .entete .logo{ flex: none; white-space: nowrap; }
+.devise{
+  margin: 0;
+  min-width: 0;
+  max-width: 17em;
+  font-size: clamp(11px, .82vw, 14px);
+  font-weight: 300;
+  line-height: 1.35;
+  letter-spacing: .02em;
+  color: #DADADA;
+  text-align: right;
+}
+
+
+/* Les cinq bandes forment un seul ruban : elles se touchent,
+   sans noir entre elles. Leur épaisseur et leur place sont écrites
+   par le script, en unités d'écran : fines en bas, épaisses au
+   milieu, fines en haut.
+
+   L'épaisseur change à chaque image. Écrite dans `height`, elle
+   obligerait le navigateur à refaire la mise en page à chaque fois ;
+   en étirant une bande de taille fixe (`scaleY`), il ne fait que
+   recomposer des calques déjà dessinés, ce qui est bien plus léger. */
+.bande{
+  position: absolute;
+  left: -2vw; width: 104vw;
+  top: 0;
+  height: 100vh;
+  transform-origin: 0 0;
+  transform: translateY(var(--y, 120vh)) scaleY(var(--e, .1));
+  will-change: transform;
+}
+.bande--bleu { background: #1969C2; }
+.bande--cyan { background: #81DDFF; }
+.bande--jaune{ background: #EDFF9B; }
+.bande--rose { background: #F4BDD2; }
+.bande--corail{ background: #F94144; }
+
+/* ============================================================
+   06. TÉLÉPHONE
+   ============================================================ */
+@media (max-width: 760px){
+  .ecran{ gap: 40px; padding: 8vh 20px; }
+  .manifeste{ font-size: clamp(15px, 4vw, 20px); }
+  .phrase{ font-size: clamp(38px, 11.5vw, 60px); }
+  .signature{ font-size: 15px; }
+  .bouton{ font-size: 15px; }
+}
+
+/* ============================================================
+   07. MOUVEMENT RÉDUIT
+
+   Quand le visiteur a demandé moins d'animations, le mot ne
+   défile plus : le premier reste affiché.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce){
+  .mot{ transition: none; }
+  .js .lettres .c, .js .est-la .lettres .c, .js .mot .c, .js .est-la .mot.est-la .c,
+  .js .bouton .trace rect, .js .est-la .apb .trace rect{
+    transition: none !important;
+  }
+  .js .est-la .apb .rub{ animation: none !important; transform: translateY(-80%); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LE PASSAGE
+
+     Tout se joue dans un seul cadre collant, qui fait un écran. La
+     hauteur du passage est la course : plus elle est grande, plus
+     le remplacement est lent.
+
+     L'ordre de superposition raconte l'effet : le premier écran
+     est au fond, les bandes montent par-dessus son fond mais
+     derrière son texte, et le second écran arrive accroché à la
+     dernière bande, par-dessus tout. -->
+<div class="passage" id="passage">
+  <i class="arret arret--un" aria-hidden="true"></i>
+  <i class="arret arret--deux" aria-hidden="true"></i>
+  <div class="passage__colle">
+
+    <!-- premier écran -->
+    <section class="ecran ecran--un">
+      <a class="logo lettres" href="#" style="--d:0ms" data-pas="46">Mermoz Californie<sup>®</sup></a>
+
+      <h1 class="phrase">
+        <span class="phrase__ligne lettres" style="--d:160ms" data-pas="46">Look for</span>
+        <span class="phrase__mot" id="roue" aria-live="polite"></span>
+      </h1>
+
+      <div class="pied">
+        <p class="signature">
+          <b class="lettres" style="--d:560ms" data-pas="22">Creating resonance</b>
+          <span class="lettres" style="--d:700ms" data-pas="14">between brands and their audience.</span>
+        </p>
+        <a class="bouton apb" style="--db:900ms" href="mailto:creation@mermoz-californie.com"
+           aria-label="Get in touch"><svg class="trace" aria-hidden="true"><rect pathLength="1"/></svg><span class="bouton__txt lettres" aria-hidden="true">Get in touch</span></a>
+      </div>
+    </section>
+
+    <!-- les cinq bandes : les quatre de la référence, plus le corail.
+         data-encre="noir" dit qu'un texte qui passe devant doit être
+         noir ; sans cet attribut, il reste blanc. Seul le jaune l'a. -->
+    <div class="bandes" aria-hidden="true">
+      <i class="bande bande--bleu"></i>
+      <i class="bande bande--cyan"></i>
+      <i class="bande bande--jaune" data-encre="noir"></i>
+      <i class="bande bande--rose"></i>
+      <i class="bande bande--corail"></i>
+    </div>
+
+    <!-- second écran, tiré par la dernière bande -->
+    <section class="ecran ecran--deux">
+      <header class="entete">
+        <a class="logo lettres" href="#" style="--d:0ms" data-pas="46">Mermoz Californie<sup>®</sup></a>
+        <p class="devise lettres" style="--d:160ms" data-pas="20">Emotional resonance for brands.</p>
+      </header>
+
+      <p class="manifeste lettres" data-pas="13" style="--d:0ms">
+        We build lasting emotional resonance between your brand and its
+        audience. We offer contextual, engaging communication, so you
+        avoid the trap of purely informative, witless advertising
+        messages.
+      </p>
+      <a class="bouton apb" style="--db:1500ms" href="mailto:creation@mermoz-californie.com"
+         aria-label="Get in touch"><svg class="trace" aria-hidden="true"><rect pathLength="1"/></svg><span class="bouton__txt lettres" aria-hidden="true">Get in touch</span></a>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   LE REMPLACEMENT DE SECTION
+
+   Les cinq bandes forment un seul ruban, sans jour entre elles.
+   Il monte du bas de l'écran vers le haut, tiré par le
+   défilement, et la section suivante est accrochée sous lui.
+
+   L'épaisseur d'une bande ne dépend pas du temps mais de l'endroit
+   où elle se trouve : fine en bas de l'écran, épaisse au milieu,
+   fine en haut. Une bande gonfle donc en arrivant au centre et se
+   résorbe en sortant, et c'est le ruban entier qui respire.
+
+   Comme la hauteur d'une bande dépend de sa position, qui dépend
+   de la hauteur de celles d'en dessous, on empile de bas en haut
+   et on reprend le calcul deux fois : deux passes suffisent à ce
+   que les valeurs se posent.
+   ============================================================ */
+(function(){
+  "use strict";
+  var passage = document.getElementById('passage');
+  if(!passage) return;
+  /* de la plus haute à la plus basse, telles qu'elles sont écrites */
+  var bandes = [].slice.call(passage.querySelectorAll('.bande'));
+  var deux = passage.querySelector('.ecran--deux');
+  var un = passage.querySelector('.ecran--un');
+
+  var MINCE = 7;     /* l'épaisseur aux bords de l'écran, en centièmes de sa hauteur */
+  var EPAIS = 52;    /* l'épaisseur au centre */
+  var LARGEUR = 46;  /* l'étalement du gonflement autour du centre */
+  var RECOUVRE = .3; /* de combien chaque bande déborde sous la suivante, en vh */
+
+  function borne(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  /* l'épaisseur d'une bande dont le milieu est à cette hauteur */
+  function epaisseur(milieu){
+    var d = (milieu - 50) / LARGEUR;
+    return MINCE + (EPAIS - MINCE) * Math.exp(-d * d);
+  }
+
+  /* La pile de bandes quand le bas du ruban est à `bas` : leurs
+     épaisseurs, et la hauteur de son bord haut. */
+  function pile(bas){
+    var hauteurs = bandes.map(function(){ return MINCE; });
+    for(var passe = 0; passe < 2; passe++){
+      var y = bas;
+      for(var i = bandes.length - 1; i >= 0; i--){   /* de la plus basse à la plus haute */
+        var h = hauteurs[i];
+        hauteurs[i] = epaisseur(y - h / 2);
+        y -= hauteurs[i];
+      }
+    }
+    return { hauteurs: hauteurs, haut: y };
+  }
+
+  /* Le bas du ruban quand son bord haut est à `haut` : on cherche par
+     dichotomie. Plus le bas monte, plus le haut monte : la réponse
+     est unique. */
+  function basPour(haut){
+    var bas = 0, fin = 250;
+    for(var i = 0; i < 28; i++){
+      var milieu = (bas + fin) / 2;
+      if(pile(milieu).haut < haut) bas = milieu; else fin = milieu;
+    }
+    return (bas + fin) / 2;
+  }
+
+  /* LA COURSE DES DEUX BORDS
+
+     Ce qu'on regarde, c'est le bord du ruban qui avance dans
+     l'écran : à la descente c'est son bord haut, qui monte et
+     recouvre ; à la montée c'est son bord bas, qui descend et
+     recouvre. Si le bas du ruban montait régulièrement (ce qu'on
+     faisait), son haut, lui, partirait d'un coup : les bandes
+     gonflent à mesure qu'elles approchent du centre. Mesuré, le haut
+     traversait l'écran quatre fois plus vite que le bas : la montée
+     paraissait quatre fois plus lente que la descente.
+
+     Ici on règle chaque bord à la même vitesse constante, en deux
+     temps :
+       1. le haut monte de sous l'écran jusqu'au bord supérieur ;
+       2. le bas monte alors jusqu'au bord supérieur à son tour.
+     À la montée on les rejoue à l'envers, à la même vitesse. */
+  var HAUT_DEPART = 102;                     /* bord haut au repos, juste sous l'écran (100) */
+  var BAS_MILIEU = basPour(0);               /* bord bas quand le haut atteint le haut de l'écran */
+  var PARTAGE = HAUT_DEPART / (HAUT_DEPART + BAS_MILIEU);   /* part de la course pour le temps 1 */
+
+  function basDuRuban(p){
+    if(p <= PARTAGE) return basPour(HAUT_DEPART * (1 - p / PARTAGE));
+    return BAS_MILIEU * (1 - (p - PARTAGE) / (1 - PARTAGE));
+  }
+
+  /* Dessine le ruban pour un avancement donné, de 0 (premier écran)
+     à 1 (second écran en place). */
+  function place(p){
+    var bas = basDuRuban(p);
+    var hauteurs = pile(bas).hauteurs;
+
+    var courant = bas;
+    var tops = [];
+    for(var i = bandes.length - 1; i >= 0; i--){
+      var h = hauteurs[i];
+      courant -= h;
+      tops[i] = courant;
+      /* Chaque bande déborde un peu sous la suivante, qui la recouvre :
+         un calque posé sur une fraction de pixel a des bords adoucis,
+         et sans ce recouvrement un filet de noir passerait entre deux
+         bandes. */
+      bandes[i].style.setProperty('--e', String((h + RECOUVRE) / 100));
+      bandes[i].style.setProperty('--y', courant + 'vh');
+    }
+
+    encre(tops, hauteurs);
+
+    /* la section suivante est accrochée sous le ruban */
+    deux.style.setProperty('--y2', Math.max(bas, 0) + 'vh');
+    /* la première s'efface pendant que l'autre arrive */
+    un.style.opacity = String(1 - borne((bas - 60) / -60));
+
+    bascule(p);
+  }
+
+  /* ----------------------------------------------------------
+     LA VITESSE DU RUBAN
+
+     Le défilement, lui, ne change pas : même course, même calage à la
+     relâche. Ce qu'on règle, c'est ce que l'on voit. Le ruban ne
+     recopie pas la position de la page à chaque image : il la
+     rejoint, à sa propre vitesse.
+
+     Deux façons de la rejoindre.
+
+     À la main. Quand on fait défiler doucement, le ruban reste sous
+     le doigt : il va où l'on va, il s'arrête où l'on s'arrête.
+
+     Sur un geste franc. Un coup de trackpad ou de molette lance la
+     page, puis son élan retombe peu à peu avant que le calage du
+     navigateur ne la relance vers la section. Si le ruban recopiait
+     cela, il ralentirait en plein milieu puis repartirait : c'est la
+     décélération qu'on voyait. On repère donc le geste franc, on
+     prévoit où l'élan va se poser, et on engage le ruban vers la
+     section d'arrivée, sans plus regarder l'élan : départ vif,
+     vitesse constante, arrivée adoucie. Le calage du navigateur
+     choisit lui aussi la section la plus proche du point
+     d'atterrissage de l'élan, c'est la même règle.
+     ---------------------------------------------------------- */
+  var VMAX     = 1.1;   /* courses par seconde, en croisière : 1,1 = 0,9 s pour tout le passage */
+  var TAU_MAIN = .13;   /* souplesse à la main, en secondes */
+  var TAU_ELAN = .17;   /* souplesse de l'arrivée sur un geste franc : plus grand = arrivée plus longue */
+  var ACCEL    = 16;    /* courses par seconde², pour démarrer vif mais sans à-coup */
+  var LANCE    = .30;   /* secondes : de combien l'élan d'un geste se prolonge */
+  var ELAN     = .35;   /* courses par seconde : au-delà, c'est un geste franc */
+
+  var reduit = !!(window.matchMedia &&
+                  window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var affiche = -1, v = 0, dernier = 0, tourne = false;
+  var pPrec = 0, vPage = 0, engage = -1, origine = 0, calme = 0;
+
+  /* où en est le défilement réel : 0 en haut du passage, 1 à sa fin.
+     On lit la position de la page directement, c'est bien moins
+     coûteux que de mesurer un élément à chaque image. */
+  function progres(){
+    var total = passage.offsetHeight - window.innerHeight;
+    if(total <= 0) return -1;
+    return borne((window.pageYOffset - passage.offsetTop) / total);
+  }
+
+  function suit(maintenant){
+    var p = progres();
+    if(p < 0){ tourne = false; return; }
+
+    var dt = Math.min(.05, Math.max(0, (maintenant - dernier) / 1000));
+    dernier = maintenant;
+
+    if(affiche < 0 || reduit){
+      /* au chargement, ou si l'on préfère sans mouvement */
+      affiche = p; pPrec = p; v = 0; vPage = 0; engage = -1;
+      origine = p > .5 ? 1 : 0;
+    } else {
+      /* la vitesse de la page, lissée sur une soixantaine de millisecondes */
+      if(dt > 0){
+        vPage += ((p - pPrec) / dt - vPage) * (1 - Math.exp(-dt / .06));
+      }
+      pPrec = p;
+      var vit = Math.abs(vPage);
+
+      /* un geste franc : où l'élan va-t-il se poser ? Si c'est dans
+         l'autre section, on y engage le ruban. */
+      if(vit > ELAN){
+        var arrivee = borne(p + vPage * LANCE) > .5 ? 1 : 0;
+        engage = arrivee !== origine ? arrivee : -1;
+      }
+
+      /* la page est au repos : on est arrivé, la main reprend la main */
+      if(vit < .05){ calme += dt; } else { calme = 0; }
+      if(calme > .25){ engage = -1; origine = p > .5 ? 1 : 0; }
+
+      var cible = engage >= 0 ? engage : p;
+      var tau = engage >= 0 ? TAU_ELAN : TAU_MAIN;
+      var ecart = cible - affiche;
+
+      /* la vitesse voulue : celle qui mène à la cible, plafonnée */
+      var voulue = ecart / tau;
+      if(voulue > VMAX) voulue = VMAX; else if(voulue < -VMAX) voulue = -VMAX;
+      var dv = voulue - v, limite = ACCEL * dt;
+      if(dv > limite) dv = limite; else if(dv < -limite) dv = -limite;
+      v += dv;
+
+      var neuf = affiche + v * dt;
+      if((cible - neuf) * ecart < 0){ neuf = cible; v = 0; }   /* on ne dépasse jamais */
+      affiche = neuf;
+      if(Math.abs(cible - affiche) < .0015 && Math.abs(v) < .02){ affiche = cible; v = 0; }
+    }
+
+    place(affiche);
+
+    /* on continue tant que le ruban bouge, que la page bouge, ou
+       qu'un geste franc n'est pas fini */
+    var encore = Math.abs(v) > 0 || Math.abs(vPage) > .02 || engage >= 0 ||
+                 Math.abs(p - affiche) > .0015;
+    if(encore){ requestAnimationFrame(suit); } else { tourne = false; }
+  }
+
+  function reveille(){
+    if(tourne) return;
+    tourne = true;
+    dernier = performance.now();
+    requestAnimationFrame(suit);
+  }
+
+  window.addEventListener('scroll', reveille, { passive: true });
+  window.addEventListener('resize', reveille);
+  reveille();
+
+  /* ----------------------------------------------------------
+     L'APPARITION
+
+     Chaque écran reçoit la classe .est-la quand il est en vue et la
+     perd quand il est parti : les transitions du CSS font le reste.
+     Les seuils ne sont pas les mêmes à l'aller et au retour (une
+     hystérésis), sinon l'écran clignoterait sur la frontière.
+
+     On attend que les polices soient là : jouer l'entrée avec la
+     police de secours puis la voir changer en route, c'est
+     exactement le défaut qu'on a déjà chassé une fois.
+     ---------------------------------------------------------- */
+  var ecranUn = passage.querySelector('.ecran--un');
+  var roueMots = document.getElementById('roue');
+  var manif = passage.querySelector('.manifeste');
+  var boutons = [].slice.call(passage.querySelectorAll('.bouton'));
+  var pret = false, dernierP = 0;
+
+  /* Le ruban de chaque bouton : cinq bandes. Les quatre couleurs qui
+     ne sont pas celle du bouton passent d'abord, dans l'ordre du ruban
+     de la page, puis la couleur du bouton arrive en dernier. */
+  var COULEURS = ['corail', 'rose', 'jaune', 'cyan', 'bleu'];
+  boutons.forEach(function(b){
+    var c = b.getAttribute('data-couleur') || 'bleu';
+    if(c === 'orange') c = 'corail';
+    if(COULEURS.indexOf(c) < 0) c = 'bleu';
+    var rub = document.createElement('span');
+    rub.className = 'rub';
+    rub.setAttribute('aria-hidden', 'true');
+    COULEURS.filter(function(x){ return x !== c; }).concat(c).forEach(function(x){
+      var i = document.createElement('i');
+      i.className = 'k-' + x;
+      rub.appendChild(i);
+    });
+    b.insertBefore(rub, b.querySelector('.bouton__txt'));
+  });
+  var vu = { un: false, deux: false };
+
+  /* Un texte devient une suite de lettres, rangées par mots pour ne
+     jamais couper un mot. Chaque lettre porte son rang (--i). Un
+     élément glissé dans le texte (le ® du logotype) compte pour une
+     lettre. Le texte d'origine reste lisible pour les lecteurs
+     d'écran, dans une copie invisible. */
+  function decoupe(el){
+    var pas = el.getAttribute('data-pas');
+    if(pas) el.style.setProperty('--p', pas + 'ms');
+
+    var noeuds = [].slice.call(el.childNodes);
+    var original = el.textContent.replace(/\s+/g, ' ').trim();
+    el.textContent = '';
+
+    if(!el.closest('[aria-hidden="true"]')){
+      var sr = document.createElement('span');
+      sr.className = 'sr';
+      sr.textContent = original;
+      el.appendChild(sr);
+    }
+
+    var rang = 0;
+    function lettre(contenu){
+      var c = document.createElement('span');
+      c.className = 'c';
+      c.style.setProperty('--i', rang++);
+      if(typeof contenu === 'string') c.textContent = contenu; else c.appendChild(contenu);
+      return c;
+    }
+    function mot(texte){
+      var w = document.createElement('span');
+      w.className = 'w';
+      w.setAttribute('aria-hidden', 'true');
+      texte.split('').forEach(function(ch){ w.appendChild(lettre(ch)); });
+      return w;
+    }
+
+    noeuds.forEach(function(n, k){
+      if(n.nodeType === 3){
+        var t = n.textContent.replace(/\s+/g, ' ');
+        if(k === 0) t = t.replace(/^ /, '');
+        if(k === noeuds.length - 1) t = t.replace(/ $/, '');
+        var mots = t.split(' ');
+        mots.forEach(function(m, j){
+          if(m) el.appendChild(mot(m));
+          if(j < mots.length - 1){ el.appendChild(document.createTextNode(' ')); rang++; }
+        });
+      } else if(n.nodeType === 1){
+        var w = document.createElement('span');
+        w.className = 'w';
+        w.setAttribute('aria-hidden', 'true');
+        w.appendChild(lettre(n));
+        el.appendChild(w);
+      }
+    });
+  }
+  [].forEach.call(passage.querySelectorAll('.lettres'), decoupe);
+
+  /* Le manifeste se compose ligne après ligne : on lit à l'écran à
+     quelle ligne tombe chaque mot (cela dépend de la largeur de la
+     fenêtre) et chaque lettre prend son rang dans sa ligne. */
+  function numerote(){
+    var haut = -1, ligne = -1, rang = 0;
+    [].forEach.call(manif.querySelectorAll('.w'), function(w){
+      var t = w.offsetTop;
+      if(Math.abs(t - haut) > 4){ ligne++; rang = 0; haut = t; }
+      [].forEach.call(w.querySelectorAll('.c'), function(c){
+        c.style.setProperty('--l', ligne);
+        c.style.setProperty('--i', rang++);
+      });
+      rang++;   /* l'espace qui suit le mot */
+    });
+    /* le bouton du second écran se trace quand le texte a fini */
+    boutons[boutons.length - 1].style.setProperty('--db', ((ligne + 1) * 150 + 300) + 'ms');
+  }
+
+  /* Le contour du bouton est un rectangle à bouts ronds, réglé sur la
+     taille réelle de la pilule. */
+  function regleTraces(){
+    boutons.forEach(function(b){
+      var r = b.querySelector('.trace rect');
+      var w = b.offsetWidth, h = b.offsetHeight;
+      r.setAttribute('x', 1); r.setAttribute('y', 1);
+      r.setAttribute('width', Math.max(0, w - 2)); r.setAttribute('height', Math.max(0, h - 2));
+      r.setAttribute('rx', (h - 2) / 2); r.setAttribute('ry', (h - 2) / 2);
+    });
+  }
+
+  /* L'ENCRE : de quelle couleur est la bande derrière chaque texte ?
+
+     On connaît la place de chaque bande à l'écran, on mesure une fois
+     pour toutes (et à chaque redimensionnement) le milieu de chaque
+     texte : il suffit de chercher quelle bande le recouvre. Un texte
+     hors du ruban reste blanc. */
+  var encrables = [].slice.call(passage.querySelectorAll(
+    '.ecran--un .logo, .phrase__ligne, .phrase__mot, .signature > b, .signature > span, .ecran--un .bouton'));
+  var centres = [];
+  var etatEncre = encrables.map(function(){ return false; });
+  var bandeNoire = bandes.map(function(b){ return b.getAttribute('data-encre') === 'noir'; });
+
+  function mesureEncres(){
+    var H = window.innerHeight;
+    centres = encrables.map(function(el){
+      var r = el.getBoundingClientRect();
+      return (r.top + r.height / 2) / H * 100;
+    });
+  }
+
+  function encre(tops, hauteurs){
+    if(!centres.length) return;
+    var n = bandes.length;
+    var haut = tops[0], bas = tops[n - 1] + hauteurs[n - 1];
+    for(var k = 0; k < encrables.length; k++){
+      var y = centres[k], noir = false;
+      if(y >= haut && y < bas){
+        for(var i = 0; i < n; i++){
+          if(y < tops[i] + hauteurs[i]){ noir = bandeNoire[i]; break; }
+        }
+      }
+      if(noir !== etatEncre[k]){
+        etatEncre[k] = noir;
+        encrables[k].classList.toggle('encre-noire', noir);
+      }
+    }
+  }
+
+  /* le bleu a fini de remplir un bouton : 1,1 s de délai + 0,8 s de
+     balayage, après le début de son tracé */
+  function delaiBouton(b){
+    var d = (b.style.getPropertyValue('--db') || '0').trim();
+    return d.slice(-2) === 'ms' ? parseFloat(d) : parseFloat(d) * 1000;
+  }
+  function pose(ecran){
+    ecran.classList.add('est-la');
+    [].forEach.call(ecran.querySelectorAll('.bouton'), function(b){
+      clearTimeout(b._rempli);
+      b._rempli = setTimeout(function(){ b.classList.add('rempli'); }, delaiBouton(b) + 1700);
+    });
+    /* à l'entrée du premier écran, le mot qui défile attend son tour */
+    if(ecran === ecranUn){
+      [].forEach.call(roueMots.querySelectorAll('.mot'), function(m){ m.style.setProperty('--dm', '300ms'); });
+    }
+  }
+  function retire(ecran){
+    ecran.classList.remove('est-la');
+    [].forEach.call(ecran.querySelectorAll('.bouton'), function(b){
+      clearTimeout(b._rempli);
+      b.classList.remove('rempli');
+    });
+  }
+
+  function bascule(p){
+    dernierP = p;
+    if(!pret) return;
+    if(!vu.un && p < .55){ vu.un = true; pose(ecranUn); }
+    else if(vu.un && p > .93){ vu.un = false; retire(ecranUn); }
+    if(!vu.deux && p > .78){ vu.deux = true; pose(deux); }
+    else if(vu.deux && p < .55){ vu.deux = false; retire(deux); }
+  }
+
+  var attendPolices = (document.fonts && document.fonts.ready)
+    ? Promise.race([document.fonts.ready, new Promise(function(r){ setTimeout(r, 1500); })])
+    : Promise.resolve();
+  attendPolices.then(function(){
+    numerote();
+    regleTraces();
+    mesureEncres();
+    /* un battement avant la première entrée : la page est posée */
+    setTimeout(function(){ pret = true; bascule(dernierP); }, 180);
+  });
+
+  var redim = 0;
+  window.addEventListener('resize', function(){
+    clearTimeout(redim);
+    redim = setTimeout(function(){ numerote(); regleTraces(); mesureEncres(); }, 150);
+  });
+
+})();
+
+/* ============================================================
+   LA ROUE DES MOTS
+
+   Un mot s'efface vers le haut, le suivant arrive d'en bas. Les
+   deux se croisent au même endroit, d'où la position absolue :
+   sans elle, la ligne sauterait d'une hauteur de texte à chaque
+   changement.
+
+   La liste est celle du site. Pour en ajouter un, il suffit de
+   l'écrire ici.
+
+   Rien ne tourne quand l'onglet est en arrière-plan : le
+   navigateur suspend l'animation, et on ne rattrape pas le
+   retard au retour.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var MOTS = [
+    'wonder.', 'signature.', 'territory.', 'narrative.', 'tension.',
+    'rhythm.', 'contrast.', 'accuracy.', 'silence.', 'framing.',
+    'nuance.', 'impact.', 'texture.', 'line.', 'breath.', 'density.',
+    'angle.', 'instinct.', 'writing.', 'gesture.', 'light.',
+    'direction.', 'memory.', 'precision.', 'freedom.'
+  ];
+  var POSE = 1900;   /* le temps qu'un mot reste en place */
+
+  var roue = document.getElementById('roue');
+  if(!roue) return;
+
+  /* un mot, composé de lettres : ce sont elles qui basculent à l'arrivée */
+  function compose(el, texte){
+    texte.split('').forEach(function(ch, k){
+      var c = document.createElement('span');
+      c.className = 'c';
+      c.style.setProperty('--i', k);
+      c.textContent = ch === ' ' ? '\u00A0' : ch;   /* une espace insécable : elle garde sa largeur */
+      el.appendChild(c);
+    });
+    el.setAttribute('aria-label', texte);
+  }
+
+  var i = 0;
+  var actuel = document.createElement('span');
+  actuel.className = 'mot est-la';
+  compose(actuel, MOTS[0]);
+  roue.appendChild(actuel);
+
+  var calme = matchMedia('(prefers-reduced-motion: reduce)');
+  if(calme.matches) return;
+
+  function suivant(){
+    i = (i + 1) % MOTS.length;
+
+    var neuf = document.createElement('span');
+    neuf.className = 'mot arrive';
+    compose(neuf, MOTS[i]);
+    roue.appendChild(neuf);
+
+    /* On force le navigateur à calculer l'état de départ avant de
+       poser l'état d'arrivée, sinon il passe directement au second
+       et il n'y a pas de transition.
+
+       Cette lecture de offsetWidth suffit, et elle est immédiate.
+       Attendre une image d'animation marcherait aussi, mais pas
+       quand l'onglet est en veille : le navigateur n'en donne plus,
+       le mot restait alors coincé en route. */
+    void neuf.offsetWidth;
+    neuf.className = 'mot est-la';
+    actuel.className = 'mot part';
+
+    var ancien = actuel;
+    actuel = neuf;
+    setTimeout(function(){ ancien.remove(); }, 900);
+  }
+
+  var minuteur = setInterval(suivant, POSE);
+
+  /* onglet caché : on arrête, et on repart proprement au retour */
+  document.addEventListener('visibilitychange', function(){
+    clearInterval(minuteur);
+    if(!document.hidden) minuteur = setInterval(suivant, POSE);
+  });
+})();
+</script>
+</body>
+</html>

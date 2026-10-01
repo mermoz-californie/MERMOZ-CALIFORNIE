@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mermoz Californie</title>
+<meta name="description" content="Studio de création publicitaire indépendant à Paris. Créer de la résonance entre les marques et leur audience.">
+
+<!-- la police du grand mot est sur le site : on la demande tout de
+     suite, en même temps que la page -->
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/PPWoodland/PPWoodland-Regular.woff2">
+
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* ============================================================
+   01. TYPOGRAPHIES
+
+   Deux polices, pas plus.
+
+   PP Woodland porte la phrase. Elle est servie depuis le site, en
+   woff2, le format le plus léger.
+
+   Le reste est en SF Pro, celle du système Apple. Elle n'est pas
+   chargée : la pile système la sert nativement sur Mac et sur
+   iPhone, ce qui donne le dessin exact, zéro octet téléchargé, et
+   aucune question de licence. Ailleurs, la pile retombe sur la
+   grotesque du système.
+   ============================================================ */
+@font-face{
+  font-family: 'PPObjectSans';
+  src: url('assets/fonts/PPObjectSans/PPObjectSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: 'PP Woodland';
+  src: url('assets/fonts/PPWoodland/PPWoodland-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+/* Object Sans n'existe dans le dossier qu'en Bold : pour le
+   manifeste en capitales fines, on prend le Mori Extralight, la
+   grotesque la plus légère dont on dispose. */
+@font-face{
+  font-family: 'PP Mori';
+  src: url('assets/fonts/PPMori/PPMori-Extralight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: 'PP Mori';
+  src: url('assets/fonts/PPMori/PPMori-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root{
+  --woodland: 'PP Woodland', Georgia, 'Times New Roman', serif;
+  --object: 'PPObjectSans', 'Helvetica Neue', Arial, sans-serif;
+  --mori: 'PP Mori', 'Helvetica Neue', Arial, sans-serif;
+  --sf: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro',
+        'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+/* ============================================================
+   02. COULEURS, relevées sur la maquette
+   ============================================================ */
+  --noir:  #101010;
+  --blanc: #FFFFFF;
+  --bleu:  #0074FF;
+  --bleu-clair: #2C8CFF;
+  --cyan:   #81DDFF;
+  --jaune:  #EDFF9B;
+  --rose:   #F4BDD2;
+  --corail: #F94144;
+  --gris:  #9A9A9A;
+
+  --ease: cubic-bezier(.16, 1, .3, 1);
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  background: var(--noir);
+  color: var(--blanc);
+  font-family: var(--sf);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* Un écran : tout est centré dedans, et il fait exactement la
+   hauteur de la fenêtre. */
+.ecran{
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(46px, 7vh, 86px);
+  padding: 6vh 24px;
+}
+
+a{ color: inherit; text-decoration: none; }
+:focus-visible{ outline: 2px solid var(--bleu); outline-offset: 4px; }
+::selection{ background: var(--bleu); color: var(--blanc); }
+
+/* ============================================================
+   03. LE LOGOTYPE
+   ============================================================ */
+.logo{
+  display: inline-block;
+  font-weight: 700;
+  font-size: clamp(15px, 1.15vw, 21px);
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+}
+.logo sup{
+  font-size: .44em;
+  vertical-align: super;
+  position: relative;
+  top: -.12em;
+}
+
+/* ============================================================
+   04. LA PHRASE
+
+   « Look for » ne bouge pas, le mot qui suit se remplace en
+   boucle. Les deux lignes sont donc empilées et centrées.
+
+   Le mot sortant et le mot entrant occupent la même place : le
+   sortant est en position absolue au-dessus du bloc, sans quoi la
+   ligne sauterait à chaque changement.
+   ============================================================ */
+.phrase{
+  font-family: var(--woodland);
+  font-weight: 400;
+  font-size: clamp(44px, 5.2vw, 92px);
+  line-height: 1.12;
+  letter-spacing: -.01em;
+}
+.phrase__ligne{ display: block; }
+.phrase__mot{
+  position: relative;
+  display: block;
+  /* la hauteur d'une ligne, réservée une fois pour toutes */
+  height: 1.12em;
+}
+.mot{
+  position: absolute;
+  /* Centré sur l'axe de la page, et non dans la boîte du titre.
+
+     La boîte, elle, ne fait que la largeur de « Look for » : un mot
+     plus long la débordait des deux côtés, et le centrage flottait
+     d'un mot à l'autre. En partant du milieu puis en reculant de la
+     moitié de sa propre largeur, chaque mot tombe exactement sur le
+     même axe, quelle que soit sa longueur. */
+  left: 50%;
+  display: block;
+  white-space: nowrap;
+  transition: opacity .5s var(--ease), transform .7s var(--ease), filter .5s var(--ease);
+}
+/* l'état de repos : posé, net */
+.mot.est-la{ opacity: 1; transform: translate(-50%, 0); filter: blur(0); }
+/* il arrive d'en bas, à peine flou */
+/* le point final : une boîte de largeur nulle, il dépasse sans compter */
+.mot .pt{ display: inline-block; width: 0; overflow: visible; }
+/* il arrive en place : ce sont ses lettres qui basculent (voir L'APPARITION) */
+.mot.arrive{ opacity: 1; transform: translate(-50%, 0); filter: blur(0); }
+/* il s'en va vers le haut */
+.mot.part{ opacity: 0; transform: translate(-50%, -.42em); filter: blur(6px); }
+
+/* ============================================================
+   05. LA SIGNATURE ET LE BOUTON
+   ============================================================ */
+.pied{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(22px, 3.4vh, 34px);
+}
+.signature{
+  font-size: clamp(14px, 1.05vw, 18px);
+  line-height: 1.45;
+  margin: 0;
+}
+.signature > b{ font-weight: 700; display: block; }
+.signature > span{ display: block; font-weight: 400; color: #E6E6E6; }
+
+.bouton{
+  --c: var(--bleu);              /* la couleur finale du bouton */
+  --c-survol: #2C8CFF;           /* la même, au survol */
+  --texte: var(--blanc);         /* la couleur de son texte */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-block;
+  color: var(--texte);
+  font-size: clamp(14px, 1.05vw, 18px);
+  font-weight: 500;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: .95em 1.7em;
+  border-radius: 999px;
+  transition: transform .35s var(--ease);
+}
+/* la couleur est portée par un calque uni (le ruban, lui, passe devant
+   à l'apparition) */
+.bouton::before{
+  content: '';
+  position: absolute; inset: 0; z-index: -1;
+  border-radius: inherit;
+  background: var(--c);
+  transition: background-color .35s var(--ease);
+}
+.bouton__txt{
+  position: relative; z-index: 3;
+  display: inline-block; white-space: nowrap; min-height: 1.2em;
+  /* le texte se pose une fois le contour tracé et le ruban arrêté */
+  --d: calc(var(--db, 0s) + 1.7s);
+  --p: 34ms;
+}
+.bouton .trace{ display: none; }
+.bouton:hover::before{ background: var(--c-survol); }
+.bouton:hover{ transform: translateY(-2px); }
+.bouton:active{ transform: translateY(0); }
+
+/* les couleurs de bouton : le texte est blanc partout, sauf sur le jaune,
+   où le blanc ne se lit pas */
+.bouton[data-couleur="cyan"]  { --c: var(--cyan);  --c-survol: #A6E9FF; --texte: var(--blanc); }
+.bouton[data-couleur="jaune"] { --c: var(--jaune); --c-survol: #F7FFBF; --texte: var(--noir); }
+.bouton[data-couleur="rose"]  { --c: var(--rose);  --c-survol: #F9D4E2; --texte: var(--blanc); }
+.bouton[data-couleur="corail"],
+.bouton[data-couleur="orange"]{ --c: var(--corail); --c-survol: #FF6B6E; --texte: var(--blanc); }
+
+/* ============================================================
+   05 ter. L'APPARITION
+
+   Chaque écran a un état « posé » (la classe .est-la) que le script
+   lui donne quand il arrive, et lui retire quand il s'en va. Les
+   textes se composent alors lettre par lettre, chacune basculant
+   vers l'avant comme un volet ; le bouton se trace puis se remplit.
+
+   Tout est écrit pour la sortie comme pour l'entrée : à l'arrivée
+   le mouvement est long et décalé lettre à lettre, au départ il est
+   bref, pour que l'écran soit prêt à rejouer dès qu'on revient.
+
+   Sans script (classe « js » absente), rien n'est caché.
+   ============================================================ */
+.w{ display: inline-block; white-space: nowrap; }
+.c{ display: inline-block; }
+.sr{
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* La lettre repliée : couchée vers l'arrière, pivotant sur son pied.
+   Le retard d'une lettre vient de trois choses : le délai de son
+   élément (--d), sa ligne (--l, pour le manifeste) et son rang dans
+   cette ligne (--i), multiplié par le pas propre au texte (--p). */
+.js .lettres .c,
+.js .mot .c{
+  opacity: 0;
+  transform-origin: 50% 100%;
+  transform: rotateX(-100deg) translateY(.2em);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.js .est-la .lettres .c{
+  opacity: 1;
+  transform: none;
+  transition: opacity .5s ease calc(var(--d, 0s) + var(--l, 0) * var(--pl, 150ms) + var(--i, 0) * var(--p, 38ms)),
+              transform .9s var(--ease) calc(var(--d, 0s) + var(--l, 0) * var(--pl, 150ms) + var(--i, 0) * var(--p, 38ms));
+}
+
+/* Le mot qui défile bascule de la même façon. Le premier, à
+   l'entrée de l'écran, attend son tour (--dm) ; les suivants
+   enchaînent aussitôt. Celui qui part reste posé : c'est son bloc
+   qui s'efface. */
+.js .est-la .mot.est-la .c{
+  opacity: 1;
+  transform: none;
+  transition: opacity .45s ease calc(var(--dm, 0s) + var(--i, 0) * 34ms),
+              transform .85s var(--ease) calc(var(--dm, 0s) + var(--i, 0) * 34ms);
+}
+.js .mot.part .c{ opacity: 1; transform: none; transition: none; }
+
+/* LE BOUTON
+
+   Trois temps :
+     1. un trait dessine le contour de la pilule, d'un seul geste ;
+     2. le ruban de la page la traverse en 0,8 s : les couleurs
+        défilent et la dernière, celle du bouton, se fixe ;
+     3. le texte se pose, lettre à lettre.
+
+   La couleur finale se règle avec l'attribut data-couleur du bouton :
+   bleu (par défaut), cyan, jaune, rose, ou corail (aussi : orange).
+   Les quatre autres couleurs défilent d'abord, dans l'ordre du ruban,
+   puis la couleur choisie arrive en dernier et s'arrête.
+
+   Le tracé est un rectangle SVG dont le script règle les dimensions
+   sur celles du bouton. Le ruban est fabriqué par le script. */
+.js .bouton .trace{
+  display: block;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none;
+  z-index: 2;
+}
+.js .bouton .trace rect{
+  fill: none; stroke: #fff; stroke-width: 1.5;
+  stroke-dasharray: var(--perim, 1000px); stroke-dashoffset: var(--perim, 1000px);
+  opacity: 0;   /* invisible tant que le tracé n'a pas été lancé : aucun bout de contour ne dépasse avant */
+  transition: stroke-dashoffset .3s ease, stroke .25s ease;
+}
+
+/* le ruban : cinq bandes empilées, cinq fois la hauteur du bouton,
+   posées sous la pilule ; il monte de quatre hauteurs et laisse la
+   dernière bande en place */
+.js .bouton .rub{
+  position: absolute; left: 0; right: 0; top: 0; height: 500%;
+  z-index: 1;
+  display: flex; flex-direction: column;
+  transform: translateY(20%);
+  pointer-events: none;
+}
+.js .bouton .rub i{ display: block; flex: 1; }
+.k-corail{ background: var(--corail); }
+.k-rose  { background: var(--rose); }
+.k-jaune { background: var(--jaune); }
+.k-cyan  { background: var(--cyan); }
+.k-bleu  { background: var(--bleu); }
+
+/* le calque uni de la couleur finale n'apparaît qu'à la fin, quand le
+   ruban s'est arrêté : c'est lui qui réagit au survol */
+.js .apb::before{ opacity: 0; }
+.js .est-la .apb .trace rect{
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition: stroke-dashoffset 1.05s cubic-bezier(.65, 0, .25, 1) var(--db, 0s),
+              stroke .25s ease,
+              opacity 0s linear var(--db, 0s);   /* il n'apparaît qu'au moment du départ */
+}
+.js .est-la .apb .rub{
+  animation: monte .8s cubic-bezier(.6, 0, .2, 1) calc(var(--db, 0s) + .85s) both;
+}
+@keyframes monte{
+  from{ transform: translateY(20%); }
+  to  { transform: translateY(-80%); }
+}
+/* la couleur est posée (classe ajoutée par le script) : le contour et
+   le calque uni prennent sa couleur, le ruban s'efface */
+.js .est-la .bouton.rempli::before{ opacity: 1; }
+.js .est-la .bouton.rempli .rub{ display: none; }
+.js .est-la .bouton.rempli .trace rect{ stroke: var(--c); }
+/* Le trait est fini : on retire les tirets. Un tracé en tirets a un début
+   et une fin qui ne font que se toucher, ce qui laisse un décrochement au
+   point de départ ; sans tirets, c'est un seul contour fermé, joint
+   proprement. Le dessin ne change pas d'un pixel. */
+.js .est-la .bouton.ferme .trace rect{ stroke-dasharray: none; }
+
+/* LE SIGNE
+
+   Un trait de stylo qui se dessine : le tracé guide suit le milieu du
+   trait du logo, plus épais que lui, et c'est devant lui que la forme
+   apparaît. Sa longueur est mesurée par le script (--len). */
+.marque{
+  display: flex; flex-direction: column; align-items: center;
+  gap: .9em;
+  font-size: clamp(15px, 1.15vw, 21px);
+}
+.signe{ display: block; width: 4em; height: auto; overflow: visible; transition: color .3s ease; }
+.signe .forme{ fill: currentColor; }
+.signe .guide{ fill: none; stroke: #fff; stroke-width: 72; stroke-linecap: round; stroke-linejoin: round; }
+.signe.encre-noire{ color: var(--noir); }
+.js .signe .guide{
+  stroke-dasharray: var(--len, 3000px);
+  stroke-dashoffset: var(--len, 3000px);
+  transition: stroke-dashoffset .35s ease;
+}
+.js .est-la .signe .guide{
+  stroke-dashoffset: 0;
+  /* un geste de plume : il s'élance, ralentit dans les plis, finit en douceur */
+  transition: stroke-dashoffset var(--uw) cubic-bezier(.55, .05, .25, 1) calc(var(--d, 0s) + var(--tw));
+}
+
+/* Les stylos de couleur : même tracé que le stylo blanc, découpés dans la forme.
+   Chacun a son départ (--t) et sa durée (--u) : le suivant part avant que le
+   précédent ait fini, et tout va de plus en plus vite. */
+.signe .stylo{ fill: none; stroke-width: 72; stroke-linecap: round; stroke-linejoin: round; }
+.signe .s1{ stroke: var(--corail); } .signe .s2{ stroke: var(--rose); }
+.signe .s3{ stroke: var(--jaune); }  .signe .s4{ stroke: var(--cyan); }
+.signe .s5{ stroke: #1969C2; }
+.js .signe .stylo{
+  stroke-dasharray: var(--len, 3000px);
+  stroke-dashoffset: var(--len, 3000px);
+  transition: stroke-dashoffset .35s ease;
+}
+.js .est-la .signe .stylo{ stroke-dashoffset: 0; }
+.js .est-la .signe .s1{ transition: stroke-dashoffset var(--u1) cubic-bezier(.55,.05,.25,1) calc(var(--d, 0s) + var(--t1)); }
+.js .est-la .signe .s2{ transition: stroke-dashoffset var(--u2) cubic-bezier(.55,.05,.25,1) calc(var(--d, 0s) + var(--t2)); }
+.js .est-la .signe .s3{ transition: stroke-dashoffset var(--u3) cubic-bezier(.55,.05,.25,1) calc(var(--d, 0s) + var(--t3)); }
+.js .est-la .signe .s4{ transition: stroke-dashoffset var(--u4) cubic-bezier(.55,.05,.25,1) calc(var(--d, 0s) + var(--t4)); }
+.js .est-la .signe .s5{ transition: stroke-dashoffset var(--u5) cubic-bezier(.55,.05,.25,1) calc(var(--d, 0s) + var(--t5)); }
+
+/* Le signe de l'en-tête du second écran : réservé au smartphone, où il remplace
+   le nom, centré en haut et petit. Il se redessine, avec ses couleurs, à
+   l'arrivée de l'écran, comme celui du premier. */
+.signe--entete{ display: block; width: clamp(56px, 4.4vw, 80px); }
+/* il se redessine toutes les 20 secondes tant que l'écran est là : le script
+   pose un instant la classe « repart », qui le remet à zéro */
+.js .est-la .signe.repart .stylo,
+.js .est-la .signe.repart .guide{ stroke-dashoffset: var(--len, 3000px); transition: none !important; }
+@media (max-width: 760px){
+  .ecran--deux > header.entete .logo,
+  .ecran--deux > header.entete .bouton{ display: none; }
+  .signe--entete{ width: 62px; margin-top: 14px; }
+}
+
+/* ============================================================
+   05 quater. L'ENCRE
+
+   Les textes du premier écran passent devant les bandes. Blancs sur
+   le jaune, ils disparaissent : le script leur donne donc le noir du
+   site (classe .encre-noire) tant que la bande jaune est derrière
+   eux, et ils redeviennent blancs dès qu'elle est passée. Les
+   autres bandes ne changent rien : c'est l'attribut data-encre="noir"
+   posé sur une bande qui lui donne ce pouvoir.
+   Le changement se fait en douceur, quand le bord d'une bande
+   traverse le milieu du texte.
+   ============================================================ */
+.logo, .phrase__ligne, .phrase__mot, .signature > b, .signature > span{
+  transition: color .3s ease;
+}
+.logo.encre-noire, .phrase__ligne.encre-noire, .phrase__mot.encre-noire,
+.signature > b.encre-noire, .signature > span.encre-noire{
+  color: var(--noir);
+}
+/* le contour du bouton, tant qu'il n'est pas rempli de bleu */
+.js .bouton.encre-noire .trace rect{ stroke: var(--noir); }
+
+/* ============================================================
+   05 bis. LE BALAYAGE DE COULEUR
+
+   Cinq bandes montent l'une après l'autre, recouvrent l'écran,
+   puis continuent leur route et découvrent le second écran resté
+   dessous. C'est le balayage de la référence.
+
+   Le mouvement est lié au défilement, et non à une horloge : on
+   avance et on recule à la vitesse qu'on veut, l'effet suit.
+   ============================================================ */
+.passage{ position: relative; height: 320vh; }
+
+/* LA MAIN SUR LE DÉFILEMENT
+
+   Le ruban suit le doigt : il avance tant qu'on pousse, il s'arrête
+   où on s'arrête. À la relâche seulement, la page se cale sur la
+   section la plus proche — pas assez poussé, elle revient ; assez
+   poussé, elle passe. C'est l'accrochage du navigateur, celui de
+   Gleeden, avec deux points : le haut du passage, où le premier
+   écran est en place, et sa fin, où le second l'a remplacé.
+
+   Le second point n'est pas le passage lui-même : un bloc ne fournit
+   qu'une seule accroche, celle de son bord haut. Il en faut donc un
+   second, invisible, posé là où l'animation se termine. */
+html{ scroll-snap-type: y mandatory; }
+.arret{
+  position: absolute; left: 0; width: 1px;
+  pointer-events: none; opacity: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.arret--un{ top: 0; height: 100svh; }
+.arret--deux{ bottom: 0; height: 100svh; }
+
+.passage__colle{
+  position: sticky; top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* l'ordre de superposition : les bandes montent derrière le
+   logotype, la phrase et le bouton, puis le second écran arrive
+   par-dessus tout.
+
+   Le premier écran porte lui-même le numéro de plan : dès que le
+   script lui donne une opacité, il devient un calque à part entière
+   et le rang de ses enfants ne compte plus que vis-à-vis de lui. */
+.ecran--un{ position: absolute; inset: 0; z-index: 3; will-change: opacity; }
+.bandes{ position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.ecran--deux{
+  position: absolute; inset: 0; z-index: 4;
+  background: var(--noir);
+  gap: clamp(30px, 5vh, 54px);
+  transform: translateY(var(--y2, 105vh));
+  will-change: transform;
+}
+.ecran--deux > *{ position: relative; z-index: 1; }
+.manifeste{
+  font-family: var(--mori);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(14px, 1.3vw, 21px);
+  line-height: 1.55;
+  letter-spacing: .05em;
+  max-width: 30em;
+  margin: 0;
+  /* le texte est long : les lignes s'enchaînent plus vite que celles d'un
+     texte court (75 ms d'une ligne à la suivante au lieu de 150) */
+  --pl: 75ms;
+}
+.manifeste p{ margin: 0; }
+/* le développement, puis la chute */
+.manifeste p + p{ margin-top: 1.4em; }
+
+/* le groupe : un petit titre, puis le texte */
+.bloc{
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(18px, 3vh, 30px);
+}
+/* le titre : SF Regular, petit, en capitales espacées */
+.surtitre{
+  margin: 0;
+  font-family: var(--sf);
+  font-weight: 400;
+  font-size: clamp(9px, .7vw, 11px);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #E6E6E6;
+}
+
+/* L'EN-TÊTE DU SECOND ÉCRAN
+
+   Le logotype en haut à gauche. Posé en haut de l'écran sans compter
+   dans la mise en page : le manifeste reste centré. */
+.ecran--deux > .entete{
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  /* trois colonnes : le nom à gauche, le signe au centre, le bouton à droite */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: clamp(20px, 3.4vh, 36px) clamp(20px, 3vw, 44px);
+  text-align: left;
+}
+/* tous sur la première ligne : sans cela, la grille repousse sur une seconde ligne
+   ce qui est écrit après le signe dans le code */
+.ecran--deux > .entete .logo{ grid-column: 1; grid-row: 1; justify-self: start; white-space: nowrap; }
+.ecran--deux > .entete .signe--entete{ grid-column: 2; grid-row: 1; justify-self: center; }
+.ecran--deux > .entete .bouton{
+  grid-column: 3; grid-row: 1; justify-self: end;
+  font-size: clamp(10px, .8vw, 12px);
+  padding: .85em 1.6em;
+}
+
+
+/* Les cinq bandes forment un seul ruban : elles se touchent,
+   sans noir entre elles. Leur épaisseur et leur place sont écrites
+   par le script, en unités d'écran : fines en bas, épaisses au
+   milieu, fines en haut.
+
+   L'épaisseur change à chaque image. Écrite dans `height`, elle
+   obligerait le navigateur à refaire la mise en page à chaque fois ;
+   en étirant une bande de taille fixe (`scaleY`), il ne fait que
+   recomposer des calques déjà dessinés, ce qui est bien plus léger. */
+.bande{
+  position: absolute;
+  left: -2vw; width: 104vw;
+  top: 0;
+  height: 100vh;
+  transform-origin: 0 0;
+  transform: translateY(var(--y, 120vh)) scaleY(var(--e, .1));
+  will-change: transform;
+}
+.bande--bleu { background: #1969C2; }
+.bande--cyan { background: #81DDFF; }
+.bande--jaune{ background: #EDFF9B; }
+.bande--rose { background: #F4BDD2; }
+.bande--corail{ background: #F94144; }
+
+/* ============================================================
+   06. TÉLÉPHONE
+   ============================================================ */
+@media (max-width: 760px){
+  .ecran{ gap: 40px; padding: 8vh 20px; }
+  .manifeste{ font-size: clamp(15px, 4vw, 20px); }
+  .phrase{ font-size: clamp(38px, 11.5vw, 60px); }
+  .signature{ font-size: 15px; }
+  .bouton{ font-size: 15px; }
+}
+
+/* ============================================================
+   07. MOUVEMENT RÉDUIT
+
+   Quand le visiteur a demandé moins d'animations, le mot ne
+   défile plus : le premier reste affiché.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce){
+  .mot{ transition: none; }
+  .js .lettres .c, .js .est-la .lettres .c, .js .mot .c, .js .est-la .mot.est-la .c,
+  .js .bouton .trace rect, .js .est-la .apb .trace rect{
+    transition: none !important;
+  }
+  .js .est-la .apb .rub{ animation: none !important; transform: translateY(-80%); }
+  .js .signe .guide, .js .est-la .signe .guide{ transition: none !important; }
+  .js .signe .stylo, .js .est-la .signe .stylo{ transition: none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LE PASSAGE
+
+     Tout se joue dans un seul cadre collant, qui fait un écran. La
+     hauteur du passage est la course : plus elle est grande, plus
+     le remplacement est lent.
+
+     L'ordre de superposition raconte l'effet : le premier écran
+     est au fond, les bandes montent par-dessus son fond mais
+     derrière son texte, et le second écran arrive accroché à la
+     dernière bande, par-dessus tout. -->
+<div class="passage" id="passage">
+  <i class="arret arret--un" aria-hidden="true"></i>
+  <i class="arret arret--deux" aria-hidden="true"></i>
+  <div class="passage__colle">
+
+    <!-- premier écran -->
+    <section class="ecran ecran--un">
+      <div class="marque">
+        <!-- Le signe, dessiné d'un trait. La forme est celle de assets/Logo_MC/Logo_MC.svg ;
+             elle n'apparaît que sous un « stylo » (le tracé guide, épais, qui suit le milieu du
+             trait) : à mesure que celui-ci avance, la forme se révèle derrière lui. -->
+        <svg class="signe" viewBox="330 1130 940 295" style="--d:0ms; --t1:0ms;--u1:550ms; --t2:300ms;--u2:440ms; --t3:545ms;--u3:350ms; --t4:740ms;--u4:280ms; --t5:890ms;--u5:220ms; --tw:1010ms;--uw:200ms" aria-hidden="true">
+          <defs><mask id="trait-mc" maskUnits="userSpaceOnUse" x="330" y="1130" width="940" height="295"><path class="guide" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/></mask></defs>
+          <!-- Cinq stylos de couleur écrivent le signe l'un après l'autre (orange, rose, jaune, cyan, bleu),
+               chacun partant avant que le précédent ait fini, et de plus en plus vite ; le dernier, blanc,
+               est la forme elle-même. Les couleurs sont découpées dans la forme. -->
+          <clipPath id="forme-mc"><path d="M914.07,1329.44c36.13-27.37,81.09-61.44,124.95-82.62,12.81-6.21,30.41-14.71,39.72,2.16,9.62,17.4-6.12,27.28-29.94,42.21-20.52,12.87-41.91,44.4-33.63,63.75,5.65,13.18,12.3,16.78,16.81,18.34,23.72,8.24,73.63-21,113.24-42.6,30.96-16.88,60.21-32.82,86.27-38.49,12.59-2.67,24.93,7.57,22.98,21.89-1.07,7.84-7.34,13.79-15.07,15.49-20.7,4.55-48.76,19.85-75.9,34.65-39.86,21.73-80.83,44.07-116.13,44.07-7.96,0-15.63-1.13-22.92-3.66-17.57-6.09-30.83-19.35-39.42-39.41-3.96-9.26-5.62-18.73-5.42-28.09.08-3.69-4.01-5.93-6.99-3.76-12.45,9.07-24.4,18.13-35.48,26.53-48.95,37.08-67.26,50.96-84.58,37.2-15.65-12.44-5.83-34.42-1.1-44.98,4.66-10.43,11.89-23.09,21.39-37.66,5.72-8.77,21.56-31.21,20.31-35.53-1.05-3.63-13.94,4.56-26.08,15.41-16.82,15.03-34.41,27.23-49,39.1-50.31,40.95-67.24,54.76-84.63,40.08-16.92-14.26-10.59-33.27,42.33-127.11,10.87-19.28,16.76-30.8,21.69-41.34,4.57-9.77-.56-7.98-2.92-6.3-27.56,19.63-73.57,58.93-137.54,117.51-158.38,145.03-297.03,69.1-302.86,65.79-9.18-5.21-12.4-16.87-7.19-26.04,5.2-9.16,16.82-12.36,25.98-7.23,5.08,2.82,121.24,64.79,258.27-60.69,149.98-137.34,182.87-154.54,205.57-136.5,18.76,14.91,12.2,43.82-27.72,113.59-12.06,21.08-43.19,66.28-22.51,48.06l55.54-47.73c1.12-.97,2.31-1.93,3.48-2.83,44.45-34.11,70.42-48.45,87.99-33.14,20.29,17.65,8.71,41.98-15.39,80.17-18.45,29.24-8.07,22.73-4.11,19.72"/></clipPath>
+          <g clip-path="url(#forme-mc)"><path class="stylo s1" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/><path class="stylo s2" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/><path class="stylo s3" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/><path class="stylo s4" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/><path class="stylo s5" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/></g>
+          <path class="forme" mask="url(#trait-mc)" d="M914.07,1329.44c36.13-27.37,81.09-61.44,124.95-82.62,12.81-6.21,30.41-14.71,39.72,2.16,9.62,17.4-6.12,27.28-29.94,42.21-20.52,12.87-41.91,44.4-33.63,63.75,5.65,13.18,12.3,16.78,16.81,18.34,23.72,8.24,73.63-21,113.24-42.6,30.96-16.88,60.21-32.82,86.27-38.49,12.59-2.67,24.93,7.57,22.98,21.89-1.07,7.84-7.34,13.79-15.07,15.49-20.7,4.55-48.76,19.85-75.9,34.65-39.86,21.73-80.83,44.07-116.13,44.07-7.96,0-15.63-1.13-22.92-3.66-17.57-6.09-30.83-19.35-39.42-39.41-3.96-9.26-5.62-18.73-5.42-28.09.08-3.69-4.01-5.93-6.99-3.76-12.45,9.07-24.4,18.13-35.48,26.53-48.95,37.08-67.26,50.96-84.58,37.2-15.65-12.44-5.83-34.42-1.1-44.98,4.66-10.43,11.89-23.09,21.39-37.66,5.72-8.77,21.56-31.21,20.31-35.53-1.05-3.63-13.94,4.56-26.08,15.41-16.82,15.03-34.41,27.23-49,39.1-50.31,40.95-67.24,54.76-84.63,40.08-16.92-14.26-10.59-33.27,42.33-127.11,10.87-19.28,16.76-30.8,21.69-41.34,4.57-9.77-.56-7.98-2.92-6.3-27.56,19.63-73.57,58.93-137.54,117.51-158.38,145.03-297.03,69.1-302.86,65.79-9.18-5.21-12.4-16.87-7.19-26.04,5.2-9.16,16.82-12.36,25.98-7.23,5.08,2.82,121.24,64.79,258.27-60.69,149.98-137.34,182.87-154.54,205.57-136.5,18.76,14.91,12.2,43.82-27.72,113.59-12.06,21.08-43.19,66.28-22.51,48.06l55.54-47.73c1.12-.97,2.31-1.93,3.48-2.83,44.45-34.11,70.42-48.45,87.99-33.14,20.29,17.65,8.71,41.98-15.39,80.17-18.45,29.24-8.07,22.73-4.11,19.72"/>
+        </svg>
+        <a class="logo lettres" href="#" style="--d:1100ms" data-pas="46">Mermoz Californie<sup>®</sup></a>
+      </div>
+
+      <h1 class="phrase">
+        <span class="phrase__ligne lettres" style="--d:1950ms" data-pas="46">Cherchez</span>
+        <span class="phrase__mot" id="roue" aria-live="polite"></span>
+      </h1>
+
+      <div class="pied">
+        <p class="signature">
+          <span class="lettres" style="--d:3200ms" data-pas="16">Créons une résonance affective durable</span>
+          <b class="lettres" style="--d:3400ms" data-pas="24">entre vous et votre public.</b>
+        </p>
+        <a class="bouton apb" style="--db:3600ms" href="mailto:creation@mermoz-californie.com"
+           aria-label="Nous contacter"><svg class="trace" aria-hidden="true"><rect/></svg><span class="bouton__txt lettres" aria-hidden="true">Nous contacter</span></a>
+      </div>
+    </section>
+
+    <!-- les cinq bandes : les quatre de la référence, plus le corail.
+         data-encre="noir" dit qu'un texte qui passe devant doit être
+         noir ; sans cet attribut, il reste blanc. Seul le jaune l'a. -->
+    <div class="bandes" aria-hidden="true">
+      <i class="bande bande--bleu"></i>
+      <i class="bande bande--cyan"></i>
+      <i class="bande bande--jaune" data-encre="noir"></i>
+      <i class="bande bande--rose"></i>
+      <i class="bande bande--corail"></i>
+    </div>
+
+    <!-- second écran, tiré par la dernière bande -->
+    <section class="ecran ecran--deux">
+      <header class="entete">
+        <svg class="signe signe--entete" viewBox="330 1130 940 295" style="--d:0ms; --t1:0ms;--u1:550ms; --t2:300ms;--u2:440ms; --t3:545ms;--u3:350ms; --t4:740ms;--u4:280ms; --t5:890ms;--u5:220ms; --tw:1010ms;--uw:200ms" aria-hidden="true">
+          <defs><mask id="trait-mc2" maskUnits="userSpaceOnUse" x="330" y="1130" width="940" height="295"><path class="guide" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/></mask></defs>
+          <clipPath id="forme-mc2"><path d="M914.07,1329.44c36.13-27.37,81.09-61.44,124.95-82.62,12.81-6.21,30.41-14.71,39.72,2.16,9.62,17.4-6.12,27.28-29.94,42.21-20.52,12.87-41.91,44.4-33.63,63.75,5.65,13.18,12.3,16.78,16.81,18.34,23.72,8.24,73.63-21,113.24-42.6,30.96-16.88,60.21-32.82,86.27-38.49,12.59-2.67,24.93,7.57,22.98,21.89-1.07,7.84-7.34,13.79-15.07,15.49-20.7,4.55-48.76,19.85-75.9,34.65-39.86,21.73-80.83,44.07-116.13,44.07-7.96,0-15.63-1.13-22.92-3.66-17.57-6.09-30.83-19.35-39.42-39.41-3.96-9.26-5.62-18.73-5.42-28.09.08-3.69-4.01-5.93-6.99-3.76-12.45,9.07-24.4,18.13-35.48,26.53-48.95,37.08-67.26,50.96-84.58,37.2-15.65-12.44-5.83-34.42-1.1-44.98,4.66-10.43,11.89-23.09,21.39-37.66,5.72-8.77,21.56-31.21,20.31-35.53-1.05-3.63-13.94,4.56-26.08,15.41-16.82,15.03-34.41,27.23-49,39.1-50.31,40.95-67.24,54.76-84.63,40.08-16.92-14.26-10.59-33.27,42.33-127.11,10.87-19.28,16.76-30.8,21.69-41.34,4.57-9.77-.56-7.98-2.92-6.3-27.56,19.63-73.57,58.93-137.54,117.51-158.38,145.03-297.03,69.1-302.86,65.79-9.18-5.21-12.4-16.87-7.19-26.04,5.2-9.16,16.82-12.36,25.98-7.23,5.08,2.82,121.24,64.79,258.27-60.69,149.98-137.34,182.87-154.54,205.57-136.5,18.76,14.91,12.2,43.82-27.72,113.59-12.06,21.08-43.19,66.28-22.51,48.06l55.54-47.73c1.12-.97,2.31-1.93,3.48-2.83,44.45-34.11,70.42-48.45,87.99-33.14,20.29,17.65,8.71,41.98-15.39,80.17-18.45,29.24-8.07,22.73-4.11,19.72"/></clipPath>
+          <g clip-path="url(#forme-mc2)"><path class="stylo s1" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/><path class="stylo s2" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/><path class="stylo s3" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/><path class="stylo s4" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/><path class="stylo s5" d="M365.0,1366.0 L371.4,1368.7 L377.9,1371.3 L384.6,1373.5 L391.2,1375.7 L397.9,1377.9 L404.7,1379.1 L411.6,1380.5 L418.4,1382.0 L425.3,1382.4 L432.2,1383.7 L439.2,1384.0 L446.2,1384.1 L453.1,1385.0 L460.0,1384.4 L466.9,1384.0 L473.9,1384.0 L480.8,1382.7 L487.7,1382.0 L494.6,1380.9 L501.4,1379.3 L508.2,1377.8 L515.0,1376.3 L521.8,1374.4 L528.4,1372.1 L534.9,1369.8 L541.5,1367.4 L548.0,1364.8 L554.4,1362.0 L560.7,1358.9 L566.9,1355.8 L573.2,1352.6 L579.3,1349.2 L585.4,1345.7 L591.2,1341.9 L597.2,1338.2 L602.9,1334.2 L608.5,1330.0 L614.1,1325.9 L619.6,1321.5 L625.0,1317.1 L630.5,1312.7 L635.8,1308.2 L641.2,1303.7 L646.2,1298.8 L651.6,1294.4 L656.5,1289.5 L661.9,1285.0 L666.9,1280.1 L672.2,1275.5 L677.3,1270.7 L682.6,1266.2 L687.6,1261.4 L693.0,1256.9 L698.1,1252.1 L703.4,1247.6 L708.8,1243.1 L713.8,1238.3 L719.2,1233.8 L724.6,1229.4 L729.9,1224.8 L735.0,1220.1 L740.4,1215.6 L745.8,1211.2 L751.3,1206.8 L756.7,1202.4 L762.1,1198.0 L767.8,1193.8 L773.4,1189.6 L778.9,1185.4 L785.1,1182.1 L791.9,1180.4 L798.7,1178.7 L805.4,1177.1 L812.3,1175.6 L818.6,1176.4 L818.6,1183.3 L817.3,1190.2 L816.1,1197.1 L814.9,1203.9 L813.4,1210.8 L811.7,1217.4 L808.4,1223.6 L805.3,1229.9 L802.2,1236.1 L798.8,1242.3 L795.5,1248.4 L792.1,1254.5 L788.6,1260.6 L785.2,1266.7 L781.5,1272.6 L778.0,1278.7 L774.5,1284.7 L771.1,1290.8 L767.8,1297.0 L765.2,1303.5 L764.0,1310.4 L762.6,1317.2 L761.0,1324.0 L759.7,1330.9 L759.0,1337.8 L755.6,1343.7 L751.2,1349.1 L753.0,1347.0 L757.5,1341.6 L763.1,1337.6 L769.8,1335.7 L776.6,1333.8 L783.3,1332.0 L790.0,1330.0 L796.2,1326.9 L801.7,1322.6 L807.2,1318.2 L812.5,1313.7 L818.1,1309.5 L823.6,1305.2 L829.0,1300.7 L834.3,1296.2 L839.5,1291.5 L844.9,1287.1 L850.3,1282.6 L855.5,1278.0 L861.0,1273.7 L866.6,1269.4 L872.4,1265.6 L878.8,1262.7 L885.6,1261.0 L892.3,1259.3 L899.1,1257.6 L905.9,1255.9 L912.7,1255.4 L912.6,1262.0 L911.1,1268.9 L909.7,1275.7 L908.1,1282.5 L906.6,1289.3 L904.3,1295.9 L901.1,1302.1 L897.6,1308.2 L894.2,1314.3 L892.3,1321.0 L890.7,1327.8 L889.0,1334.6 L887.5,1341.4 L885.9,1348.2 L884.8,1355.1 L880.8,1360.8 L876.1,1365.9 L871.7,1371.3 L871.2,1371.8 L875.6,1366.5 L880.4,1361.4 L885.0,1356.1 L891.5,1353.8 L898.3,1351.9 L905.0,1350.1 L911.7,1348.2 L918.5,1346.2 L925.0,1343.9 L930.6,1339.7 L936.2,1335.5 L941.8,1331.3 L947.4,1327.1 L953.0,1323.0 L958.7,1318.9 L965.5,1317.0 L972.2,1315.1 L979.0,1313.4 L985.8,1311.7 L992.4,1309.7 L996.8,1304.3 L1001.6,1299.1 L1006.6,1294.4 L1011.6,1289.4 L1017.0,1285.1 L1022.5,1280.7 L1028.3,1276.8 L1034.3,1273.1 L1040.3,1269.6 L1046.3,1266.0 L1052.3,1262.4 L1058.2,1258.7 L1053.9,1261.4 L1047.9,1265.0 L1042.0,1268.7 L1036.0,1272.3 L1029.9,1275.7 L1024.1,1279.6 L1018.6,1283.9 L1013.0,1288.1 L1008.0,1293.0 L1002.8,1297.7 L998.1,1302.9 L993.8,1308.4 L996.0,1314.7 L996.0,1321.7 L996.0,1328.7 L996.1,1335.7 L997.0,1342.6 L998.1,1349.5 L999.4,1356.3 L1001.5,1363.0 L1004.8,1369.2 L1008.8,1374.8 L1013.8,1379.8 L1019.4,1383.9 L1025.8,1386.6 L1032.7,1388.0 L1039.6,1389.0 L1046.5,1390.0 L1053.5,1389.8 L1060.3,1388.6 L1067.2,1387.3 L1073.9,1385.4 L1080.4,1382.9 L1086.9,1380.4 L1093.5,1377.8 L1099.8,1374.9 L1106.2,1372.1 L1112.5,1369.0 L1118.8,1365.9 L1125.0,1362.7 L1131.1,1359.2 L1137.3,1356.1 L1143.4,1352.6 L1149.6,1349.4 L1155.7,1345.9 L1161.9,1342.7 L1168.0,1339.3 L1174.1,1335.9 L1180.3,1332.6 L1186.5,1329.5 L1192.8,1326.4 L1199.2,1323.6 L1205.5,1320.5 L1212.0,1318.0 L1218.4,1315.2 L1225.2,1313.3 L1231.7,1310.8 L1234.0,1311.0"/></g>
+          <path class="forme" mask="url(#trait-mc2)" d="M914.07,1329.44c36.13-27.37,81.09-61.44,124.95-82.62,12.81-6.21,30.41-14.71,39.72,2.16,9.62,17.4-6.12,27.28-29.94,42.21-20.52,12.87-41.91,44.4-33.63,63.75,5.65,13.18,12.3,16.78,16.81,18.34,23.72,8.24,73.63-21,113.24-42.6,30.96-16.88,60.21-32.82,86.27-38.49,12.59-2.67,24.93,7.57,22.98,21.89-1.07,7.84-7.34,13.79-15.07,15.49-20.7,4.55-48.76,19.85-75.9,34.65-39.86,21.73-80.83,44.07-116.13,44.07-7.96,0-15.63-1.13-22.92-3.66-17.57-6.09-30.83-19.35-39.42-39.41-3.96-9.26-5.62-18.73-5.42-28.09.08-3.69-4.01-5.93-6.99-3.76-12.45,9.07-24.4,18.13-35.48,26.53-48.95,37.08-67.26,50.96-84.58,37.2-15.65-12.44-5.83-34.42-1.1-44.98,4.66-10.43,11.89-23.09,21.39-37.66,5.72-8.77,21.56-31.21,20.31-35.53-1.05-3.63-13.94,4.56-26.08,15.41-16.82,15.03-34.41,27.23-49,39.1-50.31,40.95-67.24,54.76-84.63,40.08-16.92-14.26-10.59-33.27,42.33-127.11,10.87-19.28,16.76-30.8,21.69-41.34,4.57-9.77-.56-7.98-2.92-6.3-27.56,19.63-73.57,58.93-137.54,117.51-158.38,145.03-297.03,69.1-302.86,65.79-9.18-5.21-12.4-16.87-7.19-26.04,5.2-9.16,16.82-12.36,25.98-7.23,5.08,2.82,121.24,64.79,258.27-60.69,149.98-137.34,182.87-154.54,205.57-136.5,18.76,14.91,12.2,43.82-27.72,113.59-12.06,21.08-43.19,66.28-22.51,48.06l55.54-47.73c1.12-.97,2.31-1.93,3.48-2.83,44.45-34.11,70.42-48.45,87.99-33.14,20.29,17.65,8.71,41.98-15.39,80.17-18.45,29.24-8.07,22.73-4.11,19.72"/>
+        </svg>
+        <a class="logo lettres" href="#" style="--d:0ms" data-pas="46">Mermoz Californie<sup>®</sup></a>
+        <a class="bouton apb" style="--db:1500ms" href="mailto:creation@mermoz-californie.com"
+           aria-label="Nous contacter"><svg class="trace" aria-hidden="true"><rect/></svg><span class="bouton__txt lettres" aria-hidden="true">Nous contacter</span></a>
+      </header>
+
+      <div class="bloc">
+        <p class="surtitre lettres" style="--d:0ms" data-pas="30">La résonance affective</p>
+
+        <div class="manifeste" style="--d:200ms">
+          <p class="lettres" data-pas="12">La résonance affective, c’est le moment où un message cesse d’être une information pour devenir un souvenir. Un sourire, un pincement, une phrase qu’on répète à table. Ce qui reste quand la publicité est finie.</p>
+          <p class="lettres" data-pas="12">On ne choisit pas une marque parce qu’elle a raison. On la choisit parce qu’elle nous a touchés au bon endroit, au bon moment.</p>
+        </div>
+      </div>
+
+      <a class="bouton apb" data-couleur="orange" style="--db:1500ms" href="mailto:creation@mermoz-californie.com"
+         aria-label="Mermoz Californie"><svg class="trace" aria-hidden="true"><rect/></svg><span class="bouton__txt lettres" aria-hidden="true">Mermoz Californie</span></a>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   LE REMPLACEMENT DE SECTION
+
+   Les cinq bandes forment un seul ruban, sans jour entre elles.
+   Il monte du bas de l'écran vers le haut, tiré par le
+   défilement, et la section suivante est accrochée sous lui.
+
+   L'épaisseur d'une bande ne dépend pas du temps mais de l'endroit
+   où elle se trouve : fine en bas de l'écran, épaisse au milieu,
+   fine en haut. Une bande gonfle donc en arrivant au centre et se
+   résorbe en sortant, et c'est le ruban entier qui respire.
+
+   Comme la hauteur d'une bande dépend de sa position, qui dépend
+   de la hauteur de celles d'en dessous, on empile de bas en haut
+   et on reprend le calcul deux fois : deux passes suffisent à ce
+   que les valeurs se posent.
+   ============================================================ */
+(function(){
+  "use strict";
+  var passage = document.getElementById('passage');
+  if(!passage) return;
+  /* de la plus haute à la plus basse, telles qu'elles sont écrites */
+  var bandes = [].slice.call(passage.querySelectorAll('.bande'));
+  var deux = passage.querySelector('.ecran--deux');
+  var un = passage.querySelector('.ecran--un');
+
+  var MINCE = 7;     /* l'épaisseur aux bords de l'écran, en centièmes de sa hauteur */
+  var EPAIS = 52;    /* l'épaisseur au centre */
+  var LARGEUR = 46;  /* l'étalement du gonflement autour du centre */
+  var RECOUVRE = .3; /* de combien chaque bande déborde sous la suivante, en vh */
+
+  function borne(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  /* l'épaisseur d'une bande dont le milieu est à cette hauteur */
+  function epaisseur(milieu){
+    var d = (milieu - 50) / LARGEUR;
+    return MINCE + (EPAIS - MINCE) * Math.exp(-d * d);
+  }
+
+  /* La pile de bandes quand le bas du ruban est à `bas` : leurs
+     épaisseurs, et la hauteur de son bord haut. */
+  function pile(bas){
+    var hauteurs = bandes.map(function(){ return MINCE; });
+    for(var passe = 0; passe < 2; passe++){
+      var y = bas;
+      for(var i = bandes.length - 1; i >= 0; i--){   /* de la plus basse à la plus haute */
+        var h = hauteurs[i];
+        hauteurs[i] = epaisseur(y - h / 2);
+        y -= hauteurs[i];
+      }
+    }
+    return { hauteurs: hauteurs, haut: y };
+  }
+
+  /* Le bas du ruban quand son bord haut est à `haut` : on cherche par
+     dichotomie. Plus le bas monte, plus le haut monte : la réponse
+     est unique. */
+  function basPour(haut){
+    var bas = 0, fin = 250;
+    for(var i = 0; i < 28; i++){
+      var milieu = (bas + fin) / 2;
+      if(pile(milieu).haut < haut) bas = milieu; else fin = milieu;
+    }
+    return (bas + fin) / 2;
+  }
+
+  /* LA COURSE DES DEUX BORDS
+
+     Ce qu'on regarde, c'est le bord du ruban qui avance dans
+     l'écran : à la descente c'est son bord haut, qui monte et
+     recouvre ; à la montée c'est son bord bas, qui descend et
+     recouvre. Si le bas du ruban montait régulièrement (ce qu'on
+     faisait), son haut, lui, partirait d'un coup : les bandes
+     gonflent à mesure qu'elles approchent du centre. Mesuré, le haut
+     traversait l'écran quatre fois plus vite que le bas : la montée
+     paraissait quatre fois plus lente que la descente.
+
+     Ici on règle chaque bord à la même vitesse constante, en deux
+     temps :
+       1. le haut monte de sous l'écran jusqu'au bord supérieur ;
+       2. le bas monte alors jusqu'au bord supérieur à son tour.
+     À la montée on les rejoue à l'envers, à la même vitesse. */
+  var HAUT_DEPART = 102;                     /* bord haut au repos, juste sous l'écran (100) */
+  var BAS_MILIEU = basPour(0);               /* bord bas quand le haut atteint le haut de l'écran */
+  var PARTAGE = HAUT_DEPART / (HAUT_DEPART + BAS_MILIEU);   /* part de la course pour le temps 1 */
+
+  function basDuRuban(p){
+    if(p <= PARTAGE) return basPour(HAUT_DEPART * (1 - p / PARTAGE));
+    return BAS_MILIEU * (1 - (p - PARTAGE) / (1 - PARTAGE));
+  }
+
+  /* Dessine le ruban pour un avancement donné, de 0 (premier écran)
+     à 1 (second écran en place). */
+  function place(p){
+    var bas = basDuRuban(p);
+    var hauteurs = pile(bas).hauteurs;
+
+    var courant = bas;
+    var tops = [];
+    for(var i = bandes.length - 1; i >= 0; i--){
+      var h = hauteurs[i];
+      courant -= h;
+      tops[i] = courant;
+      /* Chaque bande déborde un peu sous la suivante, qui la recouvre :
+         un calque posé sur une fraction de pixel a des bords adoucis,
+         et sans ce recouvrement un filet de noir passerait entre deux
+         bandes. */
+      bandes[i].style.setProperty('--e', String((h + RECOUVRE) / 100));
+      bandes[i].style.setProperty('--y', courant + 'vh');
+    }
+
+    encre(tops, hauteurs);
+
+    /* la section suivante est accrochée sous le ruban */
+    deux.style.setProperty('--y2', Math.max(bas, 0) + 'vh');
+    /* la première s'efface pendant que l'autre arrive */
+    un.style.opacity = String(1 - borne((bas - 60) / -60));
+
+    bascule(p);
+  }
+
+  /* ----------------------------------------------------------
+     LA VITESSE DU RUBAN
+
+     Le défilement, lui, ne change pas : même course, même calage à la
+     relâche. Ce qu'on règle, c'est ce que l'on voit. Le ruban ne
+     recopie pas la position de la page à chaque image : il la
+     rejoint, à sa propre vitesse.
+
+     Deux façons de la rejoindre.
+
+     À la main. Quand on fait défiler doucement, le ruban reste sous
+     le doigt : il va où l'on va, il s'arrête où l'on s'arrête.
+
+     Sur un geste franc. Un coup de trackpad ou de molette lance la
+     page, puis son élan retombe peu à peu avant que le calage du
+     navigateur ne la relance vers la section. Si le ruban recopiait
+     cela, il ralentirait en plein milieu puis repartirait : c'est la
+     décélération qu'on voyait. On repère donc le geste franc, on
+     prévoit où l'élan va se poser, et on engage le ruban vers la
+     section d'arrivée, sans plus regarder l'élan : départ vif,
+     vitesse constante, arrivée adoucie. Le calage du navigateur
+     choisit lui aussi la section la plus proche du point
+     d'atterrissage de l'élan, c'est la même règle.
+     ---------------------------------------------------------- */
+  var VMAX     = 1.1;   /* courses par seconde, en croisière : 1,1 = 0,9 s pour tout le passage */
+  var TAU_MAIN = .13;   /* souplesse à la main, en secondes */
+  var TAU_ELAN = .17;   /* souplesse de l'arrivée sur un geste franc : plus grand = arrivée plus longue */
+  var ACCEL    = 16;    /* courses par seconde², pour démarrer vif mais sans à-coup */
+  var LANCE    = .30;   /* secondes : de combien l'élan d'un geste se prolonge */
+  var ELAN     = .35;   /* courses par seconde : au-delà, c'est un geste franc */
+
+  var reduit = !!(window.matchMedia &&
+                  window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var affiche = -1, v = 0, dernier = 0, tourne = false;
+  var pPrec = 0, vPage = 0, engage = -1, origine = 0, calme = 0;
+
+  /* où en est le défilement réel : 0 en haut du passage, 1 à sa fin.
+     On lit la position de la page directement, c'est bien moins
+     coûteux que de mesurer un élément à chaque image. */
+  function progres(){
+    var total = passage.offsetHeight - window.innerHeight;
+    if(total <= 0) return -1;
+    return borne((window.pageYOffset - passage.offsetTop) / total);
+  }
+
+  function suit(maintenant){
+    var p = progres();
+    if(p < 0){ tourne = false; return; }
+
+    var dt = Math.min(.05, Math.max(0, (maintenant - dernier) / 1000));
+    dernier = maintenant;
+
+    if(affiche < 0 || reduit){
+      /* au chargement, ou si l'on préfère sans mouvement */
+      affiche = p; pPrec = p; v = 0; vPage = 0; engage = -1;
+      origine = p > .5 ? 1 : 0;
+    } else {
+      /* la vitesse de la page, lissée sur une soixantaine de millisecondes */
+      if(dt > 0){
+        vPage += ((p - pPrec) / dt - vPage) * (1 - Math.exp(-dt / .06));
+      }
+      pPrec = p;
+      var vit = Math.abs(vPage);
+
+      /* un geste franc : où l'élan va-t-il se poser ? Si c'est dans
+         l'autre section, on y engage le ruban. */
+      if(vit > ELAN){
+        var arrivee = borne(p + vPage * LANCE) > .5 ? 1 : 0;
+        engage = arrivee !== origine ? arrivee : -1;
+      }
+
+      /* la page est au repos : on est arrivé, la main reprend la main */
+      if(vit < .05){ calme += dt; } else { calme = 0; }
+      if(calme > .25){ engage = -1; origine = p > .5 ? 1 : 0; }
+
+      var cible = engage >= 0 ? engage : p;
+      var tau = engage >= 0 ? TAU_ELAN : TAU_MAIN;
+      var ecart = cible - affiche;
+
+      /* la vitesse voulue : celle qui mène à la cible, plafonnée */
+      var voulue = ecart / tau;
+      if(voulue > VMAX) voulue = VMAX; else if(voulue < -VMAX) voulue = -VMAX;
+      var dv = voulue - v, limite = ACCEL * dt;
+      if(dv > limite) dv = limite; else if(dv < -limite) dv = -limite;
+      v += dv;
+
+      var neuf = affiche + v * dt;
+      if((cible - neuf) * ecart < 0){ neuf = cible; v = 0; }   /* on ne dépasse jamais */
+      affiche = neuf;
+      if(Math.abs(cible - affiche) < .0015 && Math.abs(v) < .02){ affiche = cible; v = 0; }
+    }
+
+    place(affiche);
+
+    /* on continue tant que le ruban bouge, que la page bouge, ou
+       qu'un geste franc n'est pas fini */
+    var encore = Math.abs(v) > 0 || Math.abs(vPage) > .02 || engage >= 0 ||
+                 Math.abs(p - affiche) > .0015;
+    if(encore){ requestAnimationFrame(suit); } else { tourne = false; }
+  }
+
+  function reveille(){
+    if(tourne) return;
+    tourne = true;
+    dernier = performance.now();
+    requestAnimationFrame(suit);
+  }
+
+  window.addEventListener('scroll', reveille, { passive: true });
+  window.addEventListener('resize', reveille);
+  reveille();
+
+  /* ----------------------------------------------------------
+     L'APPARITION
+
+     Chaque écran reçoit la classe .est-la quand il est en vue et la
+     perd quand il est parti : les transitions du CSS font le reste.
+     Les seuils ne sont pas les mêmes à l'aller et au retour (une
+     hystérésis), sinon l'écran clignoterait sur la frontière.
+
+     On attend que les polices soient là : jouer l'entrée avec la
+     police de secours puis la voir changer en route, c'est
+     exactement le défaut qu'on a déjà chassé une fois.
+     ---------------------------------------------------------- */
+  var ecranUn = passage.querySelector('.ecran--un');
+  var roueMots = document.getElementById('roue');
+  var manif = passage.querySelector('.manifeste');
+  var boutons = [].slice.call(passage.querySelectorAll('.bouton'));
+  var pret = false, dernierP = 0;
+
+  /* la longueur du tracé du signe, mesurée (en unités du dessin) */
+  [].forEach.call(passage.querySelectorAll('.signe'), function(sv){
+    var g = sv.querySelector('.guide');
+    if(g) sv.style.setProperty('--len', (g.getTotalLength() + 1) + 'px');
+  });
+
+  /* Le ruban de chaque bouton : cinq bandes. Les quatre couleurs qui
+     ne sont pas celle du bouton passent d'abord, dans l'ordre du ruban
+     de la page, puis la couleur du bouton arrive en dernier. */
+  var COULEURS = ['corail', 'rose', 'jaune', 'cyan', 'bleu'];
+  boutons.forEach(function(b){
+    var c = b.getAttribute('data-couleur') || 'bleu';
+    if(c === 'orange') c = 'corail';
+    if(COULEURS.indexOf(c) < 0) c = 'bleu';
+    var rub = document.createElement('span');
+    rub.className = 'rub';
+    rub.setAttribute('aria-hidden', 'true');
+    COULEURS.filter(function(x){ return x !== c; }).concat(c).forEach(function(x){
+      var i = document.createElement('i');
+      i.className = 'k-' + x;
+      rub.appendChild(i);
+    });
+    b.insertBefore(rub, b.querySelector('.bouton__txt'));
+  });
+  var vu = { un: false, deux: false };
+
+  /* Un texte devient une suite de lettres, rangées par mots pour ne
+     jamais couper un mot. Chaque lettre porte son rang (--i). Un
+     élément glissé dans le texte (le ® du logotype) compte pour une
+     lettre. Le texte d'origine reste lisible pour les lecteurs
+     d'écran, dans une copie invisible. */
+  function decoupe(el){
+    var pas = el.getAttribute('data-pas');
+    if(pas) el.style.setProperty('--p', pas + 'ms');
+
+    var noeuds = [].slice.call(el.childNodes);
+    var original = el.textContent.replace(/\s+/g, ' ').trim();
+    el.textContent = '';
+
+    if(!el.closest('[aria-hidden="true"]')){
+      var sr = document.createElement('span');
+      sr.className = 'sr';
+      sr.textContent = original;
+      el.appendChild(sr);
+    }
+
+    var rang = 0;
+    function lettre(contenu){
+      var c = document.createElement('span');
+      c.className = 'c';
+      c.style.setProperty('--i', rang++);
+      if(typeof contenu === 'string') c.textContent = contenu; else c.appendChild(contenu);
+      return c;
+    }
+    function mot(texte){
+      var w = document.createElement('span');
+      w.className = 'w';
+      w.setAttribute('aria-hidden', 'true');
+      texte.split('').forEach(function(ch){ w.appendChild(lettre(ch)); });
+      return w;
+    }
+
+    noeuds.forEach(function(n, k){
+      if(n.nodeType === 3){
+        var t = n.textContent.replace(/\s+/g, ' ');
+        if(k === 0) t = t.replace(/^ /, '');
+        if(k === noeuds.length - 1) t = t.replace(/ $/, '');
+        var mots = t.split(' ');
+        mots.forEach(function(m, j){
+          if(m) el.appendChild(mot(m));
+          if(j < mots.length - 1){ el.appendChild(document.createTextNode(' ')); rang++; }
+        });
+      } else if(n.nodeType === 1){
+        var w = document.createElement('span');
+        w.className = 'w';
+        w.setAttribute('aria-hidden', 'true');
+        w.appendChild(lettre(n));
+        el.appendChild(w);
+      }
+    });
+  }
+  [].forEach.call(passage.querySelectorAll('.lettres'), decoupe);
+
+  /* Le manifeste se compose ligne après ligne : on lit à l'écran à
+     quelle ligne tombe chaque mot (cela dépend de la largeur de la
+     fenêtre) et chaque lettre prend son rang dans sa ligne. */
+  function numerote(){
+    var haut = -1, ligne = -1, rang = 0;
+    [].forEach.call(manif.querySelectorAll('.w'), function(w){
+      var t = w.offsetTop;
+      if(Math.abs(t - haut) > 4){ ligne++; rang = 0; haut = t; }
+      [].forEach.call(w.querySelectorAll('.c'), function(c){
+        c.style.setProperty('--l', ligne);
+        c.style.setProperty('--i', rang++);
+      });
+      rang++;   /* l'espace qui suit le mot */
+    });
+    /* le bouton du second écran se trace quand le texte a fini */
+    boutons[boutons.length - 1].style.setProperty('--db', ((ligne + 1) * 75 + 350) + 'ms');
+  }
+
+  /* Le contour du bouton est un rectangle à bouts ronds, réglé sur la
+     taille réelle de la pilule. */
+  function regleTraces(){
+    boutons.forEach(function(b){
+      var r = b.querySelector('.trace rect');
+      /* la taille réelle, à la fraction de pixel près : un bouton fait
+         rarement un nombre entier de pixels, et un contour réglé sur
+         des entiers ne serait plus concentrique à la pilule */
+      var m = b.getBoundingClientRect();
+      if(m.width < 4) return;   /* bouton masqué (smartphone) : rien à régler */
+      var w = m.width - 2, h = m.height - 2, rayon = h / 2;
+      r.setAttribute('x', 1); r.setAttribute('y', 1);
+      r.setAttribute('width', w.toFixed(3)); r.setAttribute('height', h.toFixed(3));
+      r.setAttribute('rx', rayon.toFixed(3)); r.setAttribute('ry', rayon.toFixed(3));
+      /* la longueur exacte du contour : deux droites et deux demi-cercles */
+      var perimetre = 2 * (w - h) + Math.PI * h;
+      r.style.setProperty('--perim', (perimetre + 1).toFixed(2) + 'px');
+    });
+  }
+
+  /* L'ENCRE : de quelle couleur est la bande derrière chaque texte ?
+
+     On connaît la place de chaque bande à l'écran, on mesure une fois
+     pour toutes (et à chaque redimensionnement) le milieu de chaque
+     texte : il suffit de chercher quelle bande le recouvre. Un texte
+     hors du ruban reste blanc. */
+  var encrables = [].slice.call(passage.querySelectorAll(
+    '.ecran--un .logo, .signe, .phrase__ligne, .phrase__mot, .signature > b, .signature > span, .ecran--un .bouton'));
+  var centres = [];
+  var etatEncre = encrables.map(function(){ return false; });
+  var bandeNoire = bandes.map(function(b){ return b.getAttribute('data-encre') === 'noir'; });
+
+  function mesureEncres(){
+    var H = window.innerHeight;
+    centres = encrables.map(function(el){
+      var r = el.getBoundingClientRect();
+      return (r.top + r.height / 2) / H * 100;
+    });
+  }
+
+  function encre(tops, hauteurs){
+    if(!centres.length) return;
+    var n = bandes.length;
+    var haut = tops[0], bas = tops[n - 1] + hauteurs[n - 1];
+    for(var k = 0; k < encrables.length; k++){
+      var y = centres[k], noir = false;
+      if(y >= haut && y < bas){
+        for(var i = 0; i < n; i++){
+          if(y < tops[i] + hauteurs[i]){ noir = bandeNoire[i]; break; }
+        }
+      }
+      if(noir !== etatEncre[k]){
+        etatEncre[k] = noir;
+        encrables[k].classList.toggle('encre-noire', noir);
+      }
+    }
+  }
+
+  /* le bleu a fini de remplir un bouton : 1,1 s de délai + 0,8 s de
+     balayage, après le début de son tracé */
+  function delaiBouton(b){
+    var d = (b.style.getPropertyValue('--db') || '0').trim();
+    return d.slice(-2) === 'ms' ? parseFloat(d) : parseFloat(d) * 1000;
+  }
+  /* Le signe de l'en-tête du second écran se redessine, couleurs comprises,
+     toutes les 20 secondes tant que l'écran est là. */
+  var enteteSigne = deux.querySelector('.signe--entete');
+  var boucleSigne = 0;
+  function pose(ecran){
+    ecran.classList.add('est-la');
+    if(ecran === deux && enteteSigne){
+      clearInterval(boucleSigne);
+      boucleSigne = setInterval(function(){
+        enteteSigne.classList.add('repart');
+        void enteteSigne.getBoundingClientRect();     /* l'état remis à zéro doit être posé avant de repartir */
+        enteteSigne.classList.remove('repart');
+      }, 20000);
+    }
+    [].forEach.call(ecran.querySelectorAll('.bouton'), function(b){
+      clearTimeout(b._rempli);
+      b._rempli = setTimeout(function(){ b.classList.add('rempli'); }, delaiBouton(b) + 1700);
+      clearTimeout(b._ferme);
+      b._ferme = setTimeout(function(){ b.classList.add('ferme'); }, delaiBouton(b) + 1100);   /* le tracé dure 1,05 s */
+    });
+    /* à l'entrée du premier écran, le mot qui défile attend son tour */
+    if(ecran === ecranUn){
+      /* le défilement des mots attend la fin de l'introduction : « Cherchez »
+         d'abord, puis le premier mot, puis seulement les suivants */
+      window.__introFin = performance.now() + 4050;
+      /* un mot qui était encore en train de partir ne doit pas réapparaître */
+      [].forEach.call(roueMots.querySelectorAll('.mot.part'), function(m){ m.remove(); });
+      [].forEach.call(roueMots.querySelectorAll('.mot'), function(m){ m.style.setProperty('--dm', '2800ms'); });
+    }
+  }
+  function retire(ecran){
+    ecran.classList.remove('est-la');
+    if(ecran === deux) clearInterval(boucleSigne);
+    [].forEach.call(ecran.querySelectorAll('.bouton'), function(b){
+      clearTimeout(b._rempli);
+      clearTimeout(b._ferme);
+      b.classList.remove('rempli', 'ferme');
+    });
+  }
+
+  function bascule(p){
+    dernierP = p;
+    if(!pret) return;
+    if(!vu.un && p < .55){ vu.un = true; pose(ecranUn); }
+    else if(vu.un && p > .93){ vu.un = false; retire(ecranUn); }
+    if(!vu.deux && p > .78){ vu.deux = true; pose(deux); }
+    else if(vu.deux && p < .55){ vu.deux = false; retire(deux); }
+  }
+
+  var attendPolices = (document.fonts && document.fonts.ready)
+    ? Promise.race([document.fonts.ready, new Promise(function(r){ setTimeout(r, 1500); })])
+    : Promise.resolve();
+  attendPolices.then(function(){
+    numerote();
+    regleTraces();
+    mesureEncres();
+    /* un battement avant la première entrée : la page est posée */
+    setTimeout(function(){ pret = true; bascule(dernierP); }, 180);
+  });
+
+  var redim = 0;
+  window.addEventListener('resize', function(){
+    clearTimeout(redim);
+    redim = setTimeout(function(){ numerote(); regleTraces(); mesureEncres(); }, 150);
+  });
+
+})();
+
+/* ============================================================
+   LA ROUE DES MOTS
+
+   Un mot s'efface vers le haut, le suivant arrive d'en bas. Les
+   deux se croisent au même endroit, d'où la position absolue :
+   sans elle, la ligne sauterait d'une hauteur de texte à chaque
+   changement.
+
+   La liste est celle du site. Pour en ajouter un, il suffit de
+   l'écrire ici.
+
+   Rien ne tourne quand l'onglet est en arrière-plan : le
+   navigateur suspend l'animation, et on ne rattrape pas le
+   retard au retour.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var MOTS = [
+     'l’étonnement.', 'la signature.', 'le territoire.', 'le récit.',
+     'la tension.', 'le rythme.', 'le contraste.', 'la justesse.',
+     'le silence.', 'le cadrage.', 'la nuance.', 'l’impact.',
+     'la texture.', 'la ligne.', 'le souffle.', 'la densité.',
+     'l’angle.', 'l’instinct.', 'l’écriture.', 'le geste.',
+     'la direction.', 'la mémoire.', 'la précision.',
+     'la liberté.'
+  ];
+  var POSE = 1900;   /* le temps qu'un mot reste en place */
+
+  var roue = document.getElementById('roue');
+  if(!roue) return;
+
+  /* un mot, composé de lettres : ce sont elles qui basculent à l'arrivée */
+  function compose(el, texte){
+    /* Le point final est posé dans une boîte de largeur nulle : il se voit,
+       juste après le mot, mais il ne compte pas dans sa largeur. Le mot est
+       donc centré sur lui-même, et le point dépasse à droite. */
+    var point = /[.]$/.test(texte) ? '.' : '';
+    var corps = point ? texte.slice(0, -1) : texte;
+    function lettre(ch, k){
+      var c = document.createElement('span');
+      c.className = 'c';
+      c.style.setProperty('--i', k);
+      c.textContent = ch === ' ' ? '\u00A0' : ch;   /* une espace insécable : elle garde sa largeur */
+      return c;
+    }
+    corps.split('').forEach(function(ch, k){ el.appendChild(lettre(ch, k)); });
+    if(point){
+      var pt = document.createElement('span');
+      pt.className = 'pt';
+      pt.appendChild(lettre(point, corps.length));
+      el.appendChild(pt);
+    }
+    el.setAttribute('aria-label', texte);
+  }
+
+  var i = 0;
+  var actuel = document.createElement('span');
+  actuel.className = 'mot est-la';
+  compose(actuel, MOTS[0]);
+  roue.appendChild(actuel);
+
+  var calme = matchMedia('(prefers-reduced-motion: reduce)');
+  if(calme.matches) return;
+
+  function suivant(){
+    /* pas de changement de mot pendant l'introduction du premier écran */
+    if(performance.now() < (window.__introFin || 0)) return;
+    i = (i + 1) % MOTS.length;
+
+    var neuf = document.createElement('span');
+    neuf.className = 'mot arrive';
+    compose(neuf, MOTS[i]);
+    roue.appendChild(neuf);
+
+    /* On force le navigateur à calculer l'état de départ avant de
+       poser l'état d'arrivée, sinon il passe directement au second
+       et il n'y a pas de transition.
+
+       Cette lecture de offsetWidth suffit, et elle est immédiate.
+       Attendre une image d'animation marcherait aussi, mais pas
+       quand l'onglet est en veille : le navigateur n'en donne plus,
+       le mot restait alors coincé en route. */
+    void neuf.offsetWidth;
+    neuf.className = 'mot est-la';
+    actuel.className = 'mot part';
+
+    var ancien = actuel;
+    actuel = neuf;
+    setTimeout(function(){ ancien.remove(); }, 900);
+  }
+
+  var minuteur = setInterval(suivant, POSE);
+
+  /* onglet caché : on arrête, et on repart proprement au retour */
+  document.addEventListener('visibilitychange', function(){
+    clearInterval(minuteur);
+    if(!document.hidden) minuteur = setInterval(suivant, POSE);
+  });
+})();
+</script>
+</body>
+</html>

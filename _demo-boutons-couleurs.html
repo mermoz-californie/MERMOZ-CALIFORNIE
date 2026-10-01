@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Essais : toutes les couleurs de bouton</title>
+<style>
+/* ============================================================
+   Toutes les couleurs de bouton, avec l'animation A.
+
+   Le code du bouton est celui de la vraie page (index6) : le contour
+   se trace, le ruban traverse la pilule, la couleur du bouton arrive
+   en dernier et s'arrête, puis le texte bascule lettre à lettre.
+
+   Dans la vraie page, la couleur se choisit avec l'attribut
+   data-couleur du bouton : bleu, cyan, jaune, rose, orange (ou corail).
+
+   Page de comparaison, jamais publiée (le nom commence par « _ »).
+   ============================================================ */
+:root{
+  --noir: #101010; --blanc: #fff; --carte: #181818; --trait: #2a2a2a;
+  --bleu: #0074FF; --bleu-clair: #2C8CFF;
+  --cyan: #81DDFF; --jaune: #EDFF9B; --rose: #F4BDD2; --corail: #F94144;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --sf: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+*{ box-sizing: border-box; }
+body{ margin: 0; background: var(--noir); color: #fff; font-family: var(--sf); -webkit-font-smoothing: antialiased; }
+.page{ max-width: 1100px; margin: 0 auto; padding: 56px 24px 140px; }
+h1{ font-size: 15px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 8px; }
+.intro{ color: #9a9a9a; font-size: 15px; line-height: 1.5; max-width: 64ch; margin: 0 0 32px; }
+.tout{ float: right; background: var(--bleu); color: #fff; border: 0; border-radius: 999px; padding: 10px 18px; font: 600 13px/1 var(--sf); cursor: pointer; }
+.grille{ display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; clear: both; }
+.carte{ background: var(--carte); border: 1px solid var(--trait); border-radius: 20px; padding: 20px 22px 18px; display: flex; flex-direction: column; gap: 14px; min-height: 280px; }
+.tete{ display: flex; align-items: baseline; gap: 12px; }
+.nom{ font-size: 14px; font-weight: 600; }
+.code{ font: 500 12px/1 ui-monospace, 'SF Mono', Menlo, monospace; color: #7c7c7c; }
+.scene{ flex: 1; display: flex; align-items: center; justify-content: center; min-height: 110px; text-align: center; }
+.defile{ display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8f8f8f; }
+.defile i{ width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+.defile b{ font-weight: 500; margin: 0 4px 0 2px; }
+.rejouer{ align-self: flex-start; background: none; color: #d6d6d6; border: 1px solid #383838; border-radius: 999px; padding: 8px 14px; font: 500 12px/1 var(--sf); cursor: pointer; }
+.rejouer:hover{ border-color: #777; color: #fff; }
+
+/* ---------- les lettres : chacune bascule vers l'avant ---------- */
+.w{ display: inline-block; white-space: nowrap; }
+.c{ display: inline-block; }
+.js .lettres .c{
+  opacity: 0; transform-origin: 50% 100%; transform: rotateX(-100deg) translateY(.2em);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.js .est-la .lettres .c{
+  opacity: 1; transform: none;
+  transition: opacity .5s ease calc(var(--d, 0s) + var(--i, 0) * var(--p, 38ms)),
+              transform .9s var(--ease) calc(var(--d, 0s) + var(--i, 0) * var(--p, 38ms));
+}
+
+/* ---------- le bouton : le même que celui de la page ---------- */
+.bouton{
+  --c: var(--bleu);
+  --c-survol: #2C8CFF;
+  --texte: var(--blanc);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-block;
+  color: var(--texte);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: .95em 1.7em;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .35s var(--ease);
+}
+.bouton::before{
+  content: '';
+  position: absolute; inset: 0; z-index: -1;
+  border-radius: inherit;
+  background: var(--c);
+  transition: background-color .35s var(--ease);
+}
+.bouton__txt{
+  position: relative; z-index: 3;
+  display: inline-block; white-space: nowrap; min-height: 1.2em;
+  --d: calc(var(--db, 0s) + 1.7s);
+  --p: 34ms;
+}
+.bouton .trace{ display: none; }
+.bouton:hover::before{ background: var(--c-survol); }
+.bouton:hover{ transform: translateY(-2px); }
+.bouton:active{ transform: translateY(0); }
+
+/* les couleurs de bouton : le texte est blanc partout, sauf sur le jaune,
+   où le blanc ne se lit pas */
+.bouton[data-couleur="cyan"]  { --c: var(--cyan);  --c-survol: #A6E9FF; --texte: var(--blanc); }
+.bouton[data-couleur="jaune"] { --c: var(--jaune); --c-survol: #F7FFBF; --texte: var(--noir); }
+.bouton[data-couleur="rose"]  { --c: var(--rose);  --c-survol: #F9D4E2; --texte: var(--blanc); }
+.bouton[data-couleur="corail"],
+.bouton[data-couleur="orange"]{ --c: var(--corail); --c-survol: #FF6B6E; --texte: var(--blanc); }
+
+.js .bouton .trace{
+  display: block;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none;
+  z-index: 2;
+}
+.js .bouton .trace rect{
+  fill: none; stroke: #fff; stroke-width: 1.5;
+  stroke-dasharray: var(--perim, 1000px); stroke-dashoffset: var(--perim, 1000px);
+  transition: stroke-dashoffset .3s ease, stroke .25s ease;
+}
+.js .bouton .rub{
+  position: absolute; left: 0; right: 0; top: 0; height: 500%;
+  z-index: 1;
+  display: flex; flex-direction: column;
+  transform: translateY(20%);
+  pointer-events: none;
+}
+.js .bouton .rub i{ display: block; flex: 1; }
+.k-corail{ background: var(--corail); }
+.k-rose  { background: var(--rose); }
+.k-jaune { background: var(--jaune); }
+.k-cyan  { background: var(--cyan); }
+.k-bleu  { background: var(--bleu); }
+
+.js .apb::before{ opacity: 0; }
+.js .est-la .apb .trace rect{
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.05s cubic-bezier(.65, 0, .25, 1) var(--db, 0s),
+              stroke .25s ease;
+}
+.js .est-la .apb .rub{
+  animation: monte .8s cubic-bezier(.6, 0, .2, 1) calc(var(--db, 0s) + .85s) both;
+}
+@keyframes monte{
+  from{ transform: translateY(20%); }
+  to  { transform: translateY(-80%); }
+}
+.js .est-la .bouton.rempli::before{ opacity: 1; }
+.js .est-la .bouton.rempli .rub{ display: none; }
+.js .est-la .bouton.rempli .trace rect{ stroke: var(--c); }
+/* le trait est fini : on retire les tirets, le contour devient un tracé fermé sans décrochement */
+.js .est-la .bouton.ferme .trace rect{ stroke-dasharray: none; }
+
+@media (prefers-reduced-motion: reduce){
+  .js .lettres .c, .js .est-la .lettres .c, .js .bouton .trace rect, .js .est-la .apb .trace rect{ transition: none !important; }
+  .js .est-la .apb .rub{ animation: none !important; transform: translateY(-80%); }
+}
+</style>
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<div class="page">
+  <h1>Toutes les couleurs de bouton</h1>
+  <p class="intro">Même animation A pour chaque couleur : le ruban traverse la pilule et la dernière couleur, celle du bouton, s'arrête. Pour une couleur, il suffit de dire « bouton bleu », « bouton orange »… Chaque essai se joue en arrivant à l'écran.</p>
+  <button class="tout" id="tout">Tout rejouer</button>
+
+  <div class="grille" id="grille"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* le catalogue : le nom dit à voix haute, la couleur finale, ce qu'on voit défiler */
+  var BOUTONS = [
+    { nom: 'Bouton bleu',   attr: 'bleu',   code: '#0074FF' },
+    { nom: 'Bouton cyan',   attr: 'cyan',   code: '#81DDFF' },
+    { nom: 'Bouton jaune',  attr: 'jaune',  code: '#EDFF9B' },
+    { nom: 'Bouton rose',   attr: 'rose',   code: '#F4BDD2' },
+    { nom: 'Bouton orange', attr: 'orange', code: '#F94144' }
+  ];
+  var COULEURS = ['corail', 'rose', 'jaune', 'cyan', 'bleu'];
+  var TEINTES = { corail: '#F94144', rose: '#F4BDD2', jaune: '#EDFF9B', cyan: '#81DDFF', bleu: '#0074FF' };
+  var NOMS = { corail: 'orange', rose: 'rose', jaune: 'jaune', cyan: 'cyan', bleu: 'bleu' };
+
+  var grille = document.getElementById('grille');
+  BOUTONS.forEach(function(d){
+    var final = d.attr === 'orange' ? 'corail' : d.attr;
+    var ordre = COULEURS.filter(function(x){ return x !== final; }).concat(final);
+
+    var carte = document.createElement('article');
+    carte.className = 'carte';
+    carte.innerHTML =
+      '<div class="tete"><span class="nom">' + d.nom + '</span><span class="code">data-couleur="' + d.attr + '"</span></div>' +
+      '<div class="scene"><a class="bouton apb" style="--db:0ms" data-couleur="' + d.attr + '" href="#" aria-label="Nous contacter">' +
+        '<svg class="trace" aria-hidden="true"><rect/></svg>' +
+        '<span class="bouton__txt lettres" aria-hidden="true">Nous contacter</span></a></div>' +
+      '<div class="defile">' + ordre.map(function(x, k){
+          return '<i style="background:' + TEINTES[x] + '"></i>' + (k < ordre.length - 1 ? '' : '');
+        }).join('') + '<b>' + ordre.map(function(x){ return NOMS[x]; }).join(' → ') + '</b></div>' +
+      '<button class="rejouer">Rejouer</button>';
+    grille.appendChild(carte);
+
+    /* le ruban du bouton, comme dans la page */
+    var b = carte.querySelector('.bouton');
+    var rub = document.createElement('span');
+    rub.className = 'rub'; rub.setAttribute('aria-hidden', 'true');
+    ordre.forEach(function(x){ var i = document.createElement('i'); i.className = 'k-' + x; rub.appendChild(i); });
+    b.insertBefore(rub, b.querySelector('.bouton__txt'));
+
+    /* les lettres du libellé */
+    var el = b.querySelector('.bouton__txt'), texte = el.textContent, n = 0;
+    el.textContent = '';
+    texte.split(' ').forEach(function(mot, k, tous){
+      var w = document.createElement('span'); w.className = 'w';
+      mot.split('').forEach(function(ch){
+        var c = document.createElement('span'); c.className = 'c'; c.textContent = ch; c.style.setProperty('--i', n++); w.appendChild(c);
+      });
+      el.appendChild(w);
+      if(k < tous.length - 1){ el.appendChild(document.createTextNode(' ')); n++; }
+    });
+  });
+
+  function regleTraces(){
+    [].forEach.call(document.querySelectorAll('.bouton'), function(b){
+      var r = b.querySelector('.trace rect'), m = b.getBoundingClientRect();
+      var w = m.width - 2, h = m.height - 2, rayon = h / 2;
+      r.setAttribute('x', 1); r.setAttribute('y', 1);
+      r.setAttribute('width', w.toFixed(3)); r.setAttribute('height', h.toFixed(3));
+      r.setAttribute('rx', rayon.toFixed(3)); r.setAttribute('ry', rayon.toFixed(3));
+      r.style.setProperty('--perim', (2 * (w - h) + Math.PI * h + 1).toFixed(2) + 'px');
+    });
+  }
+
+  var cartes = [].slice.call(document.querySelectorAll('.carte'));
+  function joue(carte){
+    var scene = carte.querySelector('.scene'), b = carte.querySelector('.bouton');
+    clearTimeout(b._rempli); clearTimeout(b._ferme);
+    scene.classList.remove('est-la'); b.classList.remove('rempli', 'ferme');
+    void scene.offsetWidth;
+    /* on laisse finir le masquage (0,25 s) avant de rejouer : sinon les lettres repartent d'une opacité intermédiaire */
+    setTimeout(function(){
+      scene.classList.add('est-la');
+      b._rempli = setTimeout(function(){ b.classList.add('rempli'); }, 1700);   /* le ruban s'arrête à 1,65 s */
+      b._ferme = setTimeout(function(){ b.classList.add('ferme'); }, 1100);          /* le tracé dure 1,05 s */
+    }, 450);
+  }
+  cartes.forEach(function(c){ c.querySelector('.rejouer').addEventListener('click', function(){ joue(c); }); });
+  document.getElementById('tout').addEventListener('click', function(){ cartes.forEach(function(c, i){ setTimeout(function(){ joue(c); }, i * 90); }); });
+
+  var deja = new WeakSet();
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting && !deja.has(e.target)){ deja.add(e.target); joue(e.target); } });
+  }, { threshold: .6 });
+  var pret = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  pret.then(function(){ regleTraces(); cartes.forEach(function(c){ io.observe(c); }); });
+  window.addEventListener('resize', regleTraces);
+})();
+</script>
+</body>
+</html>

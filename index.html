@@ -8,6 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@700&display=swap" rel="stylesheet" />
   <style>
+    /* Le logotype, en haut comme en bas, est dans la même graisse
+       que sur index5 : PP Object Sans Bold, une seule graisse
+       chargée. */
+    @font-face {
+      font-family: 'PPObjectSans';
+      src: url('assets/fonts/PPObjectSans/PPObjectSans-Bold.woff2') format('woff2');
+      font-weight: 700; font-style: normal; font-display: swap;
+    }
     @font-face {
       font-family: 'Editorial New';
       src: url('assets/fonts/PPEditorialNew/PPEditorialNew-Ultralight.woff') format('woff');
@@ -56,6 +64,7 @@
          Constante par thème : c'est la fusion qui les inverse. */
       --sur-difference: #F7FFF7;
       --disp: 'Kumbh Sans', 'Helvetica Neue', Arial, sans-serif;
+      --object: 'PPObjectSans', 'Helvetica Neue', Arial, sans-serif;
       --body: 'Helvetica Neue', HelveticaNeue, Helvetica, Arial, sans-serif;
       --ease: cubic-bezier(.9,0,.1,1);
     }
@@ -133,10 +142,15 @@
       mix-blend-mode: normal;
     }
     .nav-logo {
-      font-family: var(--body); font-size: 13px; font-weight: 700;
+      font-family: var(--object); font-size: 13px; font-weight: 700;
       letter-spacing: normal; text-transform: uppercase;
       color: var(--sur-difference); text-decoration: none;
       margin-left: 10px;
+    }
+    /* le ® monte au-dessus des capitales, comme sur index5 */
+    .nav-logo sup {
+      font-size: .44em; vertical-align: super; font-weight: 700;
+      position: relative; top: -.14em;
     }
     .nav-right { display: flex; align-items: center; gap: 28px; }
     .nav-link {
@@ -506,7 +520,7 @@
 
     /* 001 — Grands titres display (MERMOZ CALIFORNIE, CREATION PUBLICITE DESIGN) */
     .dark-brand-title {
-      font-family: var(--disp);
+      font-family: var(--object);
       font-size: clamp(64px, 13vw, 200px);
       font-weight: 700; text-transform: uppercase;
       line-height: 0.84; letter-spacing: -0.05em;
@@ -515,6 +529,22 @@
     /* Idem dans l'outro : "Mermoz Californie" sur une ligne — 11ᵉ char = premier I */
     #outroTitle .hl .char-wrap:nth-child(11) {
       margin-left: 0.04em;
+    }
+    /* le ® du logotype du bas : c'est le dernier caractère, découpé
+       comme les autres par le script, qu'on rapetisse et qu'on
+       relève ici.
+
+       Le masque qui fait monter les lettres coupe ce qui dépasse en
+       haut : on lui donne la hauteur qu'il faut, sinon le ® relevé
+       disparaît. */
+    #outroTitle .hl-wrap{ padding-top: .2em; }
+    #outroTitle .char-wrap:last-child {
+      font-size: .27em;
+      vertical-align: super;
+      position: relative;
+      top: -1.02em;
+      left: .1em;
+      letter-spacing: 0;
     }
     .hl { display: block; }
 
@@ -597,6 +627,30 @@
     /* ─── MANIFESTE PANEL ─── */
     #manifeste { z-index: 1; }
     #manifeste .panel-inner { background: var(--bg-dark); }
+
+    /* LE MANIFESTE
+
+       Même mise en page que le mantra qui suit, à une différence
+       près : il n'a pas d'animation d'entrée, donc pas d'état caché
+       au départ. Le script n'anime que les panneaux qu'il connaît
+       par leur identifiant, et celui-ci lui est étranger. */
+    .mc-label {
+      font-family: var(--body); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase; color: #666;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 26px;
+    }
+    .mc-body {
+      font-family: 'Editorial New', Georgia, serif;
+      font-size: clamp(24px, 3vw, 50px);
+      font-style: italic;
+      color: var(--vert); text-align: center;
+      max-width: 1100px; padding: 0 60px; line-height: 1.14;
+      margin: 0 auto;
+    }
+    @media (max-width: 768px){
+      .mc-body{ font-size: clamp(20px, 5.4vw, 30px); padding: 0 24px; }
+    }
 
     .mfst-label {
       font-family: var(--body); font-size: 11px; font-weight: 500;
@@ -729,6 +783,15 @@
       transform: translateY(-110%);
       transition: transform 0.42s cubic-bezier(0.9, 0, 0.1, 1) var(--char-delay, 0s);
     }
+
+    /* Le ® du logotype du bas est bien plus petit que les lettres :
+       le décalage de 125 % qui les cache sous le masque ne le
+       descend, lui, que de sa propre hauteur, et il restait visible
+       tout seul avant l'animation. On le pousse donc bien plus
+       bas. */
+    #outroTitle .char-wrap:last-child .char{ transform: translateY(520%); }
+    #outroTitle.chars-in .char-wrap:last-child .char{ transform: translateY(0); }
+    #outroTitle.chars-out .char-wrap:last-child .char{ transform: translateY(-460%); }
 
     /* Reset instantané sans transition */
     .chars-reset .char { transition-duration: 0s !important; }
@@ -1241,7 +1304,7 @@
 <div id="cursor-ring"></div>
 
 <nav>
-  <a href="#" class="nav-logo">Mermoz Californie</a>
+  <a href="#" class="nav-logo">Mermoz Californie<sup>®</sup></a>
   <div class="nav-right">
     <a href="mailto:creation@mermoz-californie.com" class="nav-link">creation@mermoz-californie.com</a>
     <button class="nav-menu-btn" aria-label="Changer de thème" aria-pressed="false"><span></span></button>
@@ -1291,7 +1354,20 @@
  </div>
 </div>
 
-<!-- Panel 2 — Manifeste -->
+<!-- Panel 2 — Manifeste, repris du site index5 -->
+<div id="manifeste-mc" class="panel">
+  <div class="panel-inner">
+    <div class="mc-label"><span>MANIFESTE</span></div>
+    <p class="mc-body">
+      Nous créons une résonance affective durable entre votre marque et son
+      audience. Nous proposons une communication contextualisée et accrocheuse,
+      pour ne pas tomber dans le piège des messages publicitaires informatifs
+      et sans esprit.
+    </p>
+  </div>
+</div>
+
+<!-- Panel 3 — Mantra -->
 <div id="manifeste" class="panel">
   <div class="panel-inner">
     <div class="mfst-label" id="mfstLabel">
@@ -1427,11 +1503,12 @@
 <!-- Section nav — graduations à droite pour accès direct -->
 <nav class="section-nav" id="sectionNav" aria-label="Sections">
   <button class="section-nav-tick is-active" data-idx="0" aria-label="Mots"><span class="label">Mots</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="1" aria-label="Mantra"><span class="label">Mantra</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="2" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="3" aria-label="Outils"><span class="label">Outils</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="4" aria-label="Références"><span class="label">Références</span><span class="bar"></span></button>
-  <button class="section-nav-tick" data-idx="5" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="1" aria-label="Manifeste"><span class="label">Manifeste</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="2" aria-label="Mantra"><span class="label">Mantra</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="3" aria-label="Services"><span class="label">Services</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="4" aria-label="Outils"><span class="label">Outils</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="5" aria-label="Références"><span class="label">Références</span><span class="bar"></span></button>
+  <button class="section-nav-tick" data-idx="6" aria-label="Contact"><span class="label">Contact</span><span class="bar"></span></button>
 </nav>
 
 <!-- Panel 5 — Outro -->
@@ -1459,7 +1536,7 @@
     </form>
     <div class="outro-form-confirm" id="outroFormConfirm">Thanks, message sent.</div>
     <div class="dark-brand-title" id="outroTitle">
-      <span class="hl-wrap"><span class="hl js-outro-hl">Mermoz Californie</span></span>
+      <span class="hl-wrap"><span class="hl js-outro-hl">Mermoz Californie®</span></span>
     </div>
   </div>
 </div>
@@ -1738,6 +1815,7 @@
   let isAnimating = false;
   const panels = [
     document.getElementById('mots'),
+    document.getElementById('manifeste-mc'),
     document.getElementById('manifeste'),
     document.getElementById('services'),
     document.getElementById('outils'),

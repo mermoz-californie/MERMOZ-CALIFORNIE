@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Essais : les bandes dans le bouton</title>
+<style>
+/* ============================================================
+   Essais : les bandes de couleur du ruban défilent dans la pilule
+   du bouton, vite, puis se fixent sur le bleu.
+
+   Chaque essai garde le début choisi (le contour qui se trace) et
+   la fin choisie (le texte qui bascule lettre à lettre). Seul le
+   remplissage change : au lieu d'un balayage bleu, les cinq
+   couleurs du ruban passent, la dernière étant le bleu du bouton.
+
+   Page de comparaison, jamais publiée (le nom commence par « _ »).
+   ============================================================ */
+:root{
+  --noir: #101010; --carte: #181818; --trait: #2a2a2a;
+  --bleu: #0074FF; --bleu-clair: #2C8CFF;
+  --cyan: #81DDFF; --jaune: #EDFF9B; --rose: #F4BDD2; --corail: #F94144;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --sf: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+*{ box-sizing: border-box; }
+body{ margin: 0; background: var(--noir); color: #fff; font-family: var(--sf); -webkit-font-smoothing: antialiased; }
+.page{ max-width: 1100px; margin: 0 auto; padding: 56px 24px 140px; }
+h1{ font-size: 15px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 8px; }
+.intro{ color: #9a9a9a; font-size: 15px; line-height: 1.5; max-width: 62ch; margin: 0 0 32px; }
+.tout{ float: right; background: var(--bleu); color: #fff; border: 0; border-radius: 999px; padding: 10px 18px; font: 600 13px/1 var(--sf); cursor: pointer; }
+.grille{ display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; clear: both; }
+.carte{ background: var(--carte); border: 1px solid var(--trait); border-radius: 20px; padding: 20px 22px 18px; display: flex; flex-direction: column; gap: 14px; min-height: 270px; }
+.tete{ display: flex; align-items: baseline; gap: 12px; }
+.id{ font: 700 12px/1 ui-monospace, 'SF Mono', Menlo, monospace; color: var(--bleu-clair); letter-spacing: .1em; }
+.nom{ font-size: 14px; font-weight: 600; }
+.note{ font-size: 13px; line-height: 1.45; color: #8f8f8f; margin: 0; }
+.scene{ flex: 1; display: flex; align-items: center; justify-content: center; min-height: 110px; }
+.rejouer{ align-self: flex-start; background: none; color: #d6d6d6; border: 1px solid #383838; border-radius: 999px; padding: 8px 14px; font: 500 12px/1 var(--sf); cursor: pointer; }
+.rejouer:hover{ border-color: #777; color: #fff; }
+
+/* ---------- le bouton, commun à tous les essais ---------- */
+.b{
+  position: relative; isolation: isolate; overflow: hidden; display: inline-block;
+  min-width: 214px; text-align: center; border-radius: 999px; padding: 15px 28px;
+  font: 500 15px/1.2 var(--sf); letter-spacing: .01em; text-transform: uppercase; color: #fff;
+  background: transparent; cursor: pointer; text-decoration: none;
+}
+.b .lab{ position: relative; z-index: 3; display: inline-block; white-space: nowrap; }   /* au-dessus des bandes */
+.w{ display: inline-block; white-space: nowrap; }
+.c{ display: inline-block; }
+
+/* le contour, tracé d'un seul geste */
+.b .trace{ position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2; }
+.b .trace rect{ fill: none; stroke: #fff; stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.b.joue .trace rect{
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.05s cubic-bezier(.65, 0, .25, 1), stroke .35s ease var(--fin, 1.7s);
+  stroke: var(--bleu-clair);
+}
+
+/* le texte : chaque lettre bascule vers l'avant, une fois le bleu posé */
+.b .lab .c{ opacity: 0; transform-origin: 50% 100%; transform: rotateX(-100deg) translateY(.2em); }
+.b.joue .lab .c{
+  opacity: 1; transform: none;
+  transition: opacity .5s ease calc(var(--fin, 1.7s) + var(--i) * 34ms),
+              transform .9s var(--ease) calc(var(--fin, 1.7s) + var(--i) * 34ms);
+}
+
+/* la matière des bandes */
+.rub{ position: absolute; z-index: 1; display: flex; }
+.rub i{ display: block; flex: 1; }
+.k-corail{ background: var(--corail); } .k-rose{ background: var(--rose); }
+.k-jaune{ background: var(--jaune); }   .k-cyan{ background: var(--cyan); }
+.k-bleu{ background: var(--bleu); }
+
+/* A : le ruban monte dans la pilule, dans l'ordre corail, rose, jaune, cyan, puis le bleu se pose */
+.bA .rub{ left: 0; right: 0; top: 0; height: 500%; flex-direction: column; transform: translateY(20%); }
+.bA.joue .rub{ animation: monte .8s cubic-bezier(.6, 0, .2, 1) .85s both; }
+@keyframes monte{ from{ transform: translateY(20%); } to{ transform: translateY(-80%); } }
+
+/* B : le ruban file de gauche à droite, le bleu arrive en dernier */
+.bB .rub{ top: 0; bottom: 0; left: 0; width: 500%; transform: translateX(-100%); }
+.bB.joue .rub{ animation: file .8s cubic-bezier(.6, 0, .2, 1) .85s both; }
+@keyframes file{ from{ transform: translateX(-100%); } to{ transform: translateX(0); } }
+
+/* C : la pilule change de couleur d'un coup, cinq fois, en une fraction de seconde */
+.bC .rub{ inset: 0; opacity: 0; background: var(--corail); }
+.bC.joue .rub{ animation: roulette .7s steps(1, end) .9s forwards; }
+@keyframes roulette{
+  0%   { opacity: 1; background: var(--corail); }
+  16%  { background: var(--rose); }
+  32%  { background: var(--jaune); }
+  48%  { background: var(--cyan); }
+  64%, 100% { opacity: 1; background: var(--bleu); }
+}
+
+/* D : cinq barres de chargement en parallèle, une par couleur ; le bleu les recouvre */
+.bD .rub{ inset: 0; flex-direction: column; }
+.bD .rub i{ transform: scaleX(0); transform-origin: 0 50%; }
+.bD{ --fin: 1.85s; }
+.bD .fond{ position: absolute; inset: 0; z-index: 1; background: var(--bleu); opacity: 0; }
+.bD.joue .rub i{ transform: scaleX(1); transition: transform .5s cubic-bezier(.5, 0, .15, 1) calc(.85s + var(--k) * 70ms); }
+.bD.joue .fond{ opacity: 1; transition: opacity .3s ease 1.55s; }
+
+/* E : la version actuelle, un balayage bleu uni, pour comparer */
+.bE .fond{ position: absolute; inset: 0; z-index: 1; background: var(--bleu); transform: scaleX(0); transform-origin: 0 50%; }
+.bE.joue .fond{ transform: scaleX(1); transition: transform .8s var(--ease) 1.1s; }
+.bE{ --fin: 1.5s; }
+
+@media (prefers-reduced-motion: reduce){
+  .c, .rub, .rub i, .fond, .trace rect{ transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Les bandes dans le bouton</h1>
+  <p class="intro">Le contour se trace, puis les cinq couleurs du ruban défilent dans la pilule et se fixent sur le bleu du bouton. Chaque essai se joue en arrivant à l'écran. Dis-moi la lettre que tu retiens.</p>
+  <button class="tout" id="tout">Tout rejouer</button>
+
+  <div class="grille">
+    <article class="carte">
+      <div class="tete"><span class="id">A</span><span class="nom">Le ruban monte</span></div>
+      <div class="scene"><a class="b bA"><svg class="trace" aria-hidden="true"><rect pathLength="1"/></svg><span class="rub" aria-hidden="true"><i class="k-corail"></i><i class="k-rose"></i><i class="k-jaune"></i><i class="k-cyan"></i><i class="k-bleu"></i></span><span class="lab" data-texte="Nous contacter"></span></a></div>
+      <p class="note">Le ruban monte à travers la pilule, comme sur la page : corail, rose, jaune, cyan, puis le bleu se pose.</p>
+      <button class="rejouer">Rejouer</button>
+    </article>
+    <article class="carte">
+      <div class="tete"><span class="id">B</span><span class="nom">Le ruban file</span></div>
+      <div class="scene"><a class="b bB"><svg class="trace" aria-hidden="true"><rect pathLength="1"/></svg><span class="rub" aria-hidden="true"><i class="k-bleu"></i><i class="k-cyan"></i><i class="k-jaune"></i><i class="k-rose"></i><i class="k-corail"></i></span><span class="lab" data-texte="Nous contacter"></span></a></div>
+      <p class="note">Même chose à l'horizontale : les bandes filent de gauche à droite, le bleu arrive en dernier.</p>
+      <button class="rejouer">Rejouer</button>
+    </article>
+    <article class="carte">
+      <div class="tete"><span class="id">C</span><span class="nom">Roulette éclair</span></div>
+      <div class="scene"><a class="b bC"><svg class="trace" aria-hidden="true"><rect pathLength="1"/></svg><span class="rub" aria-hidden="true"></span><span class="lab" data-texte="Nous contacter"></span></a></div>
+      <p class="note">La pilule prend les cinq couleurs d'un coup chacune, en 0,7 s, comme un clignotement, puis reste bleue.</p>
+      <button class="rejouer">Rejouer</button>
+    </article>
+    <article class="carte">
+      <div class="tete"><span class="id">D</span><span class="nom">Cinq barres de chargement</span></div>
+      <div class="scene"><a class="b bD"><svg class="trace" aria-hidden="true"><rect pathLength="1"/></svg><span class="rub" aria-hidden="true"><i class="k-corail" style="--k:0"></i><i class="k-rose" style="--k:1"></i><i class="k-jaune" style="--k:2"></i><i class="k-cyan" style="--k:3"></i><i class="k-bleu" style="--k:4"></i></span><i class="fond" aria-hidden="true"></i><span class="lab" data-texte="Nous contacter"></span></a></div>
+      <p class="note">Cinq barres, une par couleur, se remplissent l'une après l'autre. Le bleu les recouvre toutes.</p>
+      <button class="rejouer">Rejouer</button>
+    </article>
+    <article class="carte">
+      <div class="tete"><span class="id">E</span><span class="nom">Actuel (pour comparer)</span></div>
+      <div class="scene"><a class="b bE"><svg class="trace" aria-hidden="true"><rect pathLength="1"/></svg><i class="fond" aria-hidden="true"></i><span class="lab" data-texte="Nous contacter"></span></a></div>
+      <p class="note">Le contour, puis un simple balayage bleu.</p>
+      <button class="rejouer">Rejouer</button>
+    </article>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* les lettres du libellé */
+  [].forEach.call(document.querySelectorAll('[data-texte]'), function(el){
+    var texte = el.getAttribute('data-texte'), i = 0;
+    el.setAttribute('aria-label', texte);
+    texte.split(' ').forEach(function(mot, k, tous){
+      var w = document.createElement('span'); w.className = 'w'; w.setAttribute('aria-hidden', 'true');
+      mot.split('').forEach(function(ch){
+        var c = document.createElement('span'); c.className = 'c'; c.textContent = ch;
+        c.style.setProperty('--i', i++); w.appendChild(c);
+      });
+      el.appendChild(w);
+      if(k < tous.length - 1){ el.appendChild(document.createTextNode(' ')); i++; }
+    });
+  });
+
+  /* le contour est réglé sur la taille réelle de chaque bouton */
+  function regleTraces(){
+    [].forEach.call(document.querySelectorAll('.b'), function(b){
+      var r = b.querySelector('.trace rect'), w = b.offsetWidth, h = b.offsetHeight;
+      r.setAttribute('x', 1); r.setAttribute('y', 1);
+      r.setAttribute('width', w - 2); r.setAttribute('height', h - 2);
+      r.setAttribute('rx', (h - 2) / 2); r.setAttribute('ry', (h - 2) / 2);
+    });
+  }
+
+  var cartes = [].slice.call(document.querySelectorAll('.carte'));
+  function joue(carte){
+    var b = carte.querySelector('.b');
+    b.classList.remove('joue');
+    void b.offsetWidth;                         /* l'état caché doit être posé avant de rejouer */
+    setTimeout(function(){ b.classList.add('joue'); }, 60);
+  }
+  cartes.forEach(function(c){ c.querySelector('.rejouer').addEventListener('click', function(){ joue(c); }); });
+  document.getElementById('tout').addEventListener('click', function(){
+    cartes.forEach(function(c, i){ setTimeout(function(){ joue(c); }, i * 90); });
+  });
+
+  var deja = new WeakSet();
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting && !deja.has(e.target)){ deja.add(e.target); joue(e.target); } });
+  }, { threshold: .6 });
+
+  var pret = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  pret.then(function(){ regleTraces(); cartes.forEach(function(c){ io.observe(c); }); });
+  window.addEventListener('resize', regleTraces);
+})();
+</script>
+</body>
+</html>
