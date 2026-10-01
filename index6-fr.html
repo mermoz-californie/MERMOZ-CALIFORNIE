@@ -404,7 +404,12 @@ a{ color: inherit; text-decoration: none; }
   stroke-dashoffset: var(--len, 3000px);
   transition: stroke-dashoffset .35s ease;
 }
-.js .est-la .signe .stylo{ stroke-dashoffset: 0; }
+.js .est-la .signe .stylo{
+  stroke-dashoffset: 0;
+  /* une fois le trait blanc terminé, les couleurs qui sont dessous ne servent plus : on les retire */
+  animation: eteint 0s linear calc(var(--d, 0s) + var(--tw) + var(--uw) + 60ms) forwards;
+}
+@keyframes eteint{ to{ visibility: hidden; } }
 .js .est-la .signe .s1{ transition: stroke-dashoffset var(--u1) cubic-bezier(.55,.05,.25,1) calc(var(--d, 0s) + var(--t1)); }
 .js .est-la .signe .s2{ transition: stroke-dashoffset var(--u2) cubic-bezier(.55,.05,.25,1) calc(var(--d, 0s) + var(--t2)); }
 .js .est-la .signe .s3{ transition: stroke-dashoffset var(--u3) cubic-bezier(.55,.05,.25,1) calc(var(--d, 0s) + var(--t3)); }
@@ -419,6 +424,7 @@ a{ color: inherit; text-decoration: none; }
    pose un instant la classe « repart », qui le remet à zéro */
 .js .est-la .signe.repart .stylo,
 .js .est-la .signe.repart .guide{ stroke-dashoffset: var(--len, 3000px); transition: none !important; }
+.js .est-la .signe.repart .stylo{ animation: none; }
 @media (max-width: 760px){
   .ecran--deux > header.entete .logo,
   .ecran--deux > header.entete .bouton{ display: none; }
@@ -472,6 +478,16 @@ html.direct{ scroll-snap-type: none !important; overscroll-behavior: none; touch
 html.direct body{ overflow: hidden; height: 100%; }
 /* la page ne défile plus : elle ne fait qu'un écran de haut */
 html.direct .passage{ height: 100svh; }
+
+/* les lisières (smartphone) : voir le balisage */
+.rive{ display: none; }
+html.direct .rive{
+  display: block; position: fixed; left: 0; right: 0; height: 4px;
+  background: var(--noir); z-index: 2147483000; pointer-events: none;
+}
+html.direct .rive--haut{ top: 0; }
+html.direct .rive--bas{ bottom: 0; }
+html.direct.volet-ouvert .rive{ background: var(--corail); }
 
 /* ============================================================
    05 quater. L'ENCRE
@@ -677,6 +693,12 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
      est au fond, les bandes montent par-dessus son fond mais
      derrière son texte, et le second écran arrive accroché à la
      dernière bande, par-dessus tout. -->
+<!-- Les lisières. Safari smartphone teinte ses barres (heure, adresse) avec ce qu'il trouve
+     aux bords de la page. Deux filets fixes, collés en haut et en bas, par-dessus tout,
+     lui donnent toujours la même couleur : le noir du site, ou l'orange quand le volet est ouvert. -->
+<i class="rive rive--haut" aria-hidden="true"></i>
+<i class="rive rive--bas" aria-hidden="true"></i>
+
 <div class="passage" id="passage">
   <i class="arret arret--un" aria-hidden="true"></i>
   <i class="arret arret--deux" aria-hidden="true"></i>
@@ -892,7 +914,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
     var visible = tops[0] < 99.5 && (tops[tops.length - 1] + hauteurs[tops.length - 1]) > 0.5;
     if(visible !== rubanVisible){
       rubanVisible = visible;
-      rubanEl.style.visibility = visible ? 'visible' : 'hidden';
+      rubanEl.style.display = visible ? '' : 'none';
     }
     encre(tops, hauteurs);
 
@@ -1328,11 +1350,14 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
      Un clic sur le bouton orange du manifeste fait monter un volet du bas :
      il recouvre toute la page. Son en-tête est écrit en noir. On le referme
      avec Échap ou en cliquant sur le nom en haut à gauche. */
+  var metaTeinte = document.querySelector('meta[name="theme-color"]');
+  function teinte(couleur){ if(metaTeinte) metaTeinte.setAttribute('content', couleur); }
   var volet = document.getElementById('volet');
   var boutonMc = deux.querySelector('.bouton[data-couleur="orange"]');
   function ouvre(e){
     if(e) e.preventDefault();
     volet.classList.add('ouvert');
+    teinte('#F94144');
     volet.setAttribute('aria-hidden', 'false');
     document.documentElement.classList.add('volet-ouvert');
     /* l'en-tête s'écrit quand le volet est presque en place */
@@ -1342,6 +1367,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
   function ferme(e){
     if(e) e.preventDefault();
     volet.classList.remove('ouvert');
+    teinte('#101010');
     volet.setAttribute('aria-hidden', 'true');
     clearTimeout(volet._t);
     volet._t = setTimeout(function(){
