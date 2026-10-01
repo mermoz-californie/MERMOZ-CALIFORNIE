@@ -494,7 +494,10 @@ html.direct .rive{
 html.direct .passage__colle{ position: relative; }
 html.direct .rive--haut{ top: 0; }
 html.direct .rive--bas{ bottom: 0; }
-html.direct.volet-ouvert .rive{ background: var(--corail); }
+/* le volet monte du bas : la lisière basse devient orange tout de suite,
+   la haute quand il arrive (et l'inverse à la fermeture) */
+html.direct.volet-bas .rive--bas{ background: var(--corail); }
+html.direct.volet-haut .rive--haut{ background: var(--corail); }
 
 /* ============================================================
    05 quater. L'ENCRE
@@ -893,6 +896,56 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
 
   var rubanEl = passage.querySelector('.bandes'), rubanVisible = null;
 
+  /* LES LISIÈRES, SUR SMARTPHONE
+
+     Safari iOS remplit ses barres (heure, adresse) avec la couleur des deux
+     lisières fixes de la page. Pour que le ruban semble couvrir tout le
+     téléphone, elles prennent à chaque image la couleur de la bande qui
+     touche le bord haut et le bord bas de l'écran. Au repos elles
+     redeviennent noires, avec un petit coup de coude de couleur pour être
+     sûr que Safari relise la dernière valeur. */
+  var riveHaut = document.querySelector('.rive--haut'), riveBas = document.querySelector('.rive--bas');
+  var colleEl = passage.querySelector('.passage__colle');
+  var NOIR_RIVE = 'rgb(16, 16, 16)';
+  var couleursBandes = bandes.map(function(b){ return getComputedStyle(b).backgroundColor; });
+  var sonde = document.createElement('div');
+  sonde.setAttribute('aria-hidden', 'true');
+  sonde.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;visibility:hidden;pointer-events:none';
+  document.body.appendChild(sonde);
+  var bordBas = 100, riveEtat = '', riveT = 0;
+  function mesureBord(){
+    /* le ruban se dessine en vh ; l'écran visible peut être plus court (barres de Safari) */
+    var vh = sonde.offsetHeight / 100;
+    bordBas = vh > 0 ? colleEl.clientHeight / vh : 100;
+  }
+  window.addEventListener('resize', mesureBord);
+  mesureBord();
+  function couleurA(y, tops, hauteurs){
+    for(var i = 0; i < tops.length; i++){
+      if(y >= tops[i] && y < tops[i] + hauteurs[i]) return couleursBandes[i];
+    }
+    return NOIR_RIVE;
+  }
+  function teinteRives(visible, tops, hauteurs){
+    if(!directe || !riveHaut) return;
+    if(visible){
+      clearTimeout(riveT);
+      var h = couleurA(.2, tops, hauteurs), b = couleurA(bordBas - .2, tops, hauteurs);
+      var cle = h + '|' + b;
+      if(cle === riveEtat) return;
+      riveEtat = cle;
+      riveHaut.style.backgroundColor = h;
+      riveBas.style.backgroundColor = b;
+    } else if(riveEtat !== 'repos'){
+      riveEtat = 'repos';
+      riveHaut.style.backgroundColor = riveBas.style.backgroundColor = 'rgb(16, 16, 17)';
+      clearTimeout(riveT);
+      riveT = setTimeout(function(){
+        riveHaut.style.backgroundColor = riveBas.style.backgroundColor = '';
+      }, 160);
+    }
+  }
+
   /* Dessine le ruban pour un avancement donné, de 0 (premier écran)
      à 1 (second écran en place). */
   function place(p){
@@ -923,6 +976,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
       rubanVisible = visible;
       rubanEl.style.display = visible ? '' : 'none';
     }
+    teinteRives(visible, tops, hauteurs);
     encre(tops, hauteurs);
 
     /* la section suivante est accrochée sous le ruban */
@@ -1366,7 +1420,11 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
     volet.classList.add('ouvert');
     teinte('#F94144');
     volet.setAttribute('aria-hidden', 'false');
-    document.documentElement.classList.add('volet-ouvert');
+    var racine = document.documentElement;
+    racine.classList.add('volet-ouvert', 'volet-bas');
+    /* le bord haut n'est atteint qu'à la fin de la montée */
+    clearTimeout(volet._th);
+    volet._th = setTimeout(function(){ racine.classList.add('volet-haut'); }, 900);
     /* l'en-tête s'écrit quand le volet est presque en place */
     clearTimeout(volet._t);
     volet._t = setTimeout(function(){ pose(volet); }, 550);
@@ -1376,10 +1434,12 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
     volet.classList.remove('ouvert');
     teinte('#101010');
     volet.setAttribute('aria-hidden', 'true');
+    clearTimeout(volet._th);
+    document.documentElement.classList.remove('volet-haut');
     clearTimeout(volet._t);
     volet._t = setTimeout(function(){
       retire(volet);
-      document.documentElement.classList.remove('volet-ouvert');
+      document.documentElement.classList.remove('volet-ouvert', 'volet-bas');
     }, 900);
   }
   if(volet && boutonMc){
