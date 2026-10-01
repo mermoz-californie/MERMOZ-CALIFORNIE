@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
-/* essai : index6.html?cover=1 étend la page sous l'heure et la barre d'adresse (iPhone) */
-if(/[?&]cover=1/.test(location.search)){
+/* la page s'étend sous l'heure et la barre d'adresse (iPhone), pour que les couleurs
+   couvrent tout l'écran ; index6.html?cover=0 revient à l'ancien comportement */
+if(!/[?&]cover=0/.test(location.search)){
   document.documentElement.classList.add('cover');
   document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1, viewport-fit=cover');
 }
@@ -498,7 +499,7 @@ html.direct body{ overflow: hidden; height: 100%; }
 /* la page ne défile plus : elle ne fait qu'un écran de haut */
 html.direct .passage{ height: 100svh; }
 
-/* essai ?cover=1 : le ruban couvre tout l'écran, y compris sous l'heure et la barre
+/* page étendue (par défaut, sauf ?cover=0) : le ruban couvre tout l'écran, y compris sous l'heure et la barre
    d'adresse ; les textes, eux, restent dans la zone libre */
 html.cover.direct .passage__colle{ position: fixed; inset: 0; height: auto; }
 html.cover.direct .ecran{
