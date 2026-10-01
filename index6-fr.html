@@ -481,10 +481,17 @@ html.direct .passage{ height: 100svh; }
 
 /* les lisières (smartphone) : voir le balisage */
 .rive{ display: none; }
+/* Safari iOS 26 teinte ses barres d'après ce qui touche les bords :
+   le fond du body, ou un élément fixe pleine largeur d'au moins 6 px.
+   Ces deux lisières (12 px, noires, sans pointer-events:none qui les
+   ferait ignorer) sont donc la seule chose qu'il peut échantillonner. */
 html.direct .rive{
-  display: block; position: fixed; left: 0; right: 0; height: 4px;
-  background: var(--noir); z-index: 2147483000; pointer-events: none;
+  display: block; position: fixed; left: 0; right: 0; height: 12px;
+  background: var(--noir); z-index: 2147483000;
 }
+/* le plan collant pleine largeur serait lui aussi candidat : sans
+   défilement natif il n'a plus besoin de coller */
+html.direct .passage__colle{ position: relative; }
 html.direct .rive--haut{ top: 0; }
 html.direct .rive--bas{ bottom: 0; }
 html.direct.volet-ouvert .rive{ background: var(--corail); }
