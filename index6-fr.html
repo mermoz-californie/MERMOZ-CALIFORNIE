@@ -465,7 +465,10 @@ html.volet-ouvert{ overflow: hidden; }
 .k-noir{ background: var(--noir); }
 
 /* smartphone : plus de calage natif ni de défilement au doigt, c'est le script qui anime la page */
-html.direct{ scroll-snap-type: none !important; overscroll-behavior: none; touch-action: none; }
+html.direct{ scroll-snap-type: none !important; overscroll-behavior: none; touch-action: none; overflow: hidden; height: 100%; }
+html.direct body{ overflow: hidden; height: 100%; }
+/* la page ne défile plus : elle ne fait qu'un écran de haut */
+html.direct .passage{ height: 100svh; }
 
 /* ============================================================
    05 quater. L'ENCRE
@@ -936,9 +939,9 @@ html{ scroll-snap-type: y mandatory; }
     var p = progres();
     if(p < 0){ tourne = false; return; }
 
-    /* Sur smartphone la page est animée par notre propre geste (voir LE GESTE) :
-       le ruban la recopie à l'image près. */
-    if(directe){ affiche = p; v = 0; dernier = maintenant; place(p); tourne = false; return; }
+    /* Sur smartphone le ruban ne dépend plus du défilement du tout : il n'obéit
+       qu'au geste (voir LE GESTE). */
+    if(directe){ tourne = false; return; }
 
     var dt = Math.min(.05, Math.max(0, (maintenant - dernier) / 1000));
     dernier = maintenant;
@@ -1238,55 +1241,71 @@ html{ scroll-snap-type: y mandatory; }
 
   /* LE GESTE, SUR SMARTPHONE
 
-     Le doigt ne tire pas le ruban : un swipe vers le haut lance la
-     transition en entier, d'un seul mouvement, jusqu'à la section du
-     manifeste ; un swipe vers le bas la rejoue à l'envers jusqu'à
-     l'accueil. Le ruban sort entièrement de l'écran avant la fin : plus
-     de bande qui s'arrête en haut puis se rajuste, plus de calage.
+     Un swipe vers le haut lance la transition en entier, d'un seul
+     mouvement, jusqu'à la section du manifeste ; un swipe vers le bas la
+     rejoue à l'envers jusqu'à l'accueil.
 
-     On remplace donc le défilement natif (et son calage) par une
-     animation de la position de la page, de durée fixe. Elle démarre dès
-     que le doigt a parcouru 24 px, sans attendre qu'on le relève. */
+     Sur un téléphone, la position de défilement n'est pas fiable : la
+     barre d'adresse change la hauteur de l'écran, le navigateur décale la
+     page de quelques pixels, un élan peut subsister. Un ruban qui en
+     dépendrait pourrait rester coincé à moitié, en haut ou en bas. On le
+     détache donc complètement : la page ne défile plus (elle ne fait qu'un
+     écran de haut), et le ruban n'obéit qu'à un seul nombre, u, de 0
+     (accueil) à 1 (manifeste). Les deux extrémités sont exactes : à 0 comme à
+     1 le ruban est entièrement hors de l'écran.
+
+     Le geste démarre dès que le doigt a parcouru 24 px, sans attendre qu'on
+     le relève. Un geste en sens inverse en cours de route fait repartir le
+     ruban de là où il est, sans à-coup. */
   var tactile = (navigator.maxTouchPoints > 0) && window.matchMedia('(max-width: 760px)').matches;
   if(tactile){
     directe = true;
     document.documentElement.classList.add('direct');
-    var enCours = false, y0 = 0, decide = false;
-    var DUREE_GESTE = 1050;
+    if('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
 
-    var vers = function(i){
-      var total = passage.offsetHeight - window.innerHeight;
-      var a = window.pageYOffset, b = passage.offsetTop + (i ? total : 0);
-      if(Math.abs(b - a) < 2) return;
-      enCours = true;
-      var t0 = performance.now();
-      (function pas(t){
-        var u = borne((t - t0) / DUREE_GESTE);
-        var e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;   /* part et arrive en douceur */
-        window.scrollTo(0, a + (b - a) * e);
-        place(progres());
-        if(u < 1){ requestAnimationFrame(pas); }
-        else { setTimeout(function(){ enCours = false; }, 120); }
+    var u = 0, cible = 0, rafGeste = 0, y0 = 0, decide = false;
+    var DUREE_GESTE = 1000;
+
+    var rend = function(valeur){ u = valeur; place(valeur); };
+
+    var vers = function(t){
+      if(t === cible) return;
+      cible = t;
+      cancelAnimationFrame(rafGeste);
+      var depart = u, reste = Math.abs(t - depart);
+      if(reste < .001){ rend(t); return; }
+      var D = Math.max(420, DUREE_GESTE * reste), t0 = performance.now();
+      (function pas(maintenant){
+        var k = borne((maintenant - t0) / D);
+        var e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;      /* part et arrive en douceur */
+        rend(k >= 1 ? t : depart + (t - depart) * e);                        /* à la fin : exactement 0 ou 1 */
+        if(k < 1) rafGeste = requestAnimationFrame(pas);
       })(t0);
     };
     var voletOuvert = function(){ return document.documentElement.classList.contains('volet-ouvert'); };
 
     window.addEventListener('touchstart', function(e){
-      if(voletOuvert()) return;
+      if(voletOuvert() || e.touches.length > 1) return;
       y0 = e.touches[0].clientY; decide = false;
     }, { passive: true });
     window.addEventListener('touchmove', function(e){
       if(voletOuvert()) return;
       var dy = e.touches[0].clientY - y0;
-      if(Math.abs(dy) > 8) e.preventDefault();      /* on ne laisse pas le navigateur défiler */
-      if(enCours || decide) return;
+      if(Math.abs(dy) > 8) e.preventDefault();      /* le navigateur ne défile pas */
+      if(decide || e.touches.length > 1) return;
       if(Math.abs(dy) > 24){
         decide = true;
-        var section = progres() > .5 ? 1 : 0;
-        if(dy < 0 && section === 0) vers(1);
-        else if(dy > 0 && section === 1) vers(0);
+        vers(dy < 0 ? 1 : 0);
       }
     }, { passive: false });
+    var fin = function(){ decide = false; };
+    window.addEventListener('touchend', fin, { passive: true });
+    window.addEventListener('touchcancel', fin, { passive: true });
+
+    /* rotation, barre d'adresse : on redessine à l'état courant */
+    window.addEventListener('resize', function(){ rend(u); });
+    rend(0);
   }
 
   /* LE VOLET ORANGE
