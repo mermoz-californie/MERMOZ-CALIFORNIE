@@ -318,8 +318,11 @@ a{ color: inherit; text-decoration: none; }
 .js .bouton .trace rect{
   fill: none; stroke: #fff; stroke-width: 1.5;
   stroke-dasharray: var(--perim, 1000px); stroke-dashoffset: var(--perim, 1000px);
-  opacity: 0;   /* invisible tant que le tracé n'a pas été lancé : aucun bout de contour ne dépasse avant */
-  transition: stroke-dashoffset .3s ease, stroke .25s ease;
+  /* invisible tant que le tracé n'a pas été lancé : aucun bout de contour ne dépasse avant.
+     Pas de transition sur le décalage : quand le script règle --perim, elle faisait
+     glisser un tiret visible une fraction de seconde. */
+  visibility: hidden;
+  transition: stroke .25s ease;
 }
 
 /* le ruban : cinq bandes empilées, cinq fois la hauteur du bouton,
@@ -331,6 +334,9 @@ a{ color: inherit; text-decoration: none; }
   display: flex; flex-direction: column;
   transform: translateY(20%);
   pointer-events: none;
+  /* posé pile sous la pilule, il laissait passer un filet de sa première
+     couleur sur le bord bas : on ne le montre qu'une fois lancé */
+  visibility: hidden;
 }
 .js .bouton .rub i{ display: block; flex: 1; }
 .k-corail{ background: var(--corail); }
@@ -342,19 +348,22 @@ a{ color: inherit; text-decoration: none; }
 /* le calque uni de la couleur finale n'apparaît qu'à la fin, quand le
    ruban s'est arrêté : c'est lui qui réagit au survol */
 .js .apb::before{ opacity: 0; }
+/* Une animation (et non une transition) : tant que son délai court, c'est le
+   style de base qui s'applique, donc rien n'est visible ; elle ne rend le
+   tracé visible qu'à l'instant du départ. `forwards` garde l'état final. */
 .js .est-la .apb .trace rect{
-  stroke-dashoffset: 0;
-  opacity: 1;
-  transition: stroke-dashoffset 1.05s cubic-bezier(.65, 0, .25, 1) var(--db, 0s),
-              stroke .25s ease,
-              opacity 0s linear var(--db, 0s);   /* il n'apparaît qu'au moment du départ */
+  animation: contour 1.05s cubic-bezier(.65, 0, .25, 1) var(--db, 0s) forwards;
+}
+@keyframes contour{
+  from{ visibility: visible; }
+  to  { visibility: visible; stroke-dashoffset: 0; }
 }
 .js .est-la .apb .rub{
-  animation: monte .8s cubic-bezier(.6, 0, .2, 1) calc(var(--db, 0s) + .85s) both;
+  animation: monte .8s cubic-bezier(.6, 0, .2, 1) calc(var(--db, 0s) + .85s) forwards;
 }
 @keyframes monte{
-  from{ transform: translateY(20%); }
-  to  { transform: translateY(-80%); }
+  from{ visibility: visible; transform: translateY(20%); }
+  to  { visibility: visible; transform: translateY(-80%); }
 }
 /* la couleur est posée (classe ajoutée par le script) : le contour et
    le calque uni prennent sa couleur, le ruban s'efface */
@@ -589,7 +598,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
   margin: 0;
   /* le texte est long : les lignes s'enchaînent plus vite que celles d'un
      texte court (75 ms d'une ligne à la suivante au lieu de 150) */
-  --pl: 75ms;
+  --pl: 55ms;
 }
 .manifeste p{ margin: 0; }
 /* le développement, puis la chute */
@@ -684,7 +693,8 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
   .js .bouton .trace rect, .js .est-la .apb .trace rect{
     transition: none !important;
   }
-  .js .est-la .apb .rub{ animation: none !important; transform: translateY(-80%); }
+  .js .est-la .apb .rub{ animation: none !important; transform: translateY(-80%); visibility: visible; }
+  .js .est-la .apb .trace rect{ animation: none !important; stroke-dashoffset: 0; visibility: visible; }
   .js .signe .guide, .js .est-la .signe .guide{ transition: none !important; }
   .js .signe .stylo, .js .est-la .signe .stylo{ transition: none !important; }
 }
@@ -733,16 +743,16 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
       </div>
 
       <h1 class="phrase">
-        <span class="phrase__ligne lettres" style="--d:1950ms" data-pas="46">Cherchez</span>
+        <span class="phrase__ligne lettres" style="--d:1450ms" data-pas="46">Cherchez</span>
         <span class="phrase__mot" id="roue" aria-live="polite"></span>
       </h1>
 
       <div class="pied">
         <p class="signature">
-          <span class="lettres" style="--d:3200ms" data-pas="16">Pour créer une résonance affective</span>
-          <b class="lettres" style="--d:3400ms" data-pas="24">entre les marques et leur public.</b>
+          <span class="lettres" style="--d:2150ms" data-pas="16">Pour créer une résonance affective</span>
+          <b class="lettres" style="--d:2300ms" data-pas="24">entre les marques et leur public.</b>
         </p>
-        <a class="bouton apb" style="--db:3600ms" href="mailto:creation@mermoz-californie.com"
+        <a class="bouton apb" style="--db:2450ms" href="mailto:creation@mermoz-californie.com"
            aria-label="Nous contacter"><svg class="trace" aria-hidden="true"><rect/></svg><span class="bouton__txt lettres" aria-hidden="true">Nous contacter</span></a>
       </div>
     </section>
@@ -768,14 +778,14 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
           <path class="forme" mask="url(#trait-mc2)" d="M914.07,1329.44c36.13-27.37,81.09-61.44,124.95-82.62,12.81-6.21,30.41-14.71,39.72,2.16,9.62,17.4-6.12,27.28-29.94,42.21-20.52,12.87-41.91,44.4-33.63,63.75,5.65,13.18,12.3,16.78,16.81,18.34,23.72,8.24,73.63-21,113.24-42.6,30.96-16.88,60.21-32.82,86.27-38.49,12.59-2.67,24.93,7.57,22.98,21.89-1.07,7.84-7.34,13.79-15.07,15.49-20.7,4.55-48.76,19.85-75.9,34.65-39.86,21.73-80.83,44.07-116.13,44.07-7.96,0-15.63-1.13-22.92-3.66-17.57-6.09-30.83-19.35-39.42-39.41-3.96-9.26-5.62-18.73-5.42-28.09.08-3.69-4.01-5.93-6.99-3.76-12.45,9.07-24.4,18.13-35.48,26.53-48.95,37.08-67.26,50.96-84.58,37.2-15.65-12.44-5.83-34.42-1.1-44.98,4.66-10.43,11.89-23.09,21.39-37.66,5.72-8.77,21.56-31.21,20.31-35.53-1.05-3.63-13.94,4.56-26.08,15.41-16.82,15.03-34.41,27.23-49,39.1-50.31,40.95-67.24,54.76-84.63,40.08-16.92-14.26-10.59-33.27,42.33-127.11,10.87-19.28,16.76-30.8,21.69-41.34,4.57-9.77-.56-7.98-2.92-6.3-27.56,19.63-73.57,58.93-137.54,117.51-158.38,145.03-297.03,69.1-302.86,65.79-9.18-5.21-12.4-16.87-7.19-26.04,5.2-9.16,16.82-12.36,25.98-7.23,5.08,2.82,121.24,64.79,258.27-60.69,149.98-137.34,182.87-154.54,205.57-136.5,18.76,14.91,12.2,43.82-27.72,113.59-12.06,21.08-43.19,66.28-22.51,48.06l55.54-47.73c1.12-.97,2.31-1.93,3.48-2.83,44.45-34.11,70.42-48.45,87.99-33.14,20.29,17.65,8.71,41.98-15.39,80.17-18.45,29.24-8.07,22.73-4.11,19.72"/>
         </svg>
         <a class="logo lettres" href="#" style="--d:0ms" data-pas="46">Mermoz Californie<sup>®</sup></a>
-        <a class="bouton apb" style="--db:1500ms" href="mailto:creation@mermoz-californie.com"
+        <a class="bouton apb" style="--db:950ms" href="mailto:creation@mermoz-californie.com"
            aria-label="Nous contacter"><svg class="trace" aria-hidden="true"><rect/></svg><span class="bouton__txt lettres" aria-hidden="true">Nous contacter</span></a>
       </header>
 
       <div class="bloc">
         <p class="surtitre lettres" style="--d:0ms" data-pas="30">La résonance affective</p>
 
-        <div class="manifeste" style="--d:200ms">
+        <div class="manifeste" style="--d:100ms">
           <p class="lettres" data-pas="12">La résonance affective, c’est le moment où un message cesse d’être une information pour devenir un souvenir. Un sourire, un pincement, une phrase qu’on répète à table. Ce qui reste quand la publicité est finie.</p>
           <p class="lettres" data-pas="12">On ne choisit pas une marque parce qu’elle a raison. On la choisit parce qu’elle nous a touchés au bon endroit, au bon moment.</p>
         </div>
@@ -1221,7 +1231,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
       rang++;   /* l'espace qui suit le mot */
     });
     /* le bouton du second écran se trace quand le texte a fini */
-    deux.querySelector('.bouton[data-couleur="orange"]').style.setProperty('--db', ((ligne + 1) * 75 + 350) + 'ms');
+    deux.querySelector('.bouton[data-couleur="orange"]').style.setProperty('--db', ((ligne + 1) * 55 + 250) + 'ms');
   }
 
   /* Le contour du bouton est un rectangle à bouts ronds, réglé sur la
@@ -1312,10 +1322,10 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
     if(ecran === ecranUn){
       /* le défilement des mots attend la fin de l'introduction : « Cherchez »
          d'abord, puis le premier mot, puis seulement les suivants */
-      window.__introFin = performance.now() + 4050;
+      window.__introFin = performance.now() + 2850;
       /* un mot qui était encore en train de partir ne doit pas réapparaître */
       [].forEach.call(roueMots.querySelectorAll('.mot.part'), function(m){ m.remove(); });
-      [].forEach.call(roueMots.querySelectorAll('.mot'), function(m){ m.style.setProperty('--dm', '2800ms'); });
+      [].forEach.call(roueMots.querySelectorAll('.mot'), function(m){ m.style.setProperty('--dm', '1600ms'); });
     }
   }
   function retire(ecran){
