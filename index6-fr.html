@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- les barres du navigateur (heure, adresse) prennent la couleur du site : le noir -->
+<meta name="theme-color" content="#101010">
+<meta name="color-scheme" content="dark">
 <title>Mermoz Californie</title>
 <meta name="description" content="Studio de création publicitaire indépendant à Paris. Créer de la résonance entre les marques et leur audience.">
 
@@ -516,7 +519,7 @@ html.direct .passage{ height: 100svh; }
    Le second point n'est pas le passage lui-même : un bloc ne fournit
    qu'une seule accroche, celle de son bord haut. Il en faut donc un
    second, invisible, posé là où l'animation se termine. */
-html{ scroll-snap-type: y mandatory; }
+html{ scroll-snap-type: y mandatory; background: var(--noir); }
 .arret{
   position: absolute; left: 0; width: 1px;
   pointer-events: none; opacity: 0;
@@ -859,6 +862,8 @@ html{ scroll-snap-type: y mandatory; }
     return BAS_MILIEU * (1 - (p - PARTAGE) / (1 - PARTAGE));
   }
 
+  var rubanEl = passage.querySelector('.bandes'), rubanVisible = null;
+
   /* Dessine le ruban pour un avancement donné, de 0 (premier écran)
      à 1 (second écran en place). */
   function place(p){
@@ -879,6 +884,16 @@ html{ scroll-snap-type: y mandatory; }
       bandes[i].style.setProperty('--y', courant + 'vh');
     }
 
+    /* Le ruban n'existe que pendant une transition. Hors écran, on le cache : iOS
+       Safari colore ses barres (heure, adresse) avec les couleurs qu'il trouve
+       aux bords de la page, même sous une couche qui les recouvre ou hors
+       écran. Un ruban simplement poussé au-dessus ou en dessous laissait donc
+       les barres teintées de sa dernière couleur. */
+    var visible = tops[0] < 99.5 && (tops[tops.length - 1] + hauteurs[tops.length - 1]) > 0.5;
+    if(visible !== rubanVisible){
+      rubanVisible = visible;
+      rubanEl.style.visibility = visible ? 'visible' : 'hidden';
+    }
     encre(tops, hauteurs);
 
     /* la section suivante est accrochée sous le ruban */
