@@ -624,7 +624,9 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
      texte court (75 ms d'une ligne à la suivante au lieu de 150) */
   --pl: 55ms;
 }
-.manifeste p{ margin: 0; }
+.manifeste p{
+  margin: 0;
+}
 /* le développement, puis la chute */
 .manifeste p + p{ margin-top: 1.4em; }
 
@@ -785,7 +787,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
 
       <div class="pied">
         <p class="signature">
-          <span class="lettres" style="--d:2150ms" data-pas="16">Trouver la résonance affective</span>
+          <span class="lettres" style="--d:2150ms" data-pas="16">Trouver le « toudoum »</span>
           <b class="lettres" style="--d:2300ms" data-pas="24">de votre marque.</b>
         </p>
         <a class="bouton apb" style="--db:2450ms" href="mailto:creation@mermoz-californie.com"
@@ -822,8 +824,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
         <p class="surtitre lettres" style="--d:0ms" data-pas="30">La résonance affective</p>
 
         <div class="manifeste" style="--d:100ms">
-          <p class="lettres" data-pas="12">Nous cherchons à créer le moment où un message cesse d’être une information pour devenir un souvenir, un sourire, un pincement, une phrase qu’on répète à table. Ce qui reste quand le message publicitaire ou la signature est racontée.
-          Nous sommes convaincus qu'on ne choisit pas une marque parce qu’elle a raison. On la choisit parce qu’elle nous a touchés au bon endroit, au bon moment.</p>
+          <p class="lettres" data-pas="12">MERMOZ CALIFORNIE EST UN STUDIO DE CRÉATION INDÉPENDANT. NOUS AIDONS LES MARQUES, LES ENTREPRISES ET LES STARTUPS À TROUVER LEUR SIGNATURE. STRATÉGIE, IDENTITÉ VISUELLE, CAMPAGNE : NOUS CRÉONS OU RÉVÉLONS LES MARQUEURS PUISSANTS QUI PERMETTENT DE CRÉER UNE RÉSONANCE AFFECTIVE ENTRE ANNONCEURS ET PUBLIC.</p>
         </div>
       </div>
 
@@ -1264,7 +1265,42 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
   /* Le manifeste se compose ligne après ligne : on lit à l'écran à
      quelle ligne tombe chaque mot (cela dépend de la largeur de la
      fenêtre) et chaque lettre prend son rang dans sa ligne. */
+  /* Un paragraphe sans mot seul en dernière ligne.
+
+     `text-wrap: balance` ne s'applique qu'aux textes courts (six lignes) : ici on
+     essaie des largeurs de plus en plus étroites, sans ajouter de ligne, et on
+     garde celle où la dernière ligne est la plus remplie. */
+  function lignesDe(p){
+    var lignes = [], haut = -1, cur = null;
+    [].forEach.call(p.querySelectorAll('.w'), function(w){
+      var r = w.getBoundingClientRect();
+      if(Math.abs(r.top - haut) > 4){ cur = { g: r.left, d: r.right }; lignes.push(cur); haut = r.top; }
+      else { cur.g = Math.min(cur.g, r.left); cur.d = Math.max(cur.d, r.right); }
+    });
+    return lignes.map(function(l){ return l.d - l.g; });
+  }
+  function equilibre(){
+    [].forEach.call(manif.querySelectorAll('p'), function(p){
+      p.style.maxWidth = '';
+      var pleine = p.getBoundingClientRect().width;
+      var base = lignesDe(p);
+      if(base.length < 2) return;
+      var meilleur = pleine, rapport = base[base.length - 1] / Math.max.apply(null, base);
+      if(rapport >= .6){ return; }
+      for(var w = pleine - 8; w > pleine * .62; w -= 8){
+        p.style.maxWidth = w + 'px';
+        var l = lignesDe(p);
+        if(l.length > base.length) break;
+        var r = l[l.length - 1] / Math.max.apply(null, l);
+        if(r > rapport + .02){ rapport = r; meilleur = w; }
+        if(rapport >= .6) break;   /* assez rempli : on garde la largeur la plus grande */
+      }
+      p.style.maxWidth = meilleur < pleine ? meilleur + 'px' : '';
+    });
+  }
+
   function numerote(){
+    equilibre();
     var haut = -1, ligne = -1, rang = 0;
     [].forEach.call(manif.querySelectorAll('.w'), function(w){
       var t = w.offsetTop;
