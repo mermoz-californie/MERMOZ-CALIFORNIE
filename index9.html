@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111111">
+<meta name="color-scheme" content="dark">
+<title>Mermoz Californie</title>
+<meta name="description" content="Mermoz Californie est un studio de création indépendant. Stratégie, identité visuelle, campagne : nous créons ou révélons les marqueurs puissants qui permettent de créer une résonance affective entre les marques et leur audience.">
+<script>document.documentElement.classList.add('js')</script>
+
+<style>
+/* ============================================================
+   MERMOZ CALIFORNIE, page d'accueil : « le fil ».
+
+   Après l'arrivée du nom, la page se lit en descendant, très lentement :
+     1. le manifeste, épinglé au centre, s'allume mot à mot au rythme du défilement ;
+     2. les trois savoir-faire défilent en très grand, de droite à gauche ;
+     3. le contact.
+   Le tiret du logo « M — C » est le fil de la page : plus on descend, plus il
+   s'étire, le M vers la gauche et le C vers la droite, jusqu'aux bords de l'écran.
+   Le défilement est adouci par le script (le contenu rattrape la molette avec un
+   retard volontaire) ; la barre de défilement, le clavier et les ancres restent ceux du navigateur.
+   ============================================================ */
+
+/* PP Object Sans, graisse Regular (pack d'essai Pangram Pangram).
+   Elle est chargée depuis assets/fonts, donc elle s'affiche aussi sur téléphone ; si le fichier manque,
+   la copie installée sur l'ordinateur prend le relais. Une licence web est nécessaire avant publication. */
+@font-face{
+  font-family: 'Object';
+  src: url('assets/fonts/PPObjectSans/PPObjectSans-Regular.woff2') format('woff2'),
+       url('assets/fonts/PPObjectSans/PPObjectSans-Regular.woff') format('woff'),
+       local('PP Object Sans Regular'), local('PPObjectSans-Regular');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root{
+  --fond: #111111;
+  --blanc: #FFFFFF;
+  --mori: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --object: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sf: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ease: cubic-bezier(.4, 0, .2, 1);          /* la courbe des fondus de la référence */
+  --sortie: cubic-bezier(.16, 1, .3, 1);
+  --marge: clamp(20px, 2.2vw, 32px);           /* bords de l'en-tête */
+}
+*{ box-sizing: border-box; }
+html{ background: var(--fond); }
+body{
+  margin: 0; min-height: 100svh;
+  background: var(--fond); color: var(--blanc);
+  font-family: var(--mori); font-weight: 400;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+a{ color: inherit; text-decoration: none; }
+button{ font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.sr{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ------------------------------------------------------------
+   1. LE NOM, qui devient M—C
+
+   Dans l'ordre (d'après la séquence de référence) :
+     1. « MERMOZ CALIFORNIE » s'écrit au centre, lettre à lettre, derrière un masque ;
+     2. un grand M et un grand C montent de chaque côté ;
+     3. le nom rapetisse et les deux grandes lettres se rapprochent, jusqu'à ce que
+        le nom ne soit plus qu'un trait horizontal : M — C ;
+     4. « M — C » monte prendre la place du logo en rapetissant.
+   Tout est fait avec des transformations : rien ne change de mise en page en cours de route.
+   ------------------------------------------------------------ */
+.marque{
+  --f: clamp(15px, 4.7vw, 76px);                 /* la taille du nom */
+  --F: calc(var(--f) * 3.4);                     /* la taille du grand M et du grand C */
+  position: fixed; z-index: 70;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--object); font-weight: 400; text-transform: uppercase;
+  font-size: var(--f);
+  letter-spacing: .01em; line-height: 1.1; white-space: nowrap;
+  color: var(--blanc);
+}
+.marque a{ display: block; }
+.marque .lock{ position: relative; display: inline-block; }
+.marque .mid{ display: inline-block; transform-origin: 50% 50%; }
+.marque .m{
+  position: relative;
+  display: inline-block; vertical-align: bottom; overflow: hidden;
+  padding: .02em .04em; margin: -.02em -.04em;          /* le masque ne rogne pas les bords des lettres */
+}
+.marque .l, .marque .gl{ display: inline-block; }
+.marque .esp{ display: inline-block; vertical-align: bottom; width: .3em; height: 1.1em; }
+.js .marque:not(.fin) .l{ transform: translateY(112%); }   /* avant le départ, les lettres du nom sont sous le masque */
+/* le grand M et le grand C ne sont pas encore dessinés (le M se révèle de gauche à droite, le C en tournant) */
+.js .marque:not(.fin) .gm .gl{ clip-path: inset(0 100% 0 0); }
+.js .marque:not(.fin) .gc .gl{ clip-path: polygon(50% 50%, 50% 50%, 50% 50%); }
+
+/* le grand M (à gauche) et le grand C (à droite), centrés sur le milieu des capitales du nom */
+.marque .gk{
+  position: absolute; top: 50%;
+  font-size: var(--F); line-height: 1.1;
+  margin-top: calc(-.57em + var(--corr, 0px));
+  overflow: hidden; padding: .02em .04em;
+}
+.marque .gm{ right: calc(100% + .05em); }
+.marque .gc{ left: calc(100% + .05em); }
+/* le trait qui prend la place du nom */
+.marque .tiret{
+  position: absolute; left: 50%; top: calc(50% + var(--cap, 0px));
+  width: calc(.5 * var(--F)); height: calc(.08 * var(--F));
+  margin: calc(-.04 * var(--F)) 0 0 calc(-.25 * var(--F));
+  background: currentColor; transform: scaleX(0); transform-origin: 50% 50%; pointer-events: none;
+}
+
+/* l'état final : « M — C » à la place du logo (le nom, caché, ne sert plus qu'à garder la place du trait) */
+.marque.fin{ --f: calc(26px / 3.4); top: var(--haut-logo, 56px); }
+.marque.fin .mid{ display: inline-block; width: calc(.5 * var(--F)); height: 1px; overflow: hidden; visibility: hidden; transform: none; }
+.marque.fin .gl{ transform: none; clip-path: none; }
+.marque.fin .gk{ transform: none; }
+.marque.fin .tiret{ transform: none; }
+
+
+
+/* ------------------------------------------------------------
+   2. LA PAGE : un décor fixe, qui défile par le script
+   ------------------------------------------------------------ */
+html.js:not(.pret){ overflow: hidden; }                       /* pas de défilement pendant l'arrivée */
+.entete{ position: fixed; z-index: 60; top: 0; left: 0; right: 0; height: clamp(44px, 3.4vw, 54px); pointer-events: none; }   /* le logo, et le fil, se tiennent tout en haut */
+.js #sc{ position: fixed; top: 0; left: 0; width: 100%; will-change: transform; }
+.scene{ position: relative; }
+.scene--intro{ height: calc(var(--vh, 100vh) * 3); }
+.scene--man{ height: auto; margin-top: calc(var(--vh, 100vh) * -.55); }   /* pas épinglé ; il remonte sous la fin de l'arrivée : ses premiers mots paraissent dès que le logo est en haut */
+.scene--sav{ height: calc(var(--vh, 100vh) * 4.4); }
+.scene--ctn{ height: calc(var(--vh, 100vh) * 1); }
+.epingle{ position: absolute; top: 0; left: 0; width: 100%; height: var(--vh, 100vh); overflow: hidden; }
+.cadre{ position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 7vw; }
+
+/* 1. le manifeste : trois paragraphes, qui défilent normalement ; chaque mot apparaît (de 0 à 1) l'un après l'autre
+   quand son paragraphe passe un peu au-dessus du milieu de l'écran */
+.scene--man .epingle{ position: relative; height: auto; overflow: visible; }
+.scene--man .cadre{ position: relative; inset: auto; justify-content: flex-start; padding: calc(var(--vh, 100vh) * .23) 7vw 32vh; }
+.man{
+  max-width: 1160px;
+  font-size: clamp(22px, min(2.8vw, 4.5vh), 54px);
+  line-height: 1.32; letter-spacing: -.012em; text-transform: uppercase;     /* l'interlignage : plus ouvert qu'avant (1,1) */
+}
+.man p{ margin: 0; }
+.man .w{ display: inline-block; vertical-align: bottom; opacity: 0; white-space: nowrap; }
+/* chaque lettre a son masque : elle sort par le haut sans fondu, en vague le long de la ligne */
+.man .lm{
+  display: inline-block; vertical-align: bottom; overflow: hidden;
+  padding: .16em .01em .04em; margin: -.16em -.01em -.04em;           /* les accents ne sont pas rognés */
+}
+.man .lt{ display: inline-block; will-change: transform, opacity; }
+.man .espace{ display: inline-block; vertical-align: bottom; width: .26em; }
+
+/* 2. les savoir-faire : trois grands mots reliés par le tiret du logo */
+.piste{
+  display: flex; align-items: center; gap: .28em; white-space: nowrap;
+  font-size: clamp(66px, 19.5vw, 330px); line-height: 1; letter-spacing: -.03em; text-transform: uppercase;
+  padding-left: 7vw; padding-right: 7vw; will-change: transform;
+}
+.piste .mt{ position: relative; display: inline-block; }
+.piste .tir{ flex: none; display: inline-block; width: .5em; height: .07em; background: currentColor; }
+.piste{ display: none; }
+.mots-defile .piste{ display: flex; }
+.mots-defile .roule{ display: none; }
+
+/* la version « les lettres roulent » : un seul grand mot à la fois, au centre ; ses lettres montent
+   de derrière un masque, restent, puis repartent par le haut pendant que celles du mot suivant arrivent */
+.roule{ display: grid; justify-items: center; align-items: center; width: 100%; }
+.roule .rw{
+  grid-area: 1 / 1; display: block; white-space: nowrap; text-align: center;
+  font-size: clamp(54px, 14.2vw, 250px); line-height: 1.1; letter-spacing: -.03em; text-transform: uppercase;
+}
+.roule .rm{ display: inline-block; vertical-align: bottom; overflow: hidden; padding: .16em .04em .02em; margin: -.16em -.04em -.02em; }
+.roule .rl{ display: inline-block; will-change: transform; transform: translateY(112%); }
+
+/* 3. le contact */
+.gros{
+  display: inline-block; align-self: flex-start;
+  font-size: clamp(22px, 4.4vw, 76px); line-height: 1.1; letter-spacing: -.025em; white-space: nowrap;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; padding-bottom: .1em;
+  transition: background-size .6s var(--sortie);
+}
+.gros:hover{ background-size: 100% .07em; }
+.ville{ margin: 1.5rem 0 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .5; }
+.pied{ position: absolute; left: 7vw; right: 7vw; bottom: clamp(70px, 9vh, 96px); display: flex; justify-content: space-between; font-size: 12px; letter-spacing: .06em; }
+.pied p, .pied a{ margin: 0; opacity: .45; transition: opacity .3s var(--ease); }
+.pied a:hover{ opacity: 1; }
+
+/* ce qui reste en place pendant qu'on descend */
+.etat, .ecrire, .indice{ position: fixed; z-index: 55; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; margin: 0; }
+.etat{ left: var(--marge); bottom: clamp(20px, 3.2vh, 34px); display: flex; gap: 14px; align-items: baseline; }
+.etat .lib{ display: inline-block; transition: opacity .5s var(--ease), transform .8s var(--sortie); }
+.etat .lib.sort{ opacity: 0; transform: translateY(40%); }
+.ecrire{ right: var(--marge); bottom: clamp(20px, 3.2vh, 34px); display: inline-flex; gap: .55em; align-items: center; }
+.ecrire span{ display: inline-block; transition: transform .45s var(--sortie); }
+.ecrire:hover span{ transform: translate(.22em, -.22em); }
+.indice{ left: 50%; bottom: clamp(20px, 3.2vh, 34px); transform: translateX(-50%); opacity: .5; transition: opacity .8s var(--ease); }
+.indice.cache{ opacity: 0; }
+.js .etat, .js .ecrire, .js .indice{ opacity: 0; }
+.js.ui .etat, .js.ui .ecrire{ opacity: 1; transition: opacity 1s var(--ease) .3s; }
+.js.ui .etat.cache{ opacity: 0; transition: opacity .5s var(--ease); }
+.js.pret .indice{ opacity: .5; transition: opacity 1s var(--ease) .4s; }
+.js.pret .indice.cache{ opacity: 0; transition: opacity .8s var(--ease); }
+
+/* sans script : tout se lit, à la suite */
+html:not(.js) .scene{ height: auto; padding: 14vh 0; }
+html:not(.js) .epingle{ position: static; height: auto; }
+html:not(.js) .cadre{ position: static; }
+html:not(.js) .man .w{ opacity: 1; }
+html:not(.js) .piste{ display: none; }
+html:not(.js) .roule{ display: block; }
+html:not(.js) .roule .rw{ display: block; margin: .1em 0; }
+html:not(.js) .roule .rl{ transform: none; }
+
+@media (max-width: 1023px){
+  .cadre{ padding: 0 22px; }
+  .man{ font-size: clamp(19px, 5.2vw, 36px); line-height: 1.34; }
+  .scene--man .cadre{ padding: calc(var(--vh, 100vh) * .23) 22px 28vh; }
+  .piste{ font-size: clamp(60px, 21vw, 150px); padding-left: 22px; }
+  .roule .rw{ font-size: clamp(40px, 15.2vw, 120px); }
+  .gros{ font-size: clamp(17px, 5.5vw, 40px); }
+  .pied{ left: 22px; right: 22px; }
+  .indice{ display: none; }
+}
+@media (prefers-reduced-motion: reduce){
+  .etat .lib, .gros{ transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- LE NOM : il arrive au centre, se réduit à « M — C » et monte dans l'en-tête -->
+<div class="marque" id="marque">
+  <a href="#" aria-label="Mermoz Californie, retour en haut"><span class="lock" aria-hidden="true"><span class="mid"></span><span class="gk gm"><span class="gl">M</span></span><span class="gk gc"><span class="gl">C</span></span><span class="tiret"></span></span></a>
+</div>
+
+
+
+<header class="entete" aria-hidden="true"></header>
+
+<div id="sc">
+
+  <!-- la scène de l'arrivée : vide, c'est le nom (fixe, au premier plan) qui s'y transforme au rythme du défilement -->
+  <section class="scene scene--intro" id="arrivee" data-nom="" aria-hidden="true">
+    <div class="epingle"></div>
+  </section>
+
+  <section class="scene scene--man" id="manifeste" data-nom="Manifeste" aria-label="Manifeste">
+    <div class="epingle"><div class="cadre">
+      <div class="man" id="man">
+        <p>Mermoz Californie est un studio indépendant de création d’identité. Nous n’inventons rien : chaque marque porte déjà son histoire, ses convictions, sa singularité. Souvent, elle les regarde juste de trop près. Notre rôle, c’est d’élargir le champ de vision. L’analyse d’abord, pour repérer ce qui est solide. L’intuition ensuite, pour ouvrir l’angle et révéler toute l’étendue de ce qui était déjà là. Stratégie, identité visuelle, campagne : à mesure que le cadre recule, le panorama apparaît. L’audience n’a plus qu’à profiter de la vue.</p>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="scene scene--sav" id="savoir-faire" data-nom="Savoir-faire" aria-label="Savoir-faire">
+    <div class="epingle"><div class="cadre">
+      <div class="roule" id="roule" aria-label="Identité, stratégie, design">
+        <span class="rw">Identité</span>
+        <span class="rw">Stratégie</span>
+        <span class="rw">Design</span>
+      </div>
+      <div class="piste" id="piste" aria-hidden="true">
+        <span class="mt">Identité</span><i class="tir"></i>
+        <span class="mt">Stratégie</span><i class="tir"></i>
+        <span class="mt">Design</span>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="scene scene--ctn" id="contact" data-nom="Contact" aria-label="Contact">
+    <div class="epingle"><div class="cadre">
+      <a class="gros" href="mailto:creation@mermoz-californie.com">creation@mermoz-californie.com</a>
+      <p class="ville">Paris</p>
+      <div class="pied"><p>©2026 Mermoz Californie</p><a href="#">Mentions légales</a></div>
+    </div></div>
+  </section>
+
+</div>
+<div id="espace" aria-hidden="true"></div>
+
+<p class="etat" aria-hidden="true"><span class="lib" id="etat-lib">Manifeste</span></p>
+<a class="ecrire" href="mailto:creation@mermoz-californie.com">Écrire <span aria-hidden="true">↗</span></a>
+<p class="indice" id="indice" aria-hidden="true">Défiler</p>
+
+<script>
+(function(){
+  var racine = document.documentElement;
+  if('scrollRestoration' in history) history.scrollRestoration = 'manual';   /* l'arrivée se joue toujours en haut de page */
+  window.scrollTo(0, 0);
+  var marque = document.getElementById('marque');
+  var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- le nom : chaque lettre derrière son masque ---------- */
+  var NOM = 'MERMOZ CALIFORNIE';
+  var mid = marque.querySelector('.mid');
+  var glM = marque.querySelector('.gm'), glC = marque.querySelector('.gc'), tiret = marque.querySelector('.tiret');
+  var lettres = [];
+  NOM.split('').forEach(function(ch, i){
+    if(ch === ' '){
+      var e = document.createElement('span'); e.className = 'esp'; mid.appendChild(e); return;
+    }
+    var m = document.createElement('span'); m.className = 'm';
+    var l = document.createElement('span'); l.className = 'l'; l.textContent = ch;
+    m.appendChild(l); mid.appendChild(m);
+    lettres.push({ i: i, l: l });
+  });
+
+  /* ---------- la place du logo dans l'en-tête ---------- */
+  function centreEntete(){ return document.querySelector('.entete').getBoundingClientRect().height / 2; }
+  function placeLogo(){ marque.style.setProperty('--haut-logo', centreEntete() + 'px'); }
+  placeLogo();
+  window.addEventListener('resize', placeLogo);
+
+  /* ---------- l'arrivée : en deux temps ----------
+     1. toute seule : le nom s'écrit au centre ;
+     2. au défilement, dès les premiers pas : le grand M et le grand C montent de chaque côté, puis ils se
+        rapprochent en « mangeant » les lettres, un tiret apparaît, et « M — C » monte tout en haut.
+        On peut revenir en arrière : tout se rejoue à l'envers. */
+  var EXPO = 'cubic-bezier(.16, 1, .3, 1)';          /* arrive vite, se pose longuement */
+  var SOUPLE = 'cubic-bezier(.76, 0, .24, 1)';       /* part en douceur, arrive en douceur */
+  function attend(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  /* l'écart entre le milieu des capitales et le milieu de la ligne, en fraction de la taille du texte :
+     il sert à centrer le grand M, le grand C et le trait sur le milieu des capitales du nom */
+  function ecartCapitales(){
+    var c = document.createElement('canvas').getContext('2d');
+    c.font = '400 100px Object, "Helvetica Neue", Arial, sans-serif';
+    var mm = c.measureText('M');
+    var fa = mm.fontBoundingBoxAscent, fd = mm.fontBoundingBoxDescent, cap = mm.actualBoundingBoxAscent;
+    if(!fa || !cap) return -.03;
+    var ligne = 110;                                  /* 1,1 de hauteur de ligne, sur une taille de 100 */
+    var base = (ligne - (fa + fd)) / 2 + fa;
+    return ((base - cap / 2) - ligne / 2) / 100;
+  }
+
+  /* à quelle fraction de la durée le mouvement a-t-il parcouru la fraction p du trajet ? (courbe de Bézier inversée) */
+  function tempsPourAvancement(p, x1, y1, x2, y2){
+    function bz(u, a, b){ return 3 * (1 - u) * (1 - u) * u * a + 3 * (1 - u) * u * u * b + u * u * u; }
+    var lo = 0, hi = 1, u = .5;
+    for(var i = 0; i < 40; i++){ u = (lo + hi) / 2; if(bz(u, y1, y2) < p) lo = u; else hi = u; }
+    return bz(u, x1, x2);
+  }
+
+  /* la forme réelle d'une capitale dans la police (mesurée sur un dessin à grande taille) : son encombrement, et
+     les tranches d'encre à une hauteur donnée. Elle sert à faire suivre le tracé de la lettre par le masque. */
+  function geomGlyphe(lettre){
+    var S = 400, W = 720, H = 720, ox = 120, oy = 520;
+    var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var c = cv.getContext('2d', { willReadFrequently: true });
+    c.font = '400 ' + S + 'px Object, "Helvetica Neue", Arial, sans-serif'; c.textBaseline = 'alphabetic'; c.fillStyle = '#fff';
+    c.fillText(lettre, ox, oy);
+    var mm = c.measureText(lettre), d = c.getImageData(0, 0, W, H).data;
+    var ink = function(x, y){ return d[(y * W + x) * 4 + 3] > 110; };
+    var gauche = W, droite = -1, haut = H, bas = -1;
+    for(var y = 0; y < H; y++) for(var x = 0; x < W; x++) if(ink(x, y)){
+      if(x < gauche) gauche = x; if(x > droite) droite = x; if(y < haut) haut = y; if(y > bas) bas = y;
+    }
+    return {
+      S: S, fa: mm.fontBoundingBoxAscent || .9 * S, fd: mm.fontBoundingBoxDescent || .2 * S,
+      left: (gauche - ox) / S, right: (droite + 1 - ox) / S, top: (haut - oy) / S, bottom: (bas + 1 - oy) / S,
+      rowRuns: function(yEm){                              /* les tranches d'encre sur une ligne, en em */
+        var yy = Math.round(oy + yEm * S), r = [], x0 = -1;
+        for(var x = 0; x < W; x++){
+          if(ink(x, yy)){ if(x0 < 0) x0 = x; } else if(x0 >= 0){ r.push([(x0 - ox) / S, (x - ox) / S]); x0 = -1; }
+        }
+        if(x0 >= 0) r.push([(x0 - ox) / S, (W - ox) / S]);
+        return r;
+      }
+    };
+  }
+
+  /* une courbe de Bézier cubique, comme en CSS : renvoie la fonction temps -> avancement */
+  function bez(x1, y1, x2, y2){
+    var bx = function(u){ return 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u; };
+    var by = function(u){ return 3 * (1 - u) * (1 - u) * u * y1 + 3 * (1 - u) * u * u * y2 + u * u * u; };
+    return function(t){ if(t <= 0) return 0; if(t >= 1) return 1; var lo = 0, hi = 1, u = .5; for(var i = 0; i < 30; i++){ u = (lo + hi) / 2; if(bx(u) < t) lo = u; else hi = u; } return by(u); };
+  }
+  var courbeMain = bez(.4, 0, .25, 1);
+
+  /* Le tracé du M : la forme exacte de chacun de ses quatre traits (deux montants, deux obliques), relevée sur la lettre
+     elle-même. On révèle chaque trait dans l'ordre où on l'écrit, en ne découvrant que ce trait : le masque ne déborde jamais
+     sur le dessin de la lettre, ni sur les traits suivants. Renvoie L (la longueur totale) et poly(s), le masque à la longueur s. */
+  function construireTraceM(g, b){
+    var haut = g.top, bas = g.bottom, hh = bas - haut, ext = .003;      /* ext : un demi-pixel, seulement vers l'extérieur du dessin */
+    var qq = function(r){ return Math.round(r * 1000) / 1000; };
+    /* les rangées du milieu de la lettre, où l'on voit quatre tranches : montant, oblique, oblique, montant */
+    var rangs = [];
+    for(var f = .30; f <= .72; f += .02){
+      var y = haut + hh * f, r = g.rowRuns(y);
+      if(r.length === 4) rangs.push({ y: y, r: r });
+    }
+    if(rangs.length < 4) return null;
+    var med = function(t){ t = t.slice().sort(function(a, c){ return a - c; }); return t[Math.floor(t.length / 2)]; };
+    var xl0 = med(rangs.map(function(o){ return o.r[0][0]; })), xl1 = med(rangs.map(function(o){ return o.r[0][1]; }));
+    var xr0 = med(rangs.map(function(o){ return o.r[3][0]; })), xr1 = med(rangs.map(function(o){ return o.r[3][1]; }));
+    /* une droite x = a + c*y ajustée sur les bords d'une oblique */
+    var ajuste = function(pts){
+      var n = pts.length, sy = 0, sx = 0, syy = 0, sxy = 0;
+      pts.forEach(function(p){ sy += p[0]; sx += p[1]; syy += p[0] * p[0]; sxy += p[0] * p[1]; });
+      var c = (n * sxy - sy * sx) / (n * syy - sy * sy), a0 = (sx - c * sy) / n; return { a: a0, c: c };
+    };
+    var bord = function(k, c){ return ajuste(rangs.map(function(o){ return [o.y, o.r[k][c]]; })); };
+    var dgG = bord(1, 0), dgD = bord(1, 1), ddG = bord(2, 0), ddD = bord(2, 1);   /* oblique gauche, oblique droite : bord gauche et bord droit */
+    var X = function(d, y){ return d.a + d.c * y; };
+    var gauche = [[X(dgG, haut), haut], [X(dgD, haut), haut], [X(dgD, bas), bas], [X(dgG, bas), bas]];
+    var droite = [[X(ddG, bas), bas], [X(ddD, bas), bas], [X(ddD, haut), haut], [X(ddG, haut), haut]];
+    var dir = function(A, B){ var dx = B[0] - A[0], dy = B[1] - A[1], l = Math.sqrt(dx * dx + dy * dy); return { ux: dx / l, uy: dy / l, l: l }; };
+    var Pa = [(gauche[0][0] + gauche[1][0]) / 2, haut], Pb = [(gauche[2][0] + gauche[3][0]) / 2, bas];
+    var Pc = [(droite[0][0] + droite[1][0]) / 2, bas], Pd = [(droite[2][0] + droite[3][0]) / 2, haut];
+    var d1 = dir(Pa, Pb), d2 = dir(Pc, Pd), L = hh + d1.l + d2.l + hh;
+    var coupe = function(poly, f){                    /* Sutherland-Hodgman : on garde les points où f(p) <= 0 */
+      var out = [];
+      for(var i = 0; i < poly.length; i++){
+        var A = poly[i], B = poly[(i + 1) % poly.length], fa = f(A), fb = f(B);
+        if(fa <= 0) out.push(A);
+        if((fa <= 0) !== (fb <= 0)){ var t = fa / (fa - fb); out.push([A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]); }
+      }
+      return out;
+    };
+    var chaine = function(pieces){                    /* plusieurs morceaux en un seul polygone : des ponts d'épaisseur nulle les relient */
+      /* tous les morceaux doivent tourner dans le même sens : sinon, là où deux morceaux se recouvrent, les sens s'annulent
+         et laissent un trou noir dans la lettre */
+      pieces = pieces.map(function(pc){
+        var aire = 0;
+        for(var i = 0; i < pc.length; i++){ var A = pc[i], B = pc[(i + 1) % pc.length]; aire += A[0] * B[1] - B[0] * A[1]; }
+        return aire < 0 ? pc.slice().reverse() : pc;
+      });
+      var pts = [], ancre = pieces[0][0];
+      pieces.forEach(function(pc, i){
+        if(i > 0) pts.push(ancre);
+        pc.forEach(function(p){ pts.push(p); }); pts.push(pc[0]);
+      });
+      return pts;
+    };
+    return {
+      L: L,
+      etapes: [hh, hh + d1.l, hh + d1.l + d2.l, L],         /* la fin de chacun des quatre traits */
+      poly: function(s){
+        if(s <= 0) return 'inset(0 100% 0 0)';
+        var pcs = [];
+        /* 1. le montant de gauche, du bas vers le haut : exactement sa largeur (rien sur l'oblique qui le touche) */
+        var a1 = Math.min(s, hh);
+        pcs.push([[xl0 - ext, bas - a1 - (a1 >= hh ? ext : 0)], [xl1, bas - a1 - (a1 >= hh ? ext : 0)], [xl1, bas + ext], [xl0 - ext, bas + ext]]);
+        /* 2. l'oblique de gauche, du haut vers le bas : exactement sa forme, jusqu'au bas du V */
+        var s2 = s - hh;
+        if(s2 > 0){
+          var q2 = Math.min(s2, d1.l);
+          var m2 = q2 >= d1.l ? gauche : coupe(gauche, function(p){ return (p[0] - Pa[0]) * d1.ux + (p[1] - Pa[1]) * d1.uy - q2; });
+          if(m2.length > 2) pcs.push(m2);
+        }
+        /* 3. l'oblique de droite, du bas vers le haut, jusqu'au haut du montant de droite */
+        var s3 = s2 - d1.l;
+        if(s3 > 0){
+          var q3 = Math.min(s3, d2.l);
+          var m3 = q3 >= d2.l ? droite : coupe(droite, function(p){ return (p[0] - Pc[0]) * d2.ux + (p[1] - Pc[1]) * d2.uy - q3; });
+          if(m3.length > 2) pcs.push(m3);
+        }
+        /* 4. le montant de droite, du haut vers le bas : exactement sa largeur */
+        var s4 = s3 - d2.l;
+        if(s4 > 0){
+          var a4 = Math.min(s4, hh), fin4 = a4 >= hh ? ext : 0;
+          pcs.push([[xr0, haut - ext], [xr1 + ext, haut - ext], [xr1 + ext, haut + a4 + fin4], [xr0, haut + a4 + fin4]]);
+        }
+        return 'polygon(' + chaine(pcs).map(function(p){ return enPctM(p[0], p[1]); }).join(', ') + ')';
+      }
+    };
+  }
+
+  /* --- le deuxième temps : des animations en pause, qu'on avance et qu'on recule avec le défilement --- */
+  var tl = [], TOTAL = 1, deuxPrets = false, traceM = null, enPctM = null, M_DUREE = 850;
+  var courbeM = null;
+  function construisDeuxiemeTemps(){
+    tl.forEach(function(a){ a.cancel(); }); tl = [];
+    var f = parseFloat(getComputedStyle(marque).fontSize), F = 3.4 * f;
+    var wNom = mid.getBoundingClientRect().width, wTrait = .5 * F;
+    var gap = .05 * F, dxM = (wNom - wTrait) / 2, D = 1800, T0 = 1000;
+    function an(el, kf, opt){ opt.fill = 'both'; var a = el.animate(kf, opt); a.pause(); a.currentTime = 0; tl.push(a); return a; }
+
+    /* au tout début du défilement : le grand M et le grand C se dessinent peu à peu.
+       Le masque suit le tracé de chaque lettre : le M se dessine comme on l'écrit (montant de gauche, oblique descendante,
+       oblique montante, montant de droite) ; le C tourne autour de son centre, de l'extrémité haute à l'extrémité basse. */
+    var gM = geomGlyphe('M'), gC = geomGlyphe('C');
+    /* Le tiret est centré sur l'encre : à mi-chemin entre le bord droit du M et le bord gauche du C (pas entre leurs cadres,
+       qui ont des marges différentes), et à mi-hauteur des capitales du M. */
+    tiret.style.marginLeft = ''; tiret.style.marginTop = '';
+    var rGM = glM.firstChild.getBoundingClientRect(), rGC = glC.firstChild.getBoundingClientRect(), rT0 = tiret.getBoundingClientRect();
+    var baseEm = ((1.1 * gM.S - (gM.fa + gM.fd)) / 2 + gM.fa) / gM.S;
+    var xMil = ((rGM.left + gM.right * F) + (rGC.left + gC.left * F)) / 2;
+    var yMil = rGM.top + (baseEm + (gM.top + gM.bottom) / 2) * F;
+    var decX = (xMil - (rT0.left + rT0.width / 2)) / F, decY = (yMil - (rT0.top + rT0.height / 2)) / F;
+    tiret.style.marginLeft = 'calc(-.25 * var(--F) + ' + decX.toFixed(5) + ' * var(--F))';
+    tiret.style.marginTop = 'calc(-.04 * var(--F) + ' + decY.toFixed(5) + ' * var(--F))';
+    var boite = function(el){                         /* le cadre de la lettre, en em, et la hauteur de sa ligne de base */
+      var r = el.getBoundingClientRect(), g = gM;
+      return { w: r.width / F, h: 1.1, base: ((1.1 * g.S - (g.fa + g.fd)) / 2 + g.fa) / g.S };
+    };
+    var enPct = function(b, x, y){ return (x / b.w * 100).toFixed(2) + '% ' + ((b.base + y) / b.h * 100).toFixed(2) + '%'; };
+    var TOUT = 'inset(-8% -8% -8% -8%)';              /* à la fin, plus aucun masque */
+
+    /* le M : calculé à chaque image (voir construireTraceM), pour que le masque suive exactement ses traits */
+    var bM = boite(glM.firstChild);
+    enPctM = function(x, y){ return enPct(bM, x, y); };
+    traceM = construireTraceM(gM, bM);
+
+    /* le C : un secteur qui tourne autour du centre du rond, à partir de l'ouverture (côté droit) */
+    (function(){
+      var b = boite(glC.firstChild);
+      var cx = gC.left + (gC.bottom - gC.top) / 2, cy = (gC.top + gC.bottom) / 2, R = 1.3;
+      var secteur = function(deg){
+        var pts = [enPct(b, cx, cy)], N = 32;
+        for(var q = 0; q <= N; q++){
+          var a = (-5 - deg * q / N) * Math.PI / 180;
+          pts.push(enPct(b, cx + R * Math.cos(a), cy + R * Math.sin(a)));
+        }
+        return 'polygon(' + pts.join(', ') + ')';
+      };
+      var kf = [0, 45, 90, 135, 180, 225, 270, 315, 358].map(function(d, q, tab){ return { clipPath: secteur(d), offset: .985 * q / (tab.length - 1) }; });
+      kf.push({ clipPath: TOUT, offset: 1 });
+      an(glC.firstChild, kf, { duration: 900, delay: 200, easing: 'cubic-bezier(.4, 0, .25, 1)' });
+    })();
+
+    /* puis le M et le C avancent l'un vers l'autre */
+    an(glM, [{ transform: 'translateX(0)' }, { transform: 'translateX(' + dxM + 'px)' }], { duration: D, delay: T0, easing: SOUPLE });
+    an(glC, [{ transform: 'translateX(0)' }, { transform: 'translateX(' + (-dxM) + 'px)' }], { duration: D, delay: T0, easing: SOUPLE });
+    /* chaque lettre sort par le haut quand le M (ou le C) l'atteint */
+    var rn = mid.getBoundingClientRect(), finLettres = 0;
+    lettres.forEach(function(x){
+      var r = x.l.getBoundingClientRect();
+      var c = r.left + r.width / 2 - rn.left;
+      var p = Math.min((Math.min(c, wNom - c) + gap) / dxM, .8);           /* celles du milieu partent plus tôt : avant le trait */
+      var debut = Math.max(0, tempsPourAvancement(p, .76, 0, .24, 1) * D - 160);
+      finLettres = Math.max(finLettres, debut + 420);
+      an(x.l, [{ transform: 'translateY(0)' }, { transform: 'translateY(-112%)' }], { duration: 420, delay: T0 + debut, easing: 'cubic-bezier(.7, 0, .2, 1)' });
+    });
+    /* le trait n'apparaît qu'une fois toutes les lettres parties */
+    var depart = Math.min(.92 * D, finLettres - 80);
+    an(tiret, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: D - depart + 150, delay: T0 + depart, easing: 'cubic-bezier(.65, 0, .25, 1)' });
+    /* puis « M — C » monte tout en haut en rapetissant */
+    var tVol = T0 + D + 220;
+    var s = 26 / F, dy = centreEntete() - window.innerHeight / 2;
+    var wM = glM.getBoundingClientRect().width, wC = glC.getBoundingClientRect().width;
+    var dxc = -((wC - wM) / 2) * s;                  /* le M et le C n'ont pas la même largeur : on recentre le tout */
+    an(marque, [
+      { transform: 'translate(-50%, -50%) scale(1)' },
+      { transform: 'translate(calc(-50% + ' + dxc + 'px), calc(-50% + ' + dy + 'px)) scale(' + s + ')' }
+    ], { duration: 1150, delay: tVol, easing: SOUPLE });
+    TOTAL = tVol + 1150;
+    deuxPrets = true;
+  }
+
+  function arrivee(){
+    if(calme || !marque.animate){
+      document.querySelector('.scene--intro').style.display = 'none';
+      marque.classList.add('fin'); racine.classList.add('pret', 'ui'); mesure(); return;
+    }
+    var f = parseFloat(getComputedStyle(marque).fontSize), F = 3.4 * f, dEm = ecartCapitales();
+    marque.style.setProperty('--cap', (dEm * f) + 'px');
+    marque.style.setProperty('--corr', (dEm * (f - F)) + 'px');
+
+    /* 1. le nom s'écrit : les lettres montent, du centre vers les bords ; l'espacement se resserre */
+    var centre = (lettres.length) / 2;
+    lettres.forEach(function(x, k){
+      x.l.animate([{ transform: 'translateY(112%)' }, { transform: 'translateY(0)' }],
+        { duration: 1250, delay: 80 + Math.abs(k - centre) * 46, easing: EXPO, fill: 'forwards' });
+    });
+    mid.animate([{ letterSpacing: '.18em' }, { letterSpacing: '.01em' }],
+      { duration: 2100, easing: EXPO, fill: 'forwards' });
+
+    attend(2200).then(function(){
+      /* le premier temps est fini (le nom est écrit) : la suite se joue en défilant, M et C compris */
+      construisDeuxiemeTemps();
+      mesure();
+      racine.classList.add('pret');
+    });
+  }
+
+  /* ---------- le manifeste : un mot après l'autre, comme sur la page d'accueil de la référence ----------
+     Chaque paragraphe a son propre déclenchement : quand son haut passe à 60 % de la hauteur de l'écran, ses mots
+     apparaissent de gauche à droite et de haut en bas, un mot tous les 6,5 px de défilement, chacun s'allumant
+     en fondu sur environ trois mots et demi. Avant, ils sont invisibles ; après, ils restent allumés. */
+  /* l'approche entre deux capitales (A et V, T et A…), mesurée une fois sur la police */
+  var cvK = document.createElement('canvas').getContext('2d'), cacheK = {};
+  cvK.font = '400 200px Object, "Helvetica Neue", Arial, sans-serif';
+  function approche(a, b){
+    var cle = a + b; if(cle in cacheK) return cacheK[cle];
+    var A = a.toUpperCase(), B = b.toUpperCase();
+    var k = (cvK.measureText(A + B).width - cvK.measureText(A).width - cvK.measureText(B).width) / 200;
+    return cacheK[cle] = Math.abs(k) < .002 ? 0 : k;
+  }
+  var paras = [];
+  [].forEach.call(document.querySelectorAll('#man p'), function(par){
+    var texte = par.textContent.replace(/\s+/g, ' ').trim();
+    par.textContent = '';
+    var lu = document.createElement('span'); lu.className = 'sr'; lu.textContent = texte; par.appendChild(lu);
+    var ws = [];
+    texte.split(' ').forEach(function(mot, i, tous){
+      var w = document.createElement('span');
+      w.className = 'w'; w.setAttribute('aria-hidden', 'true');
+      w._lt = [];
+      mot.split('').forEach(function(ch, q, lettresMot){
+        var lm = document.createElement('span'); lm.className = 'lm';
+        var lt = document.createElement('span'); lt.className = 'lt'; lt.textContent = ch;
+        /* découper en lettres supprime l'approche entre deux lettres : on la rend (mesurée sur la police) */
+        if(q > 0){ var k = approche(lettresMot[q - 1], ch); if(k) lm.style.marginLeft = 'calc(-.01em + ' + k.toFixed(4) + 'em)'; }
+        lt._acc = /[ÀÂÄÉÈÊËÎÏÔÖÙÛÜŸ]/.test(ch.toUpperCase());                /* une capitale accentuée a besoin de plus de place au-dessus */
+        lm.appendChild(lt); w.appendChild(lm); w._lt.push(lt);
+      });
+      par.appendChild(w); ws.push(w);
+      if(i < tous.length - 1) par.appendChild(document.createTextNode(' '));          /* une vraie espace : elle disparaît en bout de ligne au lieu de décaler la ligne suivante */
+    });
+    paras.push({ el: par, mots: ws, haut: 0, px: 6.5, lignes: [] });
+  });
+  var PX_PAR_MOT = 6.5, FONDU_MOTS = 3.4, DEPART = .6;
+  /* À la sortie, par le haut : chaque ligne s'en va lettre après lettre, de gauche à droite, en vague ; chaque lettre
+     glisse vers le haut derrière son propre masque (même geste que les lettres du nom), en perdant un peu d'opacité, et a
+     disparu avant d'atteindre le logo. */
+  var SORTIE_DEBUT = .21, SORTIE_FIN = .075;       /* en part de la hauteur de l'écran : la ligne commence à partir à 21 %, a fini à 7,5 % */
+
+  /* ---------- le défilement adouci ----------
+     Le contenu est dans un décor fixe (#sc) qu'on déplace nous-mêmes : la page garde
+     une vraie hauteur (le « espace »), donc la molette, la barre, le clavier et les
+     ancres marchent comme d'habitude, mais le contenu ne suit qu'avec retard, à
+     petits pas : c'est ce qui donne le glissement très lent. */
+  var sc = document.getElementById('sc'), espace = document.getElementById('espace');
+  var scenes = [].slice.call(document.querySelectorAll('.scene'));
+  var piste = document.getElementById('piste');
+  /* index9.html?mots=defile : l'autre mouvement (trois grands mots qui défilent de droite à gauche) */
+  var motsDefile = /[?&]mots=defile/.test(location.search);
+  if(motsDefile) racine.classList.add('mots-defile');
+
+  /* les trois mots : chaque lettre derrière son masque */
+  var roule = document.getElementById('roule'), motsR = [];
+  [].forEach.call(roule.querySelectorAll('.rw'), function(rw){
+    var txt = rw.textContent; rw.setAttribute('aria-hidden', 'true'); rw.textContent = '';
+    var ls = [];
+    txt.split('').forEach(function(ch){
+      var m = document.createElement('span'); m.className = 'rm';
+      var l = document.createElement('span'); l.className = 'rl'; l.textContent = ch;
+      m.appendChild(l); rw.appendChild(m); ls.push(l);
+    });
+    motsR.push(ls);
+  });
+  function majRoule(p){
+    var N = motsR.length, t = p * N;
+    motsR.forEach(function(ls, i){
+      var u = t - i, n = ls.length;
+      ls.forEach(function(l, j){
+        var d = .16 * j / Math.max(1, n - 1);                       /* un léger décalage de gauche à droite */
+        var entre = doux(borne((u - d) / .38));
+        var sort = i < N - 1 ? doux(borne((u - .72 - d) / .34)) : 0;
+        l.style.transform = 'translateY(' + (112 * (1 - entre) - 112 * sort).toFixed(2) + '%)';
+      });
+    });
+  }
+  var tactile = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+  var DOUCEUR = calme ? 0 : (tactile ? .2 : .62);                /* secondes : la durée du glissement ; plus c'est grand, plus c'est lent et doux au départ comme à l'arrêt */
+  var VH = window.innerHeight, pos = 0;
+
+  /* ---------- le fil : le tiret du logo s'étire avec la descente ---------- */
+  var fil = null;
+  function effaceFil(){ [glM, glC, tiret].forEach(function(e){ e.style.translate = ''; e.style.scale = ''; }); }
+  function mesureFil(){
+    if(!deuxPrets && !marque.classList.contains('fin')) return;
+    /* on mesure le logo tout en haut (fin du deuxième temps), sans l'étirement */
+    var avant = tl.length ? tl[0].currentTime : 0;
+    tl.forEach(function(a){ a.currentTime = TOTAL; });
+    effaceFil();
+    var rM = glM.getBoundingClientRect(), rC = glC.getBoundingClientRect(), rT = tiret.getBoundingClientRect();
+    var esc = marque.offsetWidth ? marque.getBoundingClientRect().width / marque.offsetWidth : 1;   /* le logo est rapetissé : on convertit en unités du logo */
+    var marge = Math.max(20, Math.min(32, window.innerWidth * .022));
+    fil = { dM: (marge - rM.left) / esc, dC: ((window.innerWidth - marge) - rC.right) / esc, wT: rT.width / esc };
+    tl.forEach(function(a){ a.currentTime = avant; });
+  }
+  function majFil(p){
+    if(!fil) return;
+    var dM = fil.dM * p, dC = fil.dC * p;
+    glM.style.translate = dM.toFixed(2) + 'px 0';
+    glC.style.translate = dC.toFixed(2) + 'px 0';
+    var largeur = fil.wT + (dC - dM);                         /* le trait remplit tout l'écart entre le M et le C */
+    tiret.style.translate = ((dM + dC) / 2).toFixed(2) + 'px 0';
+    tiret.style.scale = (largeur / fil.wT).toFixed(4) + ' 1';
+  }
+
+  /* Le masque de chaque lettre ne dépasse que de quelques centièmes d'em au-dessus des capitales (de plus pour les lettres
+     accentuées) : une lettre qui monte est donc coupée presque tout de suite, et n'a besoin de monter que de sa propre hauteur. */
+  function masquesLettres(){
+    var c = document.createElement('canvas').getContext('2d'), S = 200;
+    c.font = '400 ' + S + 'px Object, "Helvetica Neue", Arial, sans-serif';
+    var m = c.measureText('M'), fa = m.fontBoundingBoxAscent, fd = m.fontBoundingBoxDescent, cap = m.actualBoundingBoxAscent;
+    var man = document.getElementById('man'), cs = getComputedStyle(man);
+    var lh = parseFloat(cs.lineHeight) / parseFloat(cs.fontSize);          /* l'interlignage, en em */
+    var haut = (fa && cap) ? (((lh * S - (fa + fd)) / 2 + fa) - cap) / S : .27;   /* le haut des capitales, depuis le haut de la ligne, en em */
+    paras.forEach(function(pa){ pa.mots.forEach(function(w){ w._lt.forEach(function(lt){
+      var air = lt._acc ? .26 : .035;                                      /* la place laissée au-dessus des capitales */
+      lt.parentNode.style.clipPath = 'inset(' + Math.max(0, .16 + haut - air).toFixed(3) + 'em -.1em -.2em -.1em)';
+      lt._d = lt._acc ? 82 : 62;                                           /* la montée, en % de la hauteur de la ligne */
+    }); }); });
+  }
+
+  function mesure(){
+    VH = window.innerHeight;
+    document.documentElement.style.setProperty('--vh', VH + 'px');
+    masquesLettres();
+    espace.style.height = sc.offsetHeight + 'px';
+    scenes.forEach(function(sn){ sn._top = sn.offsetTop; sn._h = sn.offsetHeight; sn._ep = sn.querySelector('.epingle'); });
+    paras.forEach(function(pa){
+      var rp = pa.el.getBoundingClientRect();
+      pa.haut = rp.top + pos;   /* le haut du paragraphe dans la page */
+      /* un long texte ne doit pas se dévoiler plus vite qu'il ne défile : le dernier mot doit apparaître avant d'avoir quitté le bas de l'écran */
+      pa.px = Math.max(PX_PAR_MOT, (rp.height - VH * .3) / pa.mots.length);
+      /* les lignes : les mots qui ont le même haut. Pour chacune, son milieu dans la page et la place de chaque mot (0 à 1) */
+      pa.lignes = [];
+      var courant = null, hautL = -999;
+      pa.mots.forEach(function(w){
+        var r = w.getBoundingClientRect();
+        if(Math.abs(r.top - hautL) > 6){ courant = { mots: [], centre: r.top + r.height / 2 + pos }; pa.lignes.push(courant); hautL = r.top; }
+        courant.mots.push(w);
+      });
+      /* la place de chaque lettre dans sa ligne (0 à 1) : c'est elle qui donne la vague */
+      pa.lignes.forEach(function(L){
+        var g = 1e9, d = -1e9; L.lettres = [];
+        L.mots.forEach(function(w){ w._lt.forEach(function(lt){
+          var r = lt.parentNode.getBoundingClientRect(); lt._x = r.left + r.width / 2; g = Math.min(g, r.left); d = Math.max(d, r.right); L.lettres.push(lt);
+        }); });
+        L.lettres.forEach(function(lt){ lt._p = d > g ? (lt._x - g) / (d - g) : 0; });
+      });
+    });
+    if(deuxPrets){ effaceFil(); construisDeuxiemeTemps(); mesureFil(); }
+    derniere = -1;
+  }
+
+  /* ---------- à chaque image ---------- */
+  var etat = document.querySelector('.etat'), etatLib = document.getElementById('etat-lib'), indice = document.getElementById('indice');
+  var rubrique = -2;
+  function ecrisRubrique(k){                                  /* k = -1 : on est encore dans l'arrivée, rien à afficher */
+    if(k === rubrique) return;
+    rubrique = k;
+    if(k < 0){ etat.classList.add('cache'); return; }
+    etat.classList.remove('cache');
+    etatLib.classList.add('sort');
+    setTimeout(function(){
+      etatLib.textContent = scenes[k + 1].getAttribute('data-nom');
+      etatLib.classList.remove('sort');
+    }, 330);
+  }
+  function borne(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
+  var derniere = -1, avant = 0, vitesse = 0;
+  /* un ressort amorti : la vitesse part de zéro (départ en douceur) et revient à zéro (arrêt en douceur) */
+  function ressort(courant, but, dt){
+    var w = 2 / DOUCEUR, x = w * dt, e = 1 / (1 + x + .48 * x * x + .235 * x * x * x);
+    var ecart = courant - but, tmp = (vitesse + w * ecart) * dt;
+    vitesse = (vitesse - w * tmp) * e;
+    return but + (ecart + tmp) * e;
+  }
+  /* des courbes pour adoucir : lente au début et à la fin */
+  function doux(t){ return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function lisse(t){ return t * t * (3 - 2 * t); }
+  function image(t){
+    var dt = Math.min(.05, avant ? (t - avant) / 1000 : .016); avant = t;     /* le temps réel écoulé : même vitesse sur un écran à 60 ou à 120 Hz */
+    var cible = window.pageYOffset;
+    if(!DOUCEUR){ pos = cible; vitesse = 0; }
+    else {
+      pos = ressort(pos, cible, dt);
+      if(Math.abs(cible - pos) < .05 && Math.abs(vitesse) < .5){ pos = cible; vitesse = 0; }
+    }
+    if(pos !== derniere){
+      derniere = pos;
+      sc.style.transform = 'translate3d(0,' + (-pos).toFixed(2) + 'px,0)';
+      var introM = scenes[0]._h - VH, pIntro = introM > 0 ? borne(pos / introM) : 1;
+      scenes.forEach(function(sn, k){
+        if(k === 1){                                          /* le manifeste défile normalement : seuls ses mots apparaissent */
+          paras.forEach(function(pa){
+            var lit = (VH * DEPART - (pa.haut - pos)) / pa.px;     /* le nombre de mots déjà passés */
+            for(var i = 0; i < pa.mots.length; i++){
+              var o = borne((lit - i) / FONDU_MOTS);
+              if(o !== pa.mots[i]._o){ pa.mots[i]._o = o; pa.mots[i].style.opacity = o.toFixed(3); }
+            }
+            /* la sortie : une ligne qui monte vers le haut de l'écran s'en va lettre après lettre, en vague de gauche à droite */
+            pa.lignes.forEach(function(L){
+              var y = L.centre - pos, e = borne((VH * SORTIE_DEBUT - y) / (VH * (SORTIE_DEBUT - SORTIE_FIN)));
+              if(e === L._e) return;                                   /* rien n'a bougé pour cette ligne */
+              L._e = e;
+              L.lettres.forEach(function(lt){
+                var ew = doux(borne((e - .72 * lt._p) / .28));          /* une bande étroite de la ligne est en mouvement à la fois */
+                if(ew !== lt._ew){
+                  lt._ew = ew;
+                  lt.style.transform = ew ? 'translate3d(0,' + (-ew * lt._d).toFixed(2) + '%,0)' : '';
+                  lt.style.opacity = ew ? (1 - .38 * ew).toFixed(3) : '';        /* un très léger voile pendant qu'elle monte */
+                }
+              });
+            });
+          });
+          return;
+        }
+        var m = sn._h - VH, ty = Math.min(Math.max(pos - sn._top, 0), m), p = m > 0 ? ty / m : 0;
+        var dy = ty, fond = 1;
+        if(k > 0){
+          /* l'arrivée : au lieu de glisser à la vitesse du défilement puis de s'arrêter net, le bloc ralentit en douceur
+             avant de se poser ; il apparaît en fondu. Le départ fait pareil à l'envers. */
+          var a = borne((pos - (sn._top - VH)) / VH), b = borne((pos - (sn._top + m)) / VH);
+          dy += VH * (a - doux(a)) + VH * (b - doux(b));
+          fond = lisse(borne((a - .05) / .7)) * (1 - lisse(borne(b / .75)));
+        }
+        sn._ep.style.transform = 'translate3d(0,' + dy.toFixed(2) + 'px,0)';
+        sn._ep.style.opacity = fond.toFixed(3);
+        if(k === 2){                                   /* les trois grands mots */
+          if(motsDefile){
+            var dx = Math.max(0, piste.scrollWidth - window.innerWidth * .93);
+            piste.style.transform = 'translate3d(' + (-doux(p) * dx).toFixed(2) + 'px,0,0)';
+          } else majRoule(p);
+        }
+      });
+      /* le deuxième temps de l'arrivée suit le défilement */
+      if(deuxPrets){
+        var ct = pIntro * TOTAL; tl.forEach(function(a){ a.currentTime = ct; });
+        if(traceM){                                           /* le M se dessine trait après trait */
+          var avM = courbeMain(Math.min(1, ct / M_DUREE));
+          glM.firstChild.style.clipPath = avM >= 1 ? 'none' : traceM.poly(avM * traceM.L);
+        } else {                                              /* au cas où la forme du M ne serait pas lisible : un rideau de gauche à droite */
+          var avR = courbeMain(Math.min(1, ct / M_DUREE));
+          glM.firstChild.style.clipPath = avR >= 1 ? 'none' : 'inset(0 ' + (100 - 100 * avR).toFixed(2) + '% 0 0)';
+        }
+      }
+      /* le fil ne s'étire qu'après l'arrivée */
+      var reste = Math.max(1, sc.offsetHeight - VH - introM);
+      majFil(borne((pos - introM) / reste));
+      racine.classList.toggle('ui', pIntro > .9);
+      var milieu = pos + VH * .5, k2 = -1;
+      scenes.forEach(function(sn, k){ if(k > 0 && milieu >= sn._top) k2 = k - 1; });
+      ecrisRubrique(k2);
+      indice.classList.toggle('cache', pos > 30);
+    }
+    requestAnimationFrame(image);
+  }
+
+  /* ---------- départ ---------- */
+  var attendPolices = (document.fonts && document.fonts.ready)
+    ? Promise.race([document.fonts.ready, new Promise(function(r){ setTimeout(r, 1200); })]) : Promise.resolve();
+  attendPolices.then(function(){
+    mesure(); requestAnimationFrame(image);
+    requestAnimationFrame(arrivee);
+  });
+  window.addEventListener('resize', mesure);
+})();
+</script>
+</body>
+</html>

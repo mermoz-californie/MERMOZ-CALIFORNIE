@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111111">
+<meta name="color-scheme" content="dark">
+<title>Contact | Mermoz Californie</title>
+<meta name="description" content="Mermoz Californie, studio de création indépendant à Paris. Nous trouver, nous suivre, nous écrire.">
+<script>document.documentElement.classList.add('js')</script>
+
+<style>
+/* ============================================================
+   MERMOZ CALIFORNIE, page contact.
+
+   La mise en page et le mouvement suivent la page contact d'une agence de
+   référence : fond uni, trois grands mots dont un seul est allumé, un
+   panneau d'informations qui change à côté de chaque mot, un menu qui
+   couvre l'écran. Les textes, les polices et les couleurs sont ceux de
+   Mermoz Californie.
+   ============================================================ */
+
+/* PP Object Sans, graisse Regular (pack d'essai Pangram Pangram).
+   Elle est chargée depuis assets/fonts, donc elle s'affiche aussi sur téléphone ; si le fichier manque,
+   la copie installée sur l'ordinateur prend le relais. Une licence web est nécessaire avant publication. */
+@font-face{
+  font-family: 'Object';
+  src: url('assets/fonts/PPObjectSans/PPObjectSans-Regular.woff2') format('woff2'),
+       url('assets/fonts/PPObjectSans/PPObjectSans-Regular.woff') format('woff'),
+       local('PP Object Sans Regular'), local('PPObjectSans-Regular');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root{
+  --fond: #111111;
+  --blanc: #FFFFFF;
+  --mori: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --object: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sf: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ease: cubic-bezier(.4, 0, .2, 1);          /* la courbe des fondus de la référence */
+  --sortie: cubic-bezier(.16, 1, .3, 1);
+  --marge: clamp(20px, 2.2vw, 32px);           /* bords de l'en-tête */
+}
+*{ box-sizing: border-box; }
+html{ background: var(--fond); }
+body{
+  margin: 0; min-height: 100svh;
+  background: var(--fond); color: var(--blanc);
+  font-family: var(--mori); font-weight: 400;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+a{ color: inherit; text-decoration: none; }
+button{ font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.sr{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ------------------------------------------------------------
+   1. LE NOM, qui devient M—C
+
+   Dans l'ordre (d'après la séquence de référence) :
+     1. « MERMOZ CALIFORNIE » s'écrit au centre, lettre à lettre, derrière un masque ;
+     2. un grand M et un grand C montent de chaque côté ;
+     3. le nom rapetisse et les deux grandes lettres se rapprochent, jusqu'à ce que
+        le nom ne soit plus qu'un trait horizontal : M — C ;
+     4. « M — C » monte prendre la place du logo en rapetissant.
+   Tout est fait avec des transformations : rien ne change de mise en page en cours de route.
+   ------------------------------------------------------------ */
+.marque{
+  --f: clamp(15px, 4.7vw, 76px);                 /* la taille du nom */
+  --F: calc(var(--f) * 3.4);                     /* la taille du grand M et du grand C */
+  position: fixed; z-index: 70;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--object); font-weight: 400; text-transform: uppercase;
+  font-size: var(--f);
+  letter-spacing: .01em; line-height: 1.1; white-space: nowrap;
+  color: var(--blanc);
+}
+.marque a{ display: block; }
+.marque .lock{ position: relative; display: inline-block; }
+.marque .mid{ display: inline-block; transform-origin: 50% 50%; }
+.marque .m{
+  position: relative;
+  display: inline-block; vertical-align: bottom; overflow: hidden;
+  padding: .02em .04em; margin: -.02em -.04em;          /* le masque ne rogne pas les bords des lettres */
+}
+.marque .l, .marque .gl{ display: inline-block; }
+.marque .esp{ display: inline-block; vertical-align: bottom; width: .3em; height: 1.1em; }
+.js .marque:not(.fin) .l, .js .marque:not(.fin) .gl{ transform: translateY(112%); }   /* avant le départ, tout est sous le masque */
+
+/* le grand M (à gauche) et le grand C (à droite), centrés sur le milieu des capitales du nom */
+.marque .gk{
+  position: absolute; top: 50%;
+  font-size: var(--F); line-height: 1.1;
+  margin-top: calc(-.57em + var(--corr, 0px));
+  overflow: hidden; padding: .02em .04em;
+}
+.marque .gm{ right: calc(100% + .05em); }
+.marque .gc{ left: calc(100% + .05em); }
+/* le trait qui prend la place du nom */
+.marque .tiret{
+  position: absolute; left: 50%; top: calc(50% + var(--cap, 0px));
+  width: calc(.5 * var(--F)); height: calc(.08 * var(--F));
+  margin: calc(-.04 * var(--F)) 0 0 calc(-.25 * var(--F));
+  background: currentColor; transform: scaleX(0); transform-origin: 50% 50%; pointer-events: none;
+}
+
+/* l'état final : « M — C » à la place du logo (le nom, caché, ne sert plus qu'à garder la place du trait) */
+.marque.fin{ --f: calc(26px / 3.4); top: var(--haut-logo, 56px); }
+.marque.fin .mid{ display: inline-block; width: calc(.5 * var(--F)); height: 1px; overflow: hidden; visibility: hidden; transform: none; }
+.marque.fin .gl{ transform: none; }
+.marque.fin .gk{ transform: none; }
+.marque.fin .tiret{ transform: none; }
+
+/* ------------------------------------------------------------
+   2. L'EN-TÊTE : Travaux à gauche, le logo au centre, Menu à droite
+   ------------------------------------------------------------ */
+.entete{
+  position: fixed; z-index: 60; top: 0; left: 0; right: 0;
+  height: clamp(76px, 7.8vw, 112px); padding: 0 var(--marge);
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--sf); font-size: 13px; letter-spacing: .02em; text-transform: uppercase;
+}
+.entete > *{ position: relative; }
+.lien-entete{ transition: opacity .3s var(--ease); }
+.lien-entete:hover{ opacity: .55; }
+.js .entete .lien-entete{ opacity: 0; }
+.js.pret .entete .lien-entete{ opacity: 1; transition: opacity .9s var(--ease) .15s; }
+
+/* ------------------------------------------------------------
+   3. LES TROIS MOTS et leur panneau
+
+   Un seul mot est allumé, les deux autres sont à 10 %. On en choisit un au
+   survol (ou au toucher) ; à droite, le panneau du mot allumé apparaît.
+   ------------------------------------------------------------ */
+.contact{
+  position: relative;
+  min-height: 100svh;
+  padding: max(150px, 20.2vh) 11.8vw 0;
+  display: grid;
+  grid-template-columns: 55vw 1fr;
+  grid-template-rows: repeat(3, 10vw);
+  align-content: start;
+}
+.mot{
+  grid-column: 1;
+  display: block; width: fit-content;
+  font-weight: 400; font-size: 10vw; line-height: 1; letter-spacing: -.01em;
+  opacity: .1; cursor: pointer;
+  transition: opacity .4s var(--ease);
+}
+.mot.actif{ opacity: 1; }
+.mot:nth-of-type(1){ grid-row: 1; }
+.mot:nth-of-type(2){ grid-row: 2; }
+.mot:nth-of-type(3){ grid-row: 3; }
+h1.mots{ display: contents; margin: 0; font: inherit; }
+
+.panneau{
+  grid-column: 2;
+  align-self: start;
+  padding-top: calc(1.4vw);
+  opacity: 0; visibility: hidden;
+  transition: opacity .4s var(--ease), visibility 0s linear .4s;
+}
+.panneau.actif{ opacity: 1; visibility: visible; transition: opacity .4s var(--ease) .1s, visibility 0s; }
+.panneau:nth-of-type(1){ grid-row: 1; }
+.panneau:nth-of-type(2){ grid-row: 2; }
+.panneau:nth-of-type(3){ grid-row: 3; }
+
+.panneau h2{ margin: 0 0 .75rem; font-weight: 400; font-size: 1.7rem; line-height: 1.4; }
+.panneau p{ margin: 0 0 .5rem; font-size: 1rem; line-height: 1.5; color: rgba(255,255,255,.6); }
+.panneau a.soul{ font-size: 1rem; text-decoration: underline; text-underline-offset: .22em; text-decoration-thickness: 1px; transition: opacity .3s var(--ease); }
+.panneau a.soul:hover{ opacity: .55; }
+.panneau ul{ list-style: none; margin: 0; padding: 0; }
+.panneau li{ margin: 0 0 .85rem; }
+.panneau li a{
+  font-family: var(--sf); font-size: 1.1rem; letter-spacing: .02em; text-transform: uppercase;
+  text-decoration: underline; text-underline-offset: .25em; text-decoration-thickness: 1px;
+  transition: opacity .3s var(--ease);
+}
+.panneau li a:hover{ opacity: .55; }
+.panneau .fleche{ display: inline-block; margin-left: .5em; font-size: .9em; transform: translateY(-.05em); }
+
+/* l'arrivée : chaque élément monte et s'allume, l'un après l'autre */
+@keyframes monte{ from{ opacity: 0; transform: translateY(.14em); } }
+.js .mot{ animation: monte 1s var(--sortie) backwards paused; }
+.js.pret .mot{ animation-play-state: running; }
+.js .mot:nth-of-type(1){ animation-delay: .05s; }
+.js .mot:nth-of-type(2){ animation-delay: .2s; }
+.js .mot:nth-of-type(3){ animation-delay: .35s; }
+@keyframes fond{ from{ opacity: 0; } }
+.js .panneau.actif, .js .pied{ animation: fond 1s var(--ease) backwards paused; }
+.js.pret .panneau.actif{ animation-play-state: running; animation-delay: .6s; }
+.js.pret .pied{ animation-play-state: running; animation-delay: .8s; }
+
+/* ------------------------------------------------------------
+   4. LE BAS DE PAGE
+   ------------------------------------------------------------ */
+.pied{
+  position: absolute; left: 0; right: 0; bottom: max(40px, 10vh);
+  padding: 0 11.8vw;
+  display: grid; grid-template-columns: 55vw 1fr; align-items: baseline;
+  font-family: var(--sf); font-size: 12px; line-height: 1.2;
+}
+.pied p{ margin: 0; opacity: .4; }
+.pied nav{ display: flex; gap: clamp(28px, 4.2vw, 60px); margin-left: -10.4vw; }
+.pied nav a{ opacity: .4; transition: opacity .3s var(--ease); }
+.pied nav a:hover{ opacity: 1; }
+
+/* ------------------------------------------------------------
+   5. LE MENU : un écran uni, les liens en bas à gauche
+   ------------------------------------------------------------ */
+.volet{
+  position: fixed; z-index: 55; inset: 0; height: 100svh;
+  display: flex; align-items: flex-end;
+  padding: 32px 32px 40px;
+  background: var(--fond);
+  opacity: 0; visibility: hidden;
+  transition: opacity .5s var(--ease), visibility 0s linear .5s;
+}
+.volet.ouvert{ opacity: 1; visibility: visible; transition: opacity .5s var(--ease), visibility 0s; }
+.volet ul{ list-style: none; margin: 0; padding: 0; }
+.volet li{ overflow: hidden; }
+.volet a{
+  display: block; font-weight: 400; font-size: clamp(44px, 4.4vw, 72px); line-height: 1.02;
+  transform: translateY(105%); transition: transform .9s var(--sortie), opacity .3s var(--ease);
+}
+.volet.ouvert a{ transform: none; }
+.volet.ouvert li:nth-child(1) a{ transition-delay: .08s, 0s; }
+.volet.ouvert li:nth-child(2) a{ transition-delay: .14s, 0s; }
+.volet.ouvert li:nth-child(3) a{ transition-delay: .20s, 0s; }
+.volet.ouvert li:nth-child(4) a{ transition-delay: .26s, 0s; }
+.volet ul:hover a{ opacity: .35; }
+.volet ul a:hover{ opacity: 1; }
+
+/* ------------------------------------------------------------
+   6. TÉLÉPHONE ET TABLETTE : tout est écrit à la suite, rien n'est caché
+   ------------------------------------------------------------ */
+@media (max-width: 1023px){
+  .contact{
+    display: block; padding: 130px 32px 0;
+  }
+  .mot{ font-size: clamp(56px, 14vw, 110px); opacity: 1; cursor: default; margin-bottom: .05em; }
+  .panneau{ opacity: 1; visibility: visible; padding: 0; margin: 2.2rem 0 0; }
+  .panneau + .panneau{ margin-top: 2rem; }
+  .panneau h2{ font-size: 1.7rem; }
+  .pied{
+    position: static; display: block; margin: 0 -32px; padding: 4.5rem 32px 2.5rem;
+  }
+  .pied p{ margin-bottom: 1.4rem; }
+  .pied nav{ flex-wrap: wrap; gap: 1rem 2rem; margin-left: 0; }
+  .volet{ padding: 24px 24px 32px; }
+  .js .panneau.actif, .js .pied{ animation: none; }
+}
+
+/* le visiteur a demandé moins de mouvement : on montre tout tout de suite */
+@media (prefers-reduced-motion: reduce){
+  .mot, .panneau, .volet, .volet a{ transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- LE NOM : il arrive au centre, se réduit à « M — C » et monte dans l'en-tête -->
+<div class="marque" id="marque">
+  <a href="#" aria-label="Mermoz Californie, retour en haut"><span class="lock" aria-hidden="true"><span class="mid"></span><span class="gk gm"><span class="gl">M</span></span><span class="gk gc"><span class="gl">C</span></span><span class="tiret"></span></span></a>
+</div>
+
+<header class="entete">
+  <a class="lien-entete" href="#">Travaux</a>
+  <button class="lien-entete" id="bouton-menu" type="button" aria-expanded="false" aria-controls="volet">Menu</button>
+</header>
+
+<main class="contact" id="contact">
+  <h1 class="mots">
+    <span class="mot actif" data-i="0">Trouver</span>
+    <span class="mot" data-i="1">Suivre</span>
+    <span class="mot" data-i="2">Écrire</span>
+  </h1>
+
+  <!-- Trouver -->
+  <section class="panneau actif" data-i="0" aria-label="Trouver">
+    <h2>Paris</h2>
+    <p>Studio de création indépendant.</p>
+    <a class="soul" href="mailto:creation@mermoz-californie.com">creation@mermoz-californie.com</a>
+  </section>
+
+  <!-- Suivre -->
+  <section class="panneau" data-i="1" aria-label="Suivre">
+    <ul>
+      <li><a href="#">Instagram</a></li>
+      <li><a href="#">LinkedIn</a></li>
+    </ul>
+  </section>
+
+  <!-- Écrire -->
+  <section class="panneau" data-i="2" aria-label="Écrire">
+    <ul>
+      <li><a href="mailto:creation@mermoz-californie.com">Nouveau projet</a></li>
+      <li><a href="mailto:creation@mermoz-californie.com">Presse</a></li>
+      <li><a href="mailto:creation@mermoz-californie.com">Rejoindre le studio</a><span class="fleche" aria-hidden="true">↗</span></li>
+    </ul>
+  </section>
+
+  <footer class="pied">
+    <p>©2026 Mermoz Californie</p>
+    <nav>
+      <a href="#">Mentions légales</a>
+      <a href="#">Confidentialité</a>
+    </nav>
+  </footer>
+</main>
+
+<nav class="volet" id="volet" aria-label="Menu" aria-hidden="true">
+  <ul>
+    <li><a href="#">Travaux</a></li>
+    <li><a href="#">Studio</a></li>
+    <li><a href="#">Réflexion</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<script>
+(function(){
+  var racine = document.documentElement;
+  var marque = document.getElementById('marque');
+  var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- le nom : chaque lettre derrière son masque ---------- */
+  var NOM = 'MERMOZ CALIFORNIE';
+  var mid = marque.querySelector('.mid');
+  var glM = marque.querySelector('.gm'), glC = marque.querySelector('.gc'), tiret = marque.querySelector('.tiret');
+  var lettres = [];
+  NOM.split('').forEach(function(ch, i){
+    if(ch === ' '){
+      var e = document.createElement('span'); e.className = 'esp'; mid.appendChild(e); return;
+    }
+    var m = document.createElement('span'); m.className = 'm';
+    var l = document.createElement('span'); l.className = 'l'; l.textContent = ch;
+    m.appendChild(l); mid.appendChild(m);
+    lettres.push({ i: i, l: l });
+  });
+
+  /* ---------- la place du logo dans l'en-tête ---------- */
+  function centreEntete(){ return document.querySelector('.entete').getBoundingClientRect().height / 2; }
+  function placeLogo(){ marque.style.setProperty('--haut-logo', centreEntete() + 'px'); }
+  placeLogo();
+  window.addEventListener('resize', placeLogo);
+
+  /* ---------- le déroulé de l'arrivée ---------- */
+  var EXPO = 'cubic-bezier(.16, 1, .3, 1)';          /* arrive vite, se pose longuement */
+  var SOUPLE = 'cubic-bezier(.76, 0, .24, 1)';       /* part en douceur, arrive en douceur */
+  /* index7.html?ralenti=4 déroule l'arrivée quatre fois plus lentement, pour la regarder de près */
+  var K = parseFloat((/[?&]ralenti=([\d.]+)/.exec(location.search) || [0, 1])[1]) || 1;
+  function attend(ms){ return new Promise(function(r){ setTimeout(r, ms * K); }); }
+  function fini(){
+    marque.getAnimations({ subtree: true }).forEach(function(a){ a.cancel(); });
+    marque.classList.add('fin');
+  }
+
+  /* l'écart entre le milieu des capitales et le milieu de la ligne, en fraction de la taille du texte :
+     il sert à centrer le grand M, le grand C et le trait sur le milieu des capitales du nom */
+  function ecartCapitales(){
+    var c = document.createElement('canvas').getContext('2d');
+    c.font = '400 100px Object, "Helvetica Neue", Arial, sans-serif';
+    var mm = c.measureText('M');
+    var fa = mm.fontBoundingBoxAscent, fd = mm.fontBoundingBoxDescent, cap = mm.actualBoundingBoxAscent;
+    if(!fa || !cap) return -.03;
+    var ligne = 110;                                  /* 1,1 de hauteur de ligne, sur une taille de 100 */
+    var base = (ligne - (fa + fd)) / 2 + fa;
+    return ((base - cap / 2) - ligne / 2) / 100;
+  }
+
+  /* index7.html?anim=reduit : l'autre version (le nom rapetisse d'un bloc) */
+  var variante = /[?&]anim=reduit/.test(location.search) ? 'reduit' : 'mange';
+
+  /* à quelle fraction de la durée le mouvement a-t-il parcouru la fraction p du trajet ? (courbe de Bézier inversée) */
+  function tempsPourAvancement(p, x1, y1, x2, y2){
+    function bz(u, a, b){ return 3 * (1 - u) * (1 - u) * u * a + 3 * (1 - u) * u * u * b + u * u * u; }
+    var lo = 0, hi = 1, u = .5;
+    for(var i = 0; i < 40; i++){ u = (lo + hi) / 2; if(bz(u, y1, y2) < p) lo = u; else hi = u; }
+    return bz(u, x1, x2);
+  }
+
+  function arrivee(){
+    if(calme || !marque.animate){ marque.classList.add('fin'); racine.classList.add('pret'); return; }
+
+    var f = parseFloat(getComputedStyle(marque).fontSize), F = 3.4 * f, dEm = ecartCapitales();
+    marque.style.setProperty('--cap', (dEm * f) + 'px');
+    marque.style.setProperty('--corr', (dEm * (f - F)) + 'px');
+
+    /* 1. le nom s'écrit : les lettres montent, du centre vers les bords ; l'espacement se resserre */
+    var centre = (lettres.length) / 2;
+    lettres.forEach(function(x, k){
+      x.l.animate([{ transform: 'translateY(112%)' }, { transform: 'translateY(0)' }],
+        { duration: 1250 * K, delay: (80 + Math.abs(k - centre) * 46) * K, easing: EXPO, fill: 'forwards' });
+    });
+    mid.animate([{ letterSpacing: '.18em' }, { letterSpacing: '.01em' }],
+      { duration: 2100 * K, easing: EXPO, fill: 'forwards' });
+
+    attend(1650).then(function(){
+      /* 2. le grand M et le grand C montent de chaque côté (avant même que le nom ait fini de s'écrire) */
+      glM.firstChild.animate([{ transform: 'translateY(112%)' }, { transform: 'translateY(0)' }],
+        { duration: 800 * K, easing: EXPO, fill: 'forwards' });
+      glC.firstChild.animate([{ transform: 'translateY(112%)' }, { transform: 'translateY(0)' }],
+        { duration: 800 * K, delay: 90 * K, easing: EXPO, fill: 'forwards' });
+      return attend(950);
+    }).then(function(){
+      var wNom = mid.getBoundingClientRect().width, wTrait = .5 * F;
+      if(variante === 'reduit'){
+        /* 3 (variante) : le nom rapetisse d'un bloc jusqu'à n'être plus qu'un trait */
+        var fin = wTrait / wNom, dx = wNom * (1 - fin) / 2;
+        var opt = { duration: 1250 * K, easing: SOUPLE, fill: 'forwards' };
+        mid.animate([{ transform: 'scale(1)' }, { transform: 'scale(' + fin + ')' }], opt);
+        mid.animate([{ opacity: 1 }, { opacity: 1, offset: .7 }, { opacity: 0 }], opt);
+        tiret.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(0)', offset: .68 }, { transform: 'scaleX(1)' }], opt);
+        glM.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + dx + 'px)' }], opt);
+        glC.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + (-dx) + 'px)' }], opt);
+        return attend(1250 + 220);
+      }
+
+      /* 3. le M et le C avancent l'un vers l'autre et « mangent » le nom : chaque lettre sort par le haut
+            à l'instant où le grand M (ou le grand C) l'atteint. Ce qui reste au milieu devient le trait. */
+      var gap = .05 * F, dxM = (wNom - wTrait) / 2, D = 1800 * K;
+      var opt2 = { duration: D, easing: SOUPLE, fill: 'forwards' };
+      glM.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + dxM + 'px)' }], opt2);
+      glC.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + (-dxM) + 'px)' }], opt2);
+      var rn = mid.getBoundingClientRect(), finLettres = 0;
+      lettres.forEach(function(x){
+        var r = x.l.getBoundingClientRect();
+        var c = r.left + r.width / 2 - rn.left;                       /* le centre de la lettre, depuis le bord gauche du nom */
+        /* la part du trajet à faire avant de l'atteindre ; les lettres du milieu, que le M et le C n'atteindront
+           qu'à la toute fin, partent plus tôt : elles doivent avoir disparu avant que le trait n'apparaisse */
+        var p = Math.min((Math.min(c, wNom - c) + gap) / dxM, .8);
+        var quand = tempsPourAvancement(p, .76, 0, .24, 1) * D;          /* à quel moment, avec la courbe du mouvement */
+        var debut = Math.max(0, quand - 160 * K);
+        finLettres = Math.max(finLettres, debut + 420 * K);
+        x.l.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-112%)' }],
+          { duration: 420 * K, delay: debut, easing: 'cubic-bezier(.7, 0, .2, 1)', fill: 'forwards' });
+      });
+      /* le trait ne commence à se dessiner qu'une fois toutes les lettres parties */
+      var depart = Math.min(.92 * D, finLettres - 80 * K);
+      tiret.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+        { duration: D - depart + 150 * K, delay: depart, easing: 'cubic-bezier(.65, 0, .25, 1)', fill: 'forwards' });
+      return attend(1800 + 220);
+    }).then(function(){
+      /* 4. « M — C » monte dans l'en-tête en rapetissant */
+      var s = 26 / F, dy = centreEntete() - window.innerHeight / 2;
+      var wM = glM.getBoundingClientRect().width, wC = glC.getBoundingClientRect().width;
+      var dxc = -((wC - wM) / 2) * s;               /* le M et le C n'ont pas la même largeur : on recentre le tout */
+      var vol = marque.animate([
+        { transform: 'translate(-50%, -50%) scale(1)' },
+        { transform: 'translate(calc(-50% + ' + dxc + 'px), calc(-50% + ' + dy + 'px)) scale(' + s + ')' }
+      ], { duration: 1150 * K, easing: SOUPLE, fill: 'forwards' });
+      attend(750).then(function(){ racine.classList.add('pret'); });         /* 5. la page apparaît */
+      return vol.finished;
+    }).then(function(){
+      /* on garde l'état animé tel quel (aucun saut) ; si la fenêtre change de taille, on passe à l'état fixe */
+      window.addEventListener('resize', fini, { once: true });
+    }, fini);
+  }
+  var pretes = (document.fonts && document.fonts.ready)
+    ? Promise.race([document.fonts.ready, new Promise(function(r){ setTimeout(r, 1200); })])
+    : Promise.resolve();
+  pretes.then(function(){ requestAnimationFrame(arrivee); });
+
+  /* ---------- les trois mots ---------- */
+  var mots = [].slice.call(document.querySelectorAll('.mot'));
+  var panneaux = [].slice.call(document.querySelectorAll('.panneau'));
+  function allume(i){
+    mots.forEach(function(m, k){ m.classList.toggle('actif', k === i); });
+    panneaux.forEach(function(p, k){ p.classList.toggle('actif', k === i); });
+  }
+  allume(Math.floor(Math.random() * mots.length));        /* un mot au hasard à l'arrivée */
+  mots.forEach(function(m, i){
+    m.addEventListener('mouseenter', function(){ allume(i); });
+    m.addEventListener('click', function(){ allume(i); });
+  });
+
+  /* ---------- le menu ---------- */
+  var bouton = document.getElementById('bouton-menu');
+  var volet = document.getElementById('volet');
+  function bascule(ouvre){
+    volet.classList.toggle('ouvert', ouvre);
+    volet.setAttribute('aria-hidden', ouvre ? 'false' : 'true');
+    bouton.setAttribute('aria-expanded', ouvre ? 'true' : 'false');
+    bouton.textContent = ouvre ? 'Fermer' : 'Menu';
+    document.body.style.overflow = ouvre ? 'hidden' : '';
+  }
+  bouton.addEventListener('click', function(){ bascule(!volet.classList.contains('ouvert')); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') bascule(false); });
+  [].forEach.call(volet.querySelectorAll('a'), function(a){ a.addEventListener('click', function(){ bascule(false); }); });
+})();
+</script>
+</body>
+</html>

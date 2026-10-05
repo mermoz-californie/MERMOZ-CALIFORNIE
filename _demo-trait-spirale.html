@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Essai : le trait qui enroule l'écran</title>
+<style>
+@font-face{ font-family: 'PPWoodland'; src: url('assets/fonts/PPWoodland/PPWoodland-Regular.woff2') format('woff2'); font-weight: 400; }
+@font-face{ font-family: 'PPMori'; src: url('assets/fonts/PPMori/PPMori-Regular.woff2') format('woff2'); font-weight: 400; }
+:root{
+  --noir: #101010; --blanc: #fff;
+  --bleu: #0074FF; --cyan: #81DDFF; --jaune: #EDFF9B; --rose: #F4BDD2; --corail: #F94144;
+}
+*{ box-sizing: border-box; }
+html, body{ margin: 0; height: 100%; background: var(--noir); color: var(--blanc); overflow: hidden; }
+body{ font-family: 'PPMori', -apple-system, 'SF Pro Text', system-ui, sans-serif; cursor: pointer; }
+
+/* deux écrans : le trait enroulé les recouvre puis laisse voir l'autre */
+.ecran{
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 28px; padding: 6vh 24px; text-align: center;
+}
+.ecran--b{ visibility: hidden; }
+.titre{
+  margin: 0; font-family: 'PPWoodland', serif; font-weight: 400;
+  font-size: clamp(40px, 7vw, 110px); line-height: 1.02;
+}
+.texte{
+  margin: 0; max-width: 34em; text-transform: uppercase; letter-spacing: .02em;
+  font-size: clamp(13px, 1.25vw, 18px); line-height: 1.6;
+}
+.surtitre{ margin: 0; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #E6E6E6; }
+
+svg.trait{ position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+svg.trait path{ fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+.reglages{
+  position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 10;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+  font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+}
+.reglages button{
+  font: inherit; color: var(--blanc); background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: .6em 1.1em; cursor: pointer;
+}
+.reglages button.actif{ background: var(--blanc); color: var(--noir); }
+.reglages .puce{ display: inline-block; width: .8em; height: .8em; border-radius: 50%; margin-right: .5em; vertical-align: -.05em; }
+.aide{ position: fixed; top: 14px; left: 0; right: 0; text-align: center; z-index: 10; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: .55; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<section class="ecran ecran--a" id="a">
+  <p class="surtitre">Mermoz Californie®</p>
+  <h1 class="titre">Chercher<br>le toudoum.</h1>
+  <p class="texte">Trouver le « toudoum » de votre marque.</p>
+</section>
+
+<section class="ecran ecran--b" id="b">
+  <p class="surtitre" style="color:inherit; opacity:.7">La résonance affective</p>
+  <p class="texte">Nous cherchons à créer le moment où un message cesse d’être une information pour devenir un souvenir : un sourire, un pincement, une phrase qu’on répète à table.</p>
+</section>
+
+<svg class="trait" id="trait" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+
+<p class="aide">Cliquer n'importe où pour lancer</p>
+<div class="reglages" id="reglages"></div>
+
+<script>
+(function(){
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = document.getElementById('trait');
+  var A = document.getElementById('a'), B = document.getElementById('b');
+
+  /* LE TRACÉ
+
+     Une spirale épaisse qui arrive de la droite, s'enroule trois fois et
+     s'arrête au centre. Le trait est plus large que l'écart entre deux
+     tours : quand il est entièrement dessiné, il n'y a plus un pixel libre.
+     On le dessine en le faisant avancer, on le retire en faisant reculer sa
+     tête : un trou s'ouvre au centre, grandit, et ce qui reste du trait
+     se déroule vers la droite et sort. */
+  var CX = 800, CY = 560, R0 = 820, R1 = 80, TOURS = 2.7, LARGEUR = 340;
+  var pts = [];
+  (function(){
+    /* l'entrée : une courbe qui vient de hors écran, en bas à droite */
+    var dep = [2300, 1450], fin = [CX + R0, CY];
+    for(var i = 0; i <= 60; i++){
+      var k = i / 60, e = k * k * (3 - 2 * k);
+      pts.push([dep[0] + (fin[0] - dep[0]) * k - 260 * Math.sin(Math.PI * k) , dep[1] + (fin[1] - dep[1]) * e]);
+    }
+    /* la spirale, dans le sens des aiguilles d'une montre */
+    var N = 520, total = TOURS * 2 * Math.PI;
+    for(var j = 1; j <= N; j++){
+      var t = j / N, th = t * total, r = R0 - (R0 - R1) * (t * (2 - t) * .2 + t * .8);
+      pts.push([CX + r * Math.cos(th), CY + r * Math.sin(th)]);
+    }
+  })();
+  var d = 'M' + pts.map(function(p){ return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L');
+
+  var COULEURS = {
+    bleu: ['#0074FF'], corail: ['#F94144'], jaune: ['#EDFF9B'], rose: ['#F4BDD2'], cyan: ['#81DDFF'],
+    multi: ['#1969C2', '#81DDFF', '#EDFF9B', '#F4BDD2', '#F94144']
+  };
+  var TEXTE = { '#0074FF': '#fff', '#F94144': '#fff', '#EDFF9B': '#101010', '#F4BDD2': '#101010', '#81DDFF': '#101010' };
+  var NOIR = '#101010';
+  var choix = 'bleu', couches = [], LONG = 0, vers = 'couleur';   /* « couleur » : du noir vers la couleur ; « noir » : retour */
+
+  function monte(){
+    svg.textContent = '';
+    /* aller : les couleurs s'enroulent l'une après l'autre, la dernière reste ; retour : un trait noir */
+    var liste = vers === 'couleur' ? COULEURS[choix] : [NOIR];
+    couches = liste.map(function(c){
+      var p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('stroke', c);
+      p.setAttribute('stroke-width', LARGEUR);
+      svg.appendChild(p);
+      return p;
+    });
+    LONG = couches[0].getTotalLength();
+    couches.forEach(function(p){ p.style.strokeDasharray = '0 ' + (LONG * 3); p.style.strokeDashoffset = 0; });
+  }
+
+  /* LA PAGE SE COLORE
+
+     Le trait avance (la couleur l'enroule) jusqu'à tout recouvrir ; à cet instant
+     la page du dessous change : elle prend la couleur du dernier trait, de sorte
+     que le trait peut disparaître sans qu'on voie la jonction. */
+  var DESSIN = 1000, DECALAGE = 120, FIN = 160;
+  function ease(k){ k = k < 0 ? 0 : k > 1 ? 1 : k; return k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
+  var n = function(){ return couches.length; };
+  var DUREE = function(){ return DESSIN + (n() - 1) * DECALAGE + FIN; };
+
+  function pageCouleur(c){
+    B.style.background = c; B.style.color = TEXTE[c] || '#fff';
+  }
+  function etat(couleur){        /* couleur === true : on montre la page colorée */
+    A.style.visibility = couleur ? 'hidden' : 'visible';
+    B.style.visibility = couleur ? 'visible' : 'hidden';
+  }
+
+  function rendu(t){
+    var plein = t >= DESSIN + (n() - 1) * DECALAGE;
+    etat(vers === 'couleur' ? plein : !plein);
+    couches.forEach(function(p, i){
+      var tete = LONG * ease((t - i * DECALAGE) / DESSIN);
+      p.style.strokeDasharray = Math.max(tete, 0) + ' ' + (LONG * 3);
+      p.style.display = (plein && t > DUREE() - FIN * .5) ? 'none' : (tete <= .5 ? 'none' : '');
+    });
+  }
+
+  var enCours = false;
+  function lance(){
+    if(enCours) return;
+    enCours = true;
+    monte();
+    var derniere = COULEURS[choix][COULEURS[choix].length - 1];
+    if(vers === 'couleur') pageCouleur(derniere);
+    var t0 = performance.now();
+    (function pas(m){
+      var t = m - t0;
+      rendu(Math.min(t, DUREE()));
+      if(t < DUREE()) requestAnimationFrame(pas);
+      else {
+        enCours = false;
+        etat(vers === 'couleur');
+        couches.forEach(function(p){ p.style.display = 'none'; });
+        vers = vers === 'couleur' ? 'noir' : 'couleur';
+      }
+    })(t0);
+  }
+  /* au départ : la page noire */
+  monte(); couches.forEach(function(p){ p.style.display = 'none'; });
+  pageCouleur(COULEURS[choix][COULEURS[choix].length - 1]);
+  etat(false);
+
+  /* les boutons de couleur */
+  var reg = document.getElementById('reglages');
+  Object.keys(COULEURS).forEach(function(nom){
+    var b = document.createElement('button');
+    var puce = document.createElement('span');
+    puce.className = 'puce';
+    puce.style.background = nom === 'multi' ? 'linear-gradient(90deg,#1969C2,#81DDFF,#EDFF9B,#F4BDD2,#F94144)' : COULEURS[nom][0];
+    b.appendChild(puce); b.appendChild(document.createTextNode(nom === 'multi' ? 'Toutes les couleurs' : nom));
+    if(nom === choix) b.className = 'actif';
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(enCours) return;
+      choix = nom; vers = 'couleur';
+      etat(false);
+      [].forEach.call(reg.children, function(x){ x.className = ''; });
+      b.className = 'actif';
+      lance();
+    });
+    reg.appendChild(b);
+  });
+  monte();
+  couches.forEach(function(p){ p.style.display = 'none'; });
+
+  document.body.addEventListener('click', lance);
+  window.__rendu = function(t, sens, nom){ enCours = true; if(nom) choix = nom; vers = sens || 'couleur'; monte(); pageCouleur(COULEURS[choix][COULEURS[choix].length - 1]); couches.forEach(function(p){ p.style.display = ''; }); rendu(t); };
+  window.__duree = DUREE;
+})();
+</script>
+</body>
+</html>

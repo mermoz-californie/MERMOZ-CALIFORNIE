@@ -4,12 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
-/* la page s'étend sous l'heure et la barre d'adresse (iPhone), pour que les couleurs
-   couvrent tout l'écran ; index6.html?cover=0 revient à l'ancien comportement */
-if(!/[?&]cover=0/.test(location.search)){
-  document.documentElement.classList.add('cover');
-  document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1, viewport-fit=cover');
-}
+/* index6.html?barre=0 : la page ne défile plus du tout (la barre d'adresse ne se réduit pas) */
+if(!/[?&]barre=0/.test(location.search)) document.documentElement.classList.add('barre');
 </script>
 <!-- les barres du navigateur (heure, adresse) prennent la couleur du site : le noir -->
 <meta name="theme-color" content="#101010">
@@ -499,25 +495,21 @@ html.direct body{ overflow: hidden; height: 100%; }
 /* la page ne défile plus : elle ne fait qu'un écran de haut */
 html.direct .passage{ height: 100svh; }
 
-/* page étendue (par défaut, sauf ?cover=0) : le ruban couvre tout l'écran, y compris sous l'heure et la barre
-   d'adresse ; les textes, eux, restent dans la zone libre */
-html.cover.direct .passage__colle{ position: fixed; inset: 0; height: auto; }
-html.cover.direct .ecran{
-  min-height: 0;
-  padding-top: calc(6vh + env(safe-area-inset-top, 0px));
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 86px);
-}
-html.cover.direct .ecran--deux > .entete,
-html.cover.direct .volet > .entete{
-  padding-top: calc(clamp(20px, 3.4vh, 36px) + env(safe-area-inset-top, 0px));
-}
+/* La barre d'adresse de Safari ne se réduit que si la page défile : on la laisse défiler
+   de 160 px (la scène, elle, est fixe et ne bouge pas). Le premier geste du doigt fait
+   donc réduire la barre, puis le script joue la transition comme avant. */
+html.direct.barre{ touch-action: pan-y; overflow-y: auto; height: auto; }
+html.direct.barre body{ overflow: visible; height: auto; }
+html.direct.barre .passage{ height: calc(100svh + 160px); }
+html.direct.barre .passage__colle{ position: fixed; inset: 0; height: auto; }
+html.direct.barre.volet-ouvert{ overflow: hidden; }
 
 /* les lisières (smartphone) : voir le balisage */
 .rive{ display: none; }
-/* Safari iOS 26 teinte ses barres d'après ce qui touche les bords :
-   le fond du body, ou un élément fixe pleine largeur d'au moins 6 px.
-   Ces deux lisières (12 px, noires, sans pointer-events:none qui les
-   ferait ignorer) sont donc la seule chose qu'il peut échantillonner. */
+/* Safari iOS 26 teinte ses barres d'après ce qui touche les bords : le fond du body, ou un
+   élément fixe pleine largeur d'au moins 6 px. Ces deux lisières, toujours noires et
+   jamais modifiées, sont la seule chose qu'il trouve : ses barres restent donc classiques
+   (noires) quoi que fasse le ruban, et rien ne peut rester bloqué. */
 html.direct .rive{
   display: block; position: fixed; left: 0; right: 0; height: 12px;
   background: var(--noir); z-index: 2147483000;
@@ -527,10 +519,6 @@ html.direct .rive{
 html.direct .passage__colle{ position: relative; }
 html.direct .rive--haut{ top: 0; }
 html.direct .rive--bas{ bottom: 0; }
-/* le volet monte du bas : la lisière basse devient orange tout de suite,
-   la haute quand il arrive (et l'inverse à la fermeture) */
-html.direct.volet-bas .rive--bas{ background: var(--corail); }
-html.direct.volet-haut .rive--haut{ background: var(--corail); }
 
 /* ============================================================
    05 quater. L'ENCRE
@@ -943,65 +931,6 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
 
   var rubanEl = passage.querySelector('.bandes'), rubanVisible = null;
 
-  /* LES LISIÈRES, SUR SMARTPHONE
-
-     Safari iOS remplit ses barres (heure, adresse) avec la couleur des deux
-     lisières fixes de la page. Pour que le ruban semble couvrir tout le
-     téléphone, elles prennent à chaque image la couleur de la bande qui
-     touche le bord haut et le bord bas de l'écran. Au repos elles
-     redeviennent noires, avec un petit coup de coude de couleur pour être
-     sûr que Safari relise la dernière valeur. */
-  var riveHaut = document.querySelector('.rive--haut'), riveBas = document.querySelector('.rive--bas');
-  var colleEl = passage.querySelector('.passage__colle');
-  var NOIR_RIVE = 'rgb(16, 16, 16)';
-  var couleursBandes = bandes.map(function(b){ return getComputedStyle(b).backgroundColor; });
-  var sonde = document.createElement('div');
-  sonde.setAttribute('aria-hidden', 'true');
-  sonde.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;visibility:hidden;pointer-events:none';
-  document.body.appendChild(sonde);
-  var bordBas = 100, riveEtat = '', riveT = 0, riveDernier = 0;
-  /* à essayer en cas d'accroc : index6.html?rives=0 laisse les barres noires pendant le ruban */
-  var rivesVivantes = !/[?&]rives=0/.test(location.search);
-  function mesureBord(){
-    /* le ruban se dessine en vh ; l'écran visible peut être plus court (barres de Safari) */
-    var vh = sonde.offsetHeight / 100;
-    bordBas = vh > 0 ? colleEl.clientHeight / vh : 100;
-  }
-  window.addEventListener('resize', mesureBord);
-  mesureBord();
-  function couleurA(y, tops, hauteurs){
-    for(var i = 0; i < tops.length; i++){
-      if(y >= tops[i] && y < tops[i] + hauteurs[i]) return couleursBandes[i];
-    }
-    return NOIR_RIVE;
-  }
-  function teinteRives(visible, tops, hauteurs){
-    if(!directe || !riveHaut) return;
-    if(visible){
-      clearTimeout(riveT);
-      if(!rivesVivantes) return;
-      /* chaque changement de couleur oblige Safari à recalculer la teinte de ses barres :
-         on les espace pour ne pas lui faire perdre d'images quand les bandes se
-         succèdent vite au bord de l'écran */
-      var maintenant = performance.now();
-      if(!document.documentElement.classList.contains('cover') && maintenant - riveDernier < 110) return;
-      var h = couleurA(.2, tops, hauteurs), b = couleurA(bordBas - .2, tops, hauteurs);
-      var cle = h + '|' + b;
-      if(cle === riveEtat) return;
-      riveEtat = cle;
-      riveDernier = maintenant;
-      riveHaut.style.backgroundColor = h;
-      riveBas.style.backgroundColor = b;
-    } else if(riveEtat !== 'repos'){
-      riveEtat = 'repos';
-      riveHaut.style.backgroundColor = riveBas.style.backgroundColor = 'rgb(16, 16, 17)';
-      clearTimeout(riveT);
-      riveT = setTimeout(function(){
-        riveHaut.style.backgroundColor = riveBas.style.backgroundColor = '';
-      }, 160);
-    }
-  }
-
   /* Dessine le ruban pour un avancement donné, de 0 (premier écran)
      à 1 (second écran en place). */
   function place(p){
@@ -1032,7 +961,6 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
       rubanVisible = visible;
       rubanEl.style.display = visible ? '' : 'none';
     }
-    teinteRives(visible, tops, hauteurs);
     encre(tops, hauteurs);
 
     /* la section suivante est accrochée sous le ruban */
@@ -1473,6 +1401,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
       })(t0);
     };
     var voletOuvert = function(){ return document.documentElement.classList.contains('volet-ouvert'); };
+    var barreNative = document.documentElement.classList.contains('barre');   /* la page défile un peu : la barre d'adresse se réduit */
 
     window.addEventListener('touchstart', function(e){
       if(voletOuvert() || e.touches.length > 1) return;
@@ -1481,7 +1410,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
     window.addEventListener('touchmove', function(e){
       if(voletOuvert()) return;
       var dy = e.touches[0].clientY - y0;
-      if(Math.abs(dy) > 8) e.preventDefault();      /* le navigateur ne défile pas */
+      if(!barreNative && Math.abs(dy) > 8) e.preventDefault();      /* le navigateur ne défile pas */
       if(decide || e.touches.length > 1) return;
       if(Math.abs(dy) > 24){
         decide = true;
@@ -1502,20 +1431,13 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
      Un clic sur le bouton orange du manifeste fait monter un volet du bas :
      il recouvre toute la page. Son en-tête est écrit en noir. On le referme
      avec Échap ou en cliquant sur le nom en haut à gauche. */
-  var metaTeinte = document.querySelector('meta[name="theme-color"]');
-  function teinte(couleur){ if(metaTeinte) metaTeinte.setAttribute('content', couleur); }
   var volet = document.getElementById('volet');
   var boutonMc = deux.querySelector('.bouton[data-couleur="orange"]');
   function ouvre(e){
     if(e) e.preventDefault();
     volet.classList.add('ouvert');
-    teinte('#F94144');
     volet.setAttribute('aria-hidden', 'false');
-    var racine = document.documentElement;
-    racine.classList.add('volet-ouvert', 'volet-bas');
-    /* le bord haut de l'écran est atteint à 0,6 s : la barre du haut devient orange à cet instant */
-    clearTimeout(volet._th);
-    volet._th = setTimeout(function(){ racine.classList.add('volet-haut'); }, 600);
+    document.documentElement.classList.add('volet-ouvert');
     /* l'en-tête s'écrit quand le volet est presque en place */
     clearTimeout(volet._t);
     volet._t = setTimeout(function(){ pose(volet); }, 550);
@@ -1523,15 +1445,11 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
   function ferme(e){
     if(e) e.preventDefault();
     volet.classList.remove('ouvert');
-    teinte('#101010');
     volet.setAttribute('aria-hidden', 'true');
-    clearTimeout(volet._th);
-    /* le bord orange quitte le haut de l'écran après 0,25 s : c'est là que la barre redevient noire */
-    volet._th = setTimeout(function(){ document.documentElement.classList.remove('volet-haut'); }, 255);
     clearTimeout(volet._t);
     volet._t = setTimeout(function(){
       retire(volet);
-      document.documentElement.classList.remove('volet-ouvert', 'volet-bas');
+      document.documentElement.classList.remove('volet-ouvert');
     }, 900);
   }
   if(volet && boutonMc){
@@ -1584,7 +1502,7 @@ html{ scroll-snap-type: y mandatory; background: var(--noir); }
      'la texture.', 'la ligne.', 'le souffle.', 'la densité.',
      'l’angle.', 'l’instinct.', 'l’écriture.', 'le geste.',
      'la direction.', 'la mémoire.', 'la précision.',
-     'la liberté.'
+     'la liberté.', 'le décalage.'
   ];
   var POSE = 1900;   /* le temps qu'un mot reste en place */
 

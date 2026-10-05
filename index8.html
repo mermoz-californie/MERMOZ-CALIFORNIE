@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111111">
+<meta name="color-scheme" content="dark">
+<title>Mermoz Californie</title>
+<meta name="description" content="Mermoz Californie est un studio de création indépendant. Stratégie, identité visuelle, campagne : nous créons ou révélons les marqueurs puissants qui permettent de créer une résonance affective entre les marques et leur audience.">
+<script>document.documentElement.classList.add('js')</script>
+
+<style>
+/* ============================================================
+   MERMOZ CALIFORNIE, page d'accueil (variante).
+
+   Une seule page : le nom s'écrit, se réduit à « M — C » et monte en haut ; puis
+   le manifeste s'allume mot à mot, suivi des savoir-faire et du contact. Un petit
+   repère à droite indique où l'on est. Pas de menu : tout est sur la page.
+   ============================================================ */
+
+/* PP Object Sans, graisse Regular (pack d'essai Pangram Pangram).
+   Elle est chargée depuis assets/fonts, donc elle s'affiche aussi sur téléphone ; si le fichier manque,
+   la copie installée sur l'ordinateur prend le relais. Une licence web est nécessaire avant publication. */
+@font-face{
+  font-family: 'Object';
+  src: url('assets/fonts/PPObjectSans/PPObjectSans-Regular.woff2') format('woff2'),
+       url('assets/fonts/PPObjectSans/PPObjectSans-Regular.woff') format('woff'),
+       local('PP Object Sans Regular'), local('PPObjectSans-Regular');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root{
+  --fond: #111111;
+  --blanc: #FFFFFF;
+  --mori: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --object: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sf: 'Object', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ease: cubic-bezier(.4, 0, .2, 1);          /* la courbe des fondus de la référence */
+  --sortie: cubic-bezier(.16, 1, .3, 1);
+  --marge: clamp(20px, 2.2vw, 32px);           /* bords de l'en-tête */
+}
+*{ box-sizing: border-box; }
+html{ background: var(--fond); }
+body{
+  margin: 0; min-height: 100svh;
+  background: var(--fond); color: var(--blanc);
+  font-family: var(--mori); font-weight: 400;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+a{ color: inherit; text-decoration: none; }
+button{ font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.sr{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ------------------------------------------------------------
+   1. LE NOM, qui devient M—C
+
+   Dans l'ordre (d'après la séquence de référence) :
+     1. « MERMOZ CALIFORNIE » s'écrit au centre, lettre à lettre, derrière un masque ;
+     2. un grand M et un grand C montent de chaque côté ;
+     3. le nom rapetisse et les deux grandes lettres se rapprochent, jusqu'à ce que
+        le nom ne soit plus qu'un trait horizontal : M — C ;
+     4. « M — C » monte prendre la place du logo en rapetissant.
+   Tout est fait avec des transformations : rien ne change de mise en page en cours de route.
+   ------------------------------------------------------------ */
+.marque{
+  --f: clamp(15px, 4.7vw, 76px);                 /* la taille du nom */
+  --F: calc(var(--f) * 3.4);                     /* la taille du grand M et du grand C */
+  position: fixed; z-index: 70;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--object); font-weight: 400; text-transform: uppercase;
+  font-size: var(--f);
+  letter-spacing: .01em; line-height: 1.1; white-space: nowrap;
+  color: var(--blanc);
+}
+.marque a{ display: block; }
+.marque .lock{ position: relative; display: inline-block; }
+.marque .mid{ display: inline-block; transform-origin: 50% 50%; }
+.marque .m{
+  position: relative;
+  display: inline-block; vertical-align: bottom; overflow: hidden;
+  padding: .02em .04em; margin: -.02em -.04em;          /* le masque ne rogne pas les bords des lettres */
+}
+.marque .l, .marque .gl{ display: inline-block; }
+.marque .esp{ display: inline-block; vertical-align: bottom; width: .3em; height: 1.1em; }
+.js .marque:not(.fin) .l, .js .marque:not(.fin) .gl{ transform: translateY(112%); }   /* avant le départ, tout est sous le masque */
+
+/* le grand M (à gauche) et le grand C (à droite), centrés sur le milieu des capitales du nom */
+.marque .gk{
+  position: absolute; top: 50%;
+  font-size: var(--F); line-height: 1.1;
+  margin-top: calc(-.57em + var(--corr, 0px));
+  overflow: hidden; padding: .02em .04em;
+}
+.marque .gm{ right: calc(100% + .05em); }
+.marque .gc{ left: calc(100% + .05em); }
+/* le trait qui prend la place du nom */
+.marque .tiret{
+  position: absolute; left: 50%; top: calc(50% + var(--cap, 0px));
+  width: calc(.5 * var(--F)); height: calc(.08 * var(--F));
+  margin: calc(-.04 * var(--F)) 0 0 calc(-.25 * var(--F));
+  background: currentColor; transform: scaleX(0); transform-origin: 50% 50%; pointer-events: none;
+}
+
+/* l'état final : « M — C » à la place du logo (le nom, caché, ne sert plus qu'à garder la place du trait) */
+.marque.fin{ --f: calc(26px / 3.4); top: var(--haut-logo, 56px); }
+.marque.fin .mid{ display: inline-block; width: calc(.5 * var(--F)); height: 1px; overflow: hidden; visibility: hidden; transform: none; }
+.marque.fin .gl{ transform: none; }
+.marque.fin .gk{ transform: none; }
+.marque.fin .tiret{ transform: none; }
+
+
+/* ------------------------------------------------------------
+   2. L'EN-TÊTE : une ligne de présentation à gauche, « Écrire » à droite ; au centre, M — C
+   ------------------------------------------------------------ */
+html{ scroll-behavior: smooth; }
+html.js:not(.pret){ overflow: hidden; }                   /* pas de défilement pendant l'arrivée */
+.entete{
+  position: fixed; z-index: 60; top: 0; left: 0; right: 0;
+  height: clamp(76px, 7.8vw, 112px); padding: 0 var(--marge);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  pointer-events: none;
+}
+.entete::before{                                          /* un voile : le texte qui défile passe dessous sans gêner */
+  content: ''; position: absolute; inset: 0 0 -24px 0; z-index: -1;
+  background: linear-gradient(var(--fond) 62%, rgba(17,17,17,0));
+}
+.entete > *{ pointer-events: auto; margin: 0; }
+.entete__d{ display: inline-flex; align-items: center; gap: .55em; }
+.entete__d span{ display: inline-block; transition: transform .45s var(--sortie); }
+.entete__d:hover span{ transform: translate(.22em, -.22em); }
+.js .entete::before, .js .entete > *{ opacity: 0; }
+.js.pret .entete::before, .js.pret .entete > *{ opacity: 1; transition: opacity .9s var(--ease) .2s; }
+
+/* ------------------------------------------------------------
+   3. LE REPÈRE : trois rubriques, celle où l'on se trouve est allumée
+   ------------------------------------------------------------ */
+.repere{
+  position: fixed; z-index: 55; right: var(--marge); top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: flex-end; gap: 16px;
+  font-size: 11px; letter-spacing: .09em; text-transform: uppercase;
+}
+.repere a{ display: flex; align-items: center; gap: 12px; opacity: .36; transition: opacity .45s var(--ease); }
+.repere a::before{
+  content: ''; display: block; width: 0; height: 1px; background: currentColor;
+  transition: width .6s var(--sortie);
+}
+.repere a.actif{ opacity: 1; }
+.repere a.actif::before{ width: 30px; }
+.repere a:hover{ opacity: 1; }
+.js .repere{ opacity: 0; }
+.js.pret .repere{ opacity: 1; transition: opacity 1s var(--ease) .9s; }
+
+/* ------------------------------------------------------------
+   4. LE MANIFESTE : il s'allume mot à mot
+   ------------------------------------------------------------ */
+.sec{
+  position: relative; min-height: 100svh;
+  padding: 0 clamp(160px, 12.5vw, 230px) 0 calc(var(--marge) + 3.4vw);   /* à droite, la place du repère */
+  display: flex; flex-direction: column; justify-content: center;
+}
+.sec--man{ padding-top: clamp(96px, 12vh, 140px); padding-bottom: 6vh; }
+.man{
+  margin: 0; max-width: 1280px;
+  font-size: clamp(22px, min(4vw, 6vh), 70px);
+  line-height: 1.07; letter-spacing: -.012em; text-transform: uppercase;
+}
+.man .w{ display: inline-block; opacity: .13; transition: opacity 1s var(--ease), color 1.2s var(--ease); }
+.man .w.on{ opacity: 1; }
+.man .w.acc.on{ color: #F94144; }                         /* le corail du studio, sur « singularité » et « résonance affective » */
+.man .espace{ display: inline-block; width: .26em; }
+
+/* ------------------------------------------------------------
+   5. LES SAVOIR-FAIRE
+   ------------------------------------------------------------ */
+.sec--sav{ justify-content: flex-start; padding-top: 16vh; padding-bottom: 16vh; min-height: 0; }
+.etiquette{ margin: 0 0 clamp(26px, 4vw, 54px); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .5; }
+.liste{ list-style: none; margin: 0; padding: 0; }
+.liste li{
+  position: relative;
+  display: grid; grid-template-columns: clamp(34px, 5.2vw, 84px) 1fr; align-items: baseline;
+  padding: clamp(18px, 2.2vw, 34px) 0 clamp(16px, 2vw, 30px);
+}
+.liste li::before{                                         /* le filet se dessine de gauche à droite à l'arrivée */
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: rgba(255,255,255,.22);
+  transform: scaleX(0); transform-origin: 0 50%; transition: transform 1.4s var(--sortie) var(--d, 0s);
+}
+.liste li:last-child::after{
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: rgba(255,255,255,.22);
+  transform: scaleX(0); transform-origin: 0 50%; transition: transform 1.4s var(--sortie) .45s;
+}
+.liste.vu li::before, .liste.vu li:last-child::after{ transform: none; }
+.liste .n{ font-size: 12px; letter-spacing: .1em; opacity: .5; }
+.liste .t{
+  display: block; font-size: clamp(34px, 8.2vw, 132px); line-height: .98; letter-spacing: -.025em; text-transform: uppercase;
+  transition: transform .8s var(--sortie), opacity .4s var(--ease);
+}
+.liste li:hover .t{ transform: translateX(1.4vw); }
+.liste:hover li .t{ opacity: .45; }
+.liste:hover li:hover .t{ opacity: 1; }
+
+/* ------------------------------------------------------------
+   6. LE CONTACT
+   ------------------------------------------------------------ */
+.sec--ctn{ justify-content: space-between; padding-top: 16vh; padding-bottom: clamp(26px, 4vh, 44px); }
+.gros{
+  display: inline-block; align-self: flex-start;
+  font-size: clamp(24px, 4.5vw, 76px); line-height: 1.08; letter-spacing: -.025em; white-space: nowrap;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+  padding-bottom: .1em;
+  transition: background-size .6s var(--sortie);
+}
+.gros:hover{ background-size: 100% .07em; }
+.ctn__bas{ display: flex; justify-content: space-between; gap: 20px; font-size: 12px; letter-spacing: .06em; }
+.ctn__bas p, .ctn__bas a{ margin: 0; opacity: .45; }
+.ctn__bas a{ transition: opacity .3s var(--ease); }
+.ctn__bas a:hover{ opacity: 1; }
+.ctn__ville{ margin: 1.4rem 0 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .5; }
+
+/* l'arrivée des blocs quand on défile */
+.js .rv{ opacity: 0; transform: translateY(26px); transition: opacity 1.1s var(--ease) var(--d, 0s), transform 1.3s var(--sortie) var(--d, 0s); }
+.js .rv.vu{ opacity: 1; transform: none; }
+
+/* ------------------------------------------------------------
+   7. TÉLÉPHONE ET TABLETTE : le repère passe en bas, les marges se resserrent
+   ------------------------------------------------------------ */
+@media (max-width: 1023px){
+  .sec{ padding: 0 22px; }
+  .sec--man{ padding-top: 118px; padding-bottom: 80px; }
+  .man{ font-size: clamp(22px, 6.3vw, 44px); line-height: 1.1; }
+  .repere{
+    top: auto; bottom: 0; left: 0; right: 0; transform: none;
+    flex-direction: row; justify-content: center; align-items: center; gap: 24px;
+    padding: 30px 0 16px; background: linear-gradient(rgba(17,17,17,0), var(--fond) 55%);
+  }
+  .repere a::before{ display: none; }
+  .entete__g{ display: none; }                           /* trop long à côté du logo sur un petit écran */
+  .entete{ justify-content: flex-end; }
+  .liste .t{ font-size: clamp(34px, 11vw, 70px); }
+  .sec--ctn{ padding-bottom: 84px; }
+  .gros{ font-size: clamp(18px, 5.6vw, 44px); }
+}
+
+/* le visiteur a demandé moins de mouvement : on montre tout tout de suite */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  .man .w, .liste li::before, .liste li::after, .rv, .repere a::before{ transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- LE NOM : il arrive au centre, se réduit à « M — C » et monte dans l'en-tête -->
+<div class="marque" id="marque">
+  <a href="#" aria-label="Mermoz Californie, retour en haut"><span class="lock" aria-hidden="true"><span class="mid"></span><span class="gk gm"><span class="gl">M</span></span><span class="gk gc"><span class="gl">C</span></span><span class="tiret"></span></span></a>
+</div>
+
+
+<header class="entete">
+  <p class="entete__g">Studio de création indépendant</p>
+  <a class="entete__d" href="mailto:creation@mermoz-californie.com">Écrire <span aria-hidden="true">↗</span></a>
+</header>
+
+<nav class="repere" aria-label="Rubriques">
+  <a href="#manifeste" class="actif">01 Manifeste</a>
+  <a href="#savoir-faire">02 Savoir-faire</a>
+  <a href="#contact">03 Contact</a>
+</nav>
+
+<main>
+  <section class="sec sec--man" id="manifeste" aria-label="Manifeste">
+    <p class="man" id="man">Mermoz Californie est un studio de création indépendant. Nous travaillons avec les marques, les entreprises et les startups à révéler leur singularité. Stratégie, identité visuelle, campagne : nous créons ou révélons les marqueurs puissants qui permettent de créer une résonance affective entre les marques et leur audience.</p>
+  </section>
+
+  <section class="sec sec--sav" id="savoir-faire" aria-label="Savoir-faire">
+    <h2 class="etiquette rv">Savoir-faire</h2>
+    <ul class="liste" id="liste">
+      <li style="--d:.0s"><span class="n">01</span><span class="t">Stratégie</span></li>
+      <li style="--d:.15s"><span class="n">02</span><span class="t">Identité visuelle</span></li>
+      <li style="--d:.3s"><span class="n">03</span><span class="t">Campagne</span></li>
+    </ul>
+  </section>
+
+  <section class="sec sec--ctn" id="contact" aria-label="Contact">
+    <div>
+      <p class="etiquette rv">Contact</p>
+      <a class="gros rv" style="--d:.1s" href="mailto:creation@mermoz-californie.com">creation@mermoz-californie.com</a>
+      <p class="ctn__ville rv" style="--d:.2s">Paris</p>
+    </div>
+    <div class="ctn__bas rv" style="--d:.25s">
+      <p>©2026 Mermoz Californie</p>
+      <a href="#">Mentions légales</a>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var racine = document.documentElement;
+  if('scrollRestoration' in history) history.scrollRestoration = 'manual';   /* l'arrivée se joue toujours en haut de page */
+  window.scrollTo(0, 0);
+  var marque = document.getElementById('marque');
+  var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- le nom : chaque lettre derrière son masque ---------- */
+  var NOM = 'MERMOZ CALIFORNIE';
+  var mid = marque.querySelector('.mid');
+  var glM = marque.querySelector('.gm'), glC = marque.querySelector('.gc'), tiret = marque.querySelector('.tiret');
+  var lettres = [];
+  NOM.split('').forEach(function(ch, i){
+    if(ch === ' '){
+      var e = document.createElement('span'); e.className = 'esp'; mid.appendChild(e); return;
+    }
+    var m = document.createElement('span'); m.className = 'm';
+    var l = document.createElement('span'); l.className = 'l'; l.textContent = ch;
+    m.appendChild(l); mid.appendChild(m);
+    lettres.push({ i: i, l: l });
+  });
+
+  /* ---------- la place du logo dans l'en-tête ---------- */
+  function centreEntete(){ return document.querySelector('.entete').getBoundingClientRect().height / 2; }
+  function placeLogo(){ marque.style.setProperty('--haut-logo', centreEntete() + 'px'); }
+  placeLogo();
+  window.addEventListener('resize', placeLogo);
+
+  /* ---------- le déroulé de l'arrivée ---------- */
+  var EXPO = 'cubic-bezier(.16, 1, .3, 1)';          /* arrive vite, se pose longuement */
+  var SOUPLE = 'cubic-bezier(.76, 0, .24, 1)';       /* part en douceur, arrive en douceur */
+  /* index7.html?ralenti=4 déroule l'arrivée quatre fois plus lentement, pour la regarder de près */
+  var K = parseFloat((/[?&]ralenti=([\d.]+)/.exec(location.search) || [0, 1])[1]) || 1;
+  function attend(ms){ return new Promise(function(r){ setTimeout(r, ms * K); }); }
+  function fini(){
+    marque.getAnimations({ subtree: true }).forEach(function(a){ a.cancel(); });
+    marque.classList.add('fin');
+  }
+
+  /* l'écart entre le milieu des capitales et le milieu de la ligne, en fraction de la taille du texte :
+     il sert à centrer le grand M, le grand C et le trait sur le milieu des capitales du nom */
+  function ecartCapitales(){
+    var c = document.createElement('canvas').getContext('2d');
+    c.font = '400 100px Object, "Helvetica Neue", Arial, sans-serif';
+    var mm = c.measureText('M');
+    var fa = mm.fontBoundingBoxAscent, fd = mm.fontBoundingBoxDescent, cap = mm.actualBoundingBoxAscent;
+    if(!fa || !cap) return -.03;
+    var ligne = 110;                                  /* 1,1 de hauteur de ligne, sur une taille de 100 */
+    var base = (ligne - (fa + fd)) / 2 + fa;
+    return ((base - cap / 2) - ligne / 2) / 100;
+  }
+
+  /* index7.html?anim=reduit : l'autre version (le nom rapetisse d'un bloc) */
+  var variante = /[?&]anim=reduit/.test(location.search) ? 'reduit' : 'mange';
+
+  /* à quelle fraction de la durée le mouvement a-t-il parcouru la fraction p du trajet ? (courbe de Bézier inversée) */
+  function tempsPourAvancement(p, x1, y1, x2, y2){
+    function bz(u, a, b){ return 3 * (1 - u) * (1 - u) * u * a + 3 * (1 - u) * u * u * b + u * u * u; }
+    var lo = 0, hi = 1, u = .5;
+    for(var i = 0; i < 40; i++){ u = (lo + hi) / 2; if(bz(u, y1, y2) < p) lo = u; else hi = u; }
+    return bz(u, x1, x2);
+  }
+
+  function arrivee(){
+    if(calme || !marque.animate){ marque.classList.add('fin'); racine.classList.add('pret'); document.dispatchEvent(new Event('pret')); return; }
+
+    var f = parseFloat(getComputedStyle(marque).fontSize), F = 3.4 * f, dEm = ecartCapitales();
+    marque.style.setProperty('--cap', (dEm * f) + 'px');
+    marque.style.setProperty('--corr', (dEm * (f - F)) + 'px');
+
+    /* 1. le nom s'écrit : les lettres montent, du centre vers les bords ; l'espacement se resserre */
+    var centre = (lettres.length) / 2;
+    lettres.forEach(function(x, k){
+      x.l.animate([{ transform: 'translateY(112%)' }, { transform: 'translateY(0)' }],
+        { duration: 1250 * K, delay: (80 + Math.abs(k - centre) * 46) * K, easing: EXPO, fill: 'forwards' });
+    });
+    mid.animate([{ letterSpacing: '.18em' }, { letterSpacing: '.01em' }],
+      { duration: 2100 * K, easing: EXPO, fill: 'forwards' });
+
+    attend(1650).then(function(){
+      /* 2. le grand M et le grand C montent de chaque côté (avant même que le nom ait fini de s'écrire) */
+      glM.firstChild.animate([{ transform: 'translateY(112%)' }, { transform: 'translateY(0)' }],
+        { duration: 800 * K, easing: EXPO, fill: 'forwards' });
+      glC.firstChild.animate([{ transform: 'translateY(112%)' }, { transform: 'translateY(0)' }],
+        { duration: 800 * K, delay: 90 * K, easing: EXPO, fill: 'forwards' });
+      return attend(950);
+    }).then(function(){
+      var wNom = mid.getBoundingClientRect().width, wTrait = .5 * F;
+      if(variante === 'reduit'){
+        /* 3 (variante) : le nom rapetisse d'un bloc jusqu'à n'être plus qu'un trait */
+        var fin = wTrait / wNom, dx = wNom * (1 - fin) / 2;
+        var opt = { duration: 1250 * K, easing: SOUPLE, fill: 'forwards' };
+        mid.animate([{ transform: 'scale(1)' }, { transform: 'scale(' + fin + ')' }], opt);
+        mid.animate([{ opacity: 1 }, { opacity: 1, offset: .7 }, { opacity: 0 }], opt);
+        tiret.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(0)', offset: .68 }, { transform: 'scaleX(1)' }], opt);
+        glM.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + dx + 'px)' }], opt);
+        glC.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + (-dx) + 'px)' }], opt);
+        return attend(1250 + 220);
+      }
+
+      /* 3. le M et le C avancent l'un vers l'autre et « mangent » le nom : chaque lettre sort par le haut
+            à l'instant où le grand M (ou le grand C) l'atteint. Ce qui reste au milieu devient le trait. */
+      var gap = .05 * F, dxM = (wNom - wTrait) / 2, D = 1800 * K;
+      var opt2 = { duration: D, easing: SOUPLE, fill: 'forwards' };
+      glM.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + dxM + 'px)' }], opt2);
+      glC.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + (-dxM) + 'px)' }], opt2);
+      var rn = mid.getBoundingClientRect(), finLettres = 0;
+      lettres.forEach(function(x){
+        var r = x.l.getBoundingClientRect();
+        var c = r.left + r.width / 2 - rn.left;                       /* le centre de la lettre, depuis le bord gauche du nom */
+        /* la part du trajet à faire avant de l'atteindre ; les lettres du milieu, que le M et le C n'atteindront
+           qu'à la toute fin, partent plus tôt : elles doivent avoir disparu avant que le trait n'apparaisse */
+        var p = Math.min((Math.min(c, wNom - c) + gap) / dxM, .8);
+        var quand = tempsPourAvancement(p, .76, 0, .24, 1) * D;          /* à quel moment, avec la courbe du mouvement */
+        var debut = Math.max(0, quand - 160 * K);
+        finLettres = Math.max(finLettres, debut + 420 * K);
+        x.l.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-112%)' }],
+          { duration: 420 * K, delay: debut, easing: 'cubic-bezier(.7, 0, .2, 1)', fill: 'forwards' });
+      });
+      /* le trait ne commence à se dessiner qu'une fois toutes les lettres parties */
+      var depart = Math.min(.92 * D, finLettres - 80 * K);
+      tiret.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+        { duration: D - depart + 150 * K, delay: depart, easing: 'cubic-bezier(.65, 0, .25, 1)', fill: 'forwards' });
+      return attend(1800 + 220);
+    }).then(function(){
+      /* 4. « M — C » monte dans l'en-tête en rapetissant */
+      var s = 26 / F, dy = centreEntete() - window.innerHeight / 2;
+      var wM = glM.getBoundingClientRect().width, wC = glC.getBoundingClientRect().width;
+      var dxc = -((wC - wM) / 2) * s;               /* le M et le C n'ont pas la même largeur : on recentre le tout */
+      var vol = marque.animate([
+        { transform: 'translate(-50%, -50%) scale(1)' },
+        { transform: 'translate(calc(-50% + ' + dxc + 'px), calc(-50% + ' + dy + 'px)) scale(' + s + ')' }
+      ], { duration: 1150 * K, easing: SOUPLE, fill: 'forwards' });
+      attend(750).then(function(){ racine.classList.add('pret'); document.dispatchEvent(new Event('pret')); });         /* 5. la page apparaît */
+      return vol.finished;
+    }).then(function(){
+      /* on garde l'état animé tel quel (aucun saut) ; si la fenêtre change de taille, on passe à l'état fixe */
+      window.addEventListener('resize', fini, { once: true });
+    }, fini);
+  }
+  var pretes = (document.fonts && document.fonts.ready)
+    ? Promise.race([document.fonts.ready, new Promise(function(r){ setTimeout(r, 1200); })])
+    : Promise.resolve();
+  pretes.then(function(){ requestAnimationFrame(arrivee); });
+
+  /* ---------- le manifeste : chaque mot s'allume l'un après l'autre ---------- */
+  var man = document.getElementById('man');
+  var texteMan = man.textContent.replace(/\s+/g, ' ').trim();
+  man.textContent = '';
+  var lu = document.createElement('span'); lu.className = 'sr'; lu.textContent = texteMan; man.appendChild(lu);
+  var mots = [];
+  texteMan.split(' ').forEach(function(mot, i, tous){
+    var w = document.createElement('span');
+    w.className = 'w'; w.setAttribute('aria-hidden', 'true'); w.textContent = mot;
+    var nu = mot.replace(/[.,:;]/g, '').toLowerCase();
+    if(nu === 'singularité' || nu === 'résonance' || nu === 'affective') w.classList.add('acc');
+    man.appendChild(w); mots.push(w);
+    if(i < tous.length - 1){ var e = document.createElement('span'); e.className = 'espace'; e.setAttribute('aria-hidden', 'true'); man.appendChild(e); }
+  });
+  function allumeManifeste(){
+    if(calme){ mots.forEach(function(w){ w.classList.add('on'); }); return; }
+    mots.forEach(function(w, i){ setTimeout(function(){ w.classList.add('on'); }, 350 + i * 55); });
+  }
+  document.addEventListener('pret', allumeManifeste);
+
+  /* ---------- l'arrivée des blocs et le repère ---------- */
+  var rubriques = [].slice.call(document.querySelectorAll('.sec'));
+  var reperes = [].slice.call(document.querySelectorAll('.repere a'));
+  if('IntersectionObserver' in window){
+    var apparition = new IntersectionObserver(function(entrees){
+      entrees.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('vu'); apparition.unobserve(en.target); } });
+    }, { threshold: .25 });
+    [].forEach.call(document.querySelectorAll('.rv, .liste'), function(el){ apparition.observe(el); });
+
+    var vue = new IntersectionObserver(function(entrees){
+      entrees.forEach(function(en){
+        if(!en.isIntersecting) return;
+        var k = rubriques.indexOf(en.target);
+        reperes.forEach(function(a, j){ a.classList.toggle('actif', j === k); });
+      });
+    }, { threshold: .5 });
+    rubriques.forEach(function(s){ vue.observe(s); });
+  } else {
+    [].forEach.call(document.querySelectorAll('.rv, .liste'), function(el){ el.classList.add('vu'); });
+  }
+})();
+</script>
+</body>
+</html>
