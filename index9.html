@@ -526,13 +526,19 @@ html:not(.js) .roule .rl{ transform: none; }
     an(glC, [{ transform: 'translateX(0)' }, { transform: 'translateX(' + (-dxM) + 'px)' }], { duration: D, delay: T0, easing: SOUPLE });
     /* chaque lettre sort par le haut quand le M (ou le C) l'atteint */
     var rn = mid.getBoundingClientRect(), finLettres = 0;
-    lettres.forEach(function(x){
+    var ordre = lettres.map(function(x){
       var r = x.l.getBoundingClientRect();
       var c = r.left + r.width / 2 - rn.left;
-      var p = Math.min((Math.min(c, wNom - c) + gap) / dxM, .8);           /* celles du milieu partent plus tôt : avant le trait */
-      var debut = Math.max(0, tempsPourAvancement(p, .76, 0, .24, 1) * D - 160);
+      return { x: x, p: (Math.min(c, wNom - c) + gap) / dxM };
+    }).sort(function(a, b){ return a.p - b.p; });
+    /* celles du milieu partent avant le trait, mais pas toutes ensemble : à partir de p = .7, chacune attend un peu la précédente
+       (les plus proches du bord d'abord), pour qu'elles s'en aillent une à une */
+    var PAS = 55, prec = -1e9;
+    ordre.forEach(function(o){
+      var debut = Math.max(0, tempsPourAvancement(Math.min(o.p, .8), .76, 0, .24, 1) * D - 160);
+      if(o.p > .7){ debut = Math.max(debut, prec + PAS); prec = debut; }
       finLettres = Math.max(finLettres, debut + 420);
-      an(x.l, [{ transform: 'translateY(0)' }, { transform: 'translateY(-112%)' }], { duration: 420, delay: T0 + debut, easing: 'cubic-bezier(.7, 0, .2, 1)' });
+      an(o.x.l, [{ transform: 'translateY(0)' }, { transform: 'translateY(-112%)' }], { duration: 420, delay: T0 + debut, easing: 'cubic-bezier(.7, 0, .2, 1)' });
     });
     /* le trait n'apparaît qu'une fois toutes les lettres parties */
     var depart = Math.min(.92 * D, finLettres - 80);
@@ -610,7 +616,7 @@ html:not(.js) .roule .rl{ transform: none; }
       par.appendChild(w); ws.push(w);
       if(i < tous.length - 1) par.appendChild(document.createTextNode(' '));          /* une vraie espace : elle disparaît en bout de ligne au lieu de décaler la ligne suivante */
     });
-    paras.push({ el: par, mots: ws, haut: 0, px: 6.5, lignes: [] });
+    paras.push({ el: par, mots: ws, haut: 0, px: 6.5, depart: .6, sortie: .21, lignes: [] });
   });
   var PX_PAR_MOT = 6.5, FONDU_MOTS = 3.4, DEPART = .6;
   /* À la sortie, par le haut : chaque ligne s'en va lettre après lettre, de gauche à droite, en vague ; chaque lettre
@@ -708,8 +714,6 @@ html:not(.js) .roule .rl{ transform: none; }
     paras.forEach(function(pa){
       var rp = pa.el.getBoundingClientRect();
       pa.haut = rp.top + pos;   /* le haut du paragraphe dans la page */
-      /* un long texte ne doit pas se dévoiler plus vite qu'il ne défile : le dernier mot doit apparaître avant d'avoir quitté le bas de l'écran */
-      pa.px = Math.max(PX_PAR_MOT, (rp.height - VH * .3) / pa.mots.length);
       /* les lignes : les mots qui ont le même haut. Pour chacune, son milieu dans la page et la place de chaque mot (0 à 1) */
       pa.lignes = [];
       var courant = null, hautL = -999;
@@ -726,6 +730,14 @@ html:not(.js) .roule .rl{ transform: none; }
         }); });
         L.lettres.forEach(function(lt){ lt._p = d > g ? (lt._x - g) / (d - g) : 0; });
       });
+      /* Le paragraphe se pose au milieu de la hauteur : au moment où son dernier mot apparaît, il a encore un peu de chemin à faire
+         pour être exactement centré, et c'est en arrivant au centre que sa première ligne commence à s'en aller. */
+      var n = pa.mots.length + FONDU_MOTS, centre = Math.max(VH * .1, (VH - rp.height) / 2);
+      var finApp = centre + VH * .07;                                    /* hauteur du haut du paragraphe quand tout est apparu */
+      var depart = Math.min(.8, (finApp + PX_PAR_MOT * n) / VH);        /* ... et quand le premier mot apparaît (en part de l'écran) */
+      pa.px = Math.max((depart * VH - finApp) / n, (rp.height - VH * .3) / pa.mots.length);   /* un long texte ne se dévoile jamais plus vite qu'il ne défile */
+      pa.depart = (finApp + pa.px * n) / VH;
+      pa.sortie = Math.min(SORTIE_DEBUT, Math.max(SORTIE_FIN + .06, (centre + pa.lignes[0].centre - pa.haut) / VH - .015));
     });
     if(deuxPrets){ effaceFil(); construisDeuxiemeTemps(); mesureFil(); }
     derniere = -1;
@@ -772,14 +784,14 @@ html:not(.js) .roule .rl{ transform: none; }
       scenes.forEach(function(sn, k){
         if(k === 1){                                          /* le manifeste défile normalement : seuls ses mots apparaissent */
           paras.forEach(function(pa){
-            var lit = (VH * DEPART - (pa.haut - pos)) / pa.px;     /* le nombre de mots déjà passés */
+            var lit = (VH * pa.depart - (pa.haut - pos)) / pa.px;     /* le nombre de mots déjà passés */
             for(var i = 0; i < pa.mots.length; i++){
               var o = borne((lit - i) / FONDU_MOTS);
               if(o !== pa.mots[i]._o){ pa.mots[i]._o = o; pa.mots[i].style.opacity = o.toFixed(3); }
             }
             /* la sortie : une ligne qui monte vers le haut de l'écran s'en va lettre après lettre, en vague de gauche à droite */
             pa.lignes.forEach(function(L){
-              var y = L.centre - pos, e = borne((VH * SORTIE_DEBUT - y) / (VH * (SORTIE_DEBUT - SORTIE_FIN)));
+              var y = L.centre - pos, e = borne((VH * pa.sortie - y) / (VH * (pa.sortie - SORTIE_FIN)));
               if(e === L._e) return;                                   /* rien n'a bougé pour cette ligne */
               L._e = e;
               L.lettres.forEach(function(lt){
