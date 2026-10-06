@@ -146,10 +146,10 @@ html.js:not(.pret){ overflow: hidden; }                       /* pas de défilem
 .man .w{ display: inline-block; vertical-align: bottom; opacity: 0; white-space: nowrap; }
 /* chaque lettre a son masque : elle sort par le haut sans fondu, en vague le long de la ligne */
 .man .lm{
-  display: inline-block; vertical-align: bottom; overflow: hidden;
+  display: inline-block; vertical-align: bottom;                       /* le masque est un clip-path posé en JS (masquesLettres) */
   padding: .16em .01em .04em; margin: -.16em -.01em -.04em;           /* les accents ne sont pas rognés */
 }
-.man .lt{ display: inline-block; will-change: transform, opacity; }
+.man .lt{ display: inline-block; }                                    /* le will-change n'est posé que sur les lettres en mouvement */
 .man .espace{ display: inline-block; vertical-align: bottom; width: .26em; }
 
 /* 2. les savoir-faire : trois grands mots reliés par le tiret du logo */
@@ -469,7 +469,7 @@ html:not(.js) .roule .rl{ transform: none; }
   }
 
   /* --- le deuxième temps : des animations en pause, qu'on avance et qu'on recule avec le défilement --- */
-  var tl = [], TOTAL = 1, deuxPrets = false, traceM = null, enPctM = null, M_DUREE = 850;
+  var tl = [], ctPrec = -1, TOTAL = 1, deuxPrets = false, traceM = null, enPctM = null, M_DUREE = 850;
   var courbeM = null;
   function construisDeuxiemeTemps(){
     tl.forEach(function(a){ a.cancel(); }); tl = [];
@@ -553,6 +553,7 @@ html:not(.js) .roule .rl{ transform: none; }
       { transform: 'translate(calc(-50% + ' + dxc + 'px), calc(-50% + ' + dy + 'px)) scale(' + s + ')' }
     ], { duration: 1150, delay: tVol, easing: SOUPLE });
     TOTAL = tVol + 1150;
+    ctPrec = -1;
     deuxPrets = true;
   }
 
@@ -680,7 +681,8 @@ html:not(.js) .roule .rl{ transform: none; }
     tl.forEach(function(a){ a.currentTime = avant; });
   }
   function majFil(p){
-    if(!fil) return;
+    if(!fil || p === fil._p) return;
+    fil._p = p;
     var dM = fil.dM * p, dC = fil.dC * p;
     glM.style.translate = dM.toFixed(2) + 'px 0';
     glC.style.translate = dC.toFixed(2) + 'px 0';
@@ -698,10 +700,13 @@ html:not(.js) .roule .rl{ transform: none; }
     var man = document.getElementById('man'), cs = getComputedStyle(man);
     var lh = parseFloat(cs.lineHeight) / parseFloat(cs.fontSize);          /* l'interlignage, en em */
     var haut = (fa && cap) ? (((lh * S - (fa + fd)) / 2 + fa) - cap) / S : .27;   /* le haut des capitales, depuis le haut de la ligne, en em */
+    var cap_em = cap / S;
     paras.forEach(function(pa){ pa.mots.forEach(function(w){ w._lt.forEach(function(lt){
       var air = lt._acc ? .26 : .035;                                      /* la place laissée au-dessus des capitales */
       lt.parentNode.style.clipPath = 'inset(' + Math.max(0, .16 + haut - air).toFixed(3) + 'em -.1em -.2em -.1em)';
-      lt._d = lt._acc ? 82 : 62;                                           /* la montée, en % de la hauteur de la ligne */
+      /* la montée : juste de quoi sortir du masque, pied du signe compris (la virgule descend sous la ligne de base) */
+      var bas = Math.max(0, c.measureText(lt.textContent.toUpperCase()).actualBoundingBoxDescent / S);
+      lt._d = Math.min(100, (bas + cap_em + air + .04) / lh * 100);        /* en % de la hauteur de la ligne */
     }); }); });
   }
 
@@ -794,6 +799,15 @@ html:not(.js) .roule .rl{ transform: none; }
               var y = L.centre - pos, e = borne((VH * pa.sortie - y) / (VH * (pa.sortie - SORTIE_FIN)));
               if(e === L._e) return;                                   /* rien n'a bougé pour cette ligne */
               L._e = e;
+              var actif = e > 0 && e < 1, parti = e >= 1;
+              if(actif !== L._actif){                                  /* une couche propre seulement pour les lettres qui bougent */
+                L._actif = actif;
+                L.lettres.forEach(function(lt){ lt.style.willChange = actif ? 'transform, opacity' : ''; });
+              }
+              if(parti !== L._parti){                                  /* une ligne partie ne coûte plus rien */
+                L._parti = parti;
+                L.mots.forEach(function(w){ w.style.visibility = parti ? 'hidden' : ''; });
+              }
               L.lettres.forEach(function(lt){
                 var ew = doux(borne((e - .72 * lt._p) / .28));          /* une bande étroite de la ligne est en mouvement à la fois */
                 if(ew !== lt._ew){
@@ -826,13 +840,16 @@ html:not(.js) .roule .rl{ transform: none; }
       });
       /* le deuxième temps de l'arrivée suit le défilement */
       if(deuxPrets){
-        var ct = pIntro * TOTAL; tl.forEach(function(a){ a.currentTime = ct; });
+        var ct = pIntro * TOTAL;
+        if(ct !== ctPrec){ ctPrec = ct;                      /* l'arrivée ne bouge plus une fois passée : on ne la recalcule pas à chaque image */
+        tl.forEach(function(a){ a.currentTime = ct; });
         if(traceM){                                           /* le M se dessine trait après trait */
           var avM = courbeMain(Math.min(1, ct / M_DUREE));
           glM.firstChild.style.clipPath = avM >= 1 ? 'none' : traceM.poly(avM * traceM.L);
         } else {                                              /* au cas où la forme du M ne serait pas lisible : un rideau de gauche à droite */
           var avR = courbeMain(Math.min(1, ct / M_DUREE));
           glM.firstChild.style.clipPath = avR >= 1 ? 'none' : 'inset(0 ' + (100 - 100 * avR).toFixed(2) + '% 0 0)';
+        }
         }
       }
       /* le fil ne s'étire qu'après l'arrivée */
