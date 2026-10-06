@@ -127,7 +127,7 @@ html.js:not(.pret){ overflow: hidden; }                       /* pas de défilem
 .js #sc{ position: fixed; top: 0; left: 0; width: 100%; will-change: transform; }
 .scene{ position: relative; }
 .scene--intro{ height: calc(var(--vh, 100vh) * 3); }
-.scene--man{ height: auto; margin-top: calc(var(--vh, 100vh) * -.55); }   /* pas épinglé ; il remonte sous la fin de l'arrivée : ses premiers mots paraissent dès que le logo est en haut */
+.scene--man{ height: auto; margin-top: calc(var(--vh, 100vh) * -.55); padding-bottom: var(--tenue, 0px); }   /* --tenue : la longueur de défilement pendant laquelle le paragraphe reste posé au centre */   /* pas épinglé ; il remonte sous la fin de l'arrivée : ses premiers mots paraissent dès que le logo est en haut */
 .scene--sav{ height: calc(var(--vh, 100vh) * 4.4); }
 .scene--ctn{ height: calc(var(--vh, 100vh) * 1); }
 .epingle{ position: absolute; top: 0; left: 0; width: 100%; height: var(--vh, 100vh); overflow: hidden; }
@@ -620,6 +620,17 @@ html:not(.js) .roule .rl{ transform: none; }
     paras.push({ el: par, mots: ws, haut: 0, px: 6.5, depart: .6, sortie: .21, lignes: [] });
   });
   var PX_PAR_MOT = 6.5, FONDU_MOTS = 3.4, DEPART = .6;
+  /* Le paragraphe se pose au centre de l'écran, y reste un moment (TENUE), puis repart : il ralentit en douceur (sur RAMPE) avant
+     de s'arrêter, et repart de même. perdu(u) = la distance de défilement « absorbée » : u = 0 au début de l'arrêt. */
+  var TENUE = 0, RAMPE = 0, pinMan = 0;
+  function perdu(u){
+    var R = RAMPE, H = TENUE, t;
+    if(u <= -R) return 0;
+    if(u < 0){ t = (u + R) / R; return R * (t * t * t - t * t * t * t / 2); }
+    if(u <= H) return R / 2 + u;
+    if(u < H + R){ t = (u - H) / R; return R / 2 + H + R * (t - t * t * t + t * t * t * t / 2); }
+    return H + R;
+  }
   /* À la sortie, par le haut : chaque ligne s'en va lettre après lettre, de gauche à droite, en vague ; chaque lettre
      glisse vers le haut derrière son propre masque (même geste que les lettres du nom), en perdant un peu d'opacité, et a
      disparu avant d'atteindre le logo. */
@@ -716,6 +727,9 @@ html:not(.js) .roule .rl{ transform: none; }
   function mesure(){
     VH = window.innerHeight;
     document.documentElement.style.setProperty('--vh', VH + 'px');
+    TENUE = VH * .5; RAMPE = VH * .22;
+    document.documentElement.style.setProperty('--tenue', (TENUE + RAMPE) + 'px');
+    var epMan = document.querySelector('#manifeste .epingle'); epMan.style.transform = ''; scenes[1]._perte = null;
     masquesLettres();
     espace.style.height = sc.offsetHeight + 'px';
     scenes.forEach(function(sn){ sn._top = sn.offsetTop; sn._h = sn.offsetHeight; sn._ep = sn.querySelector('.epingle'); });
@@ -745,8 +759,10 @@ html:not(.js) .roule .rl{ transform: none; }
       var depart = Math.min(.8, (finApp + PX_PAR_MOT * n) / VH);        /* ... et quand le premier mot apparaît (en part de l'écran) */
       pa.px = Math.max((depart * VH - finApp) / n, (rp.height - VH * .3) / pa.mots.length);   /* un long texte ne se dévoile jamais plus vite qu'il ne défile */
       pa.depart = (finApp + pa.px * n) / VH;
+      pa.centre = centre;
       pa.sortie = Math.min(SORTIE_DEBUT, Math.max(SORTIE_FIN + .06, (centre + pa.lignes[0].centre - pa.haut) / VH - .015));
     });
+    if(paras.length) pinMan = paras[0].haut - paras[0].centre + RAMPE / 2;      /* le défilement auquel le paragraphe arrive au centre */
     if(deuxPrets){ effaceFil(); construisDeuxiemeTemps(); mesureFil(); }
     derniere = -1;
   }
@@ -790,16 +806,18 @@ html:not(.js) .roule .rl{ transform: none; }
       sc.style.transform = 'translate3d(0,' + (-pos).toFixed(2) + 'px,0)';
       var introM = scenes[0]._h - VH, pIntro = introM > 0 ? borne(pos / introM) : 1;
       scenes.forEach(function(sn, k){
-        if(k === 1){                                          /* le manifeste défile normalement : seuls ses mots apparaissent */
+        if(k === 1){                                          /* le manifeste défile normalement, sauf une pause au centre ; ses mots apparaissent */
+          var perte = perdu(pos - pinMan), pe = pos - perte;          /* pe : la position « effective » du paragraphe */
+          if(perte !== sn._perte){ sn._perte = perte; sn._ep.style.transform = 'translate3d(0,' + perte.toFixed(2) + 'px,0)'; }
           paras.forEach(function(pa){
-            var lit = (VH * pa.depart - (pa.haut - pos)) / pa.px;     /* le nombre de mots déjà passés */
+            var lit = (VH * pa.depart - (pa.haut - pe)) / pa.px;     /* le nombre de mots déjà passés */
             for(var i = 0; i < pa.mots.length; i++){
               var o = borne((lit - i) / FONDU_MOTS);
               if(o !== pa.mots[i]._o){ pa.mots[i]._o = o; pa.mots[i].style.opacity = o.toFixed(3); }
             }
             /* la sortie : une ligne qui monte vers le haut de l'écran s'en va lettre après lettre, en vague de gauche à droite */
             pa.lignes.forEach(function(L){
-              var y = L.centre - pos, e = borne((VH * pa.sortie - y) / (VH * (pa.sortie - SORTIE_FIN)));
+              var y = L.centre - pe, e = borne((VH * pa.sortie - y) / (VH * (pa.sortie - SORTIE_FIN)));
               if(e === L._e) return;                                   /* rien n'a bougé pour cette ligne */
               L._e = e;
               var parti = e >= 1;
