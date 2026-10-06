@@ -149,7 +149,7 @@ html.js:not(.pret){ overflow: hidden; }                       /* pas de défilem
   display: inline-block; vertical-align: bottom;                       /* le masque est un clip-path posé en JS (masquesLettres) */
   padding: .16em .01em .04em; margin: -.16em -.01em -.04em;           /* les accents ne sont pas rognés */
 }
-.man .lt{ display: inline-block; }                                    /* le will-change n'est posé que sur les lettres en mouvement */
+.man .lt{ display: inline-block; }                                    /* surtout pas de will-change ni de translate3d : une couche graphique par lettre ferait ramer */
 .man .espace{ display: inline-block; vertical-align: bottom; width: .26em; }
 
 /* 2. les savoir-faire : trois grands mots reliés par le tiret du logo */
@@ -693,6 +693,7 @@ html:not(.js) .roule .rl{ transform: none; }
 
   /* Le masque de chaque lettre ne dépasse que de quelques centièmes d'em au-dessus des capitales (de plus pour les lettres
      accentuées) : une lettre qui monte est donc coupée presque tout de suite, et n'a besoin de monter que de sa propre hauteur. */
+  var couleurTexte = '255,255,255';
   function masquesLettres(){
     var c = document.createElement('canvas').getContext('2d'), S = 200;
     c.font = '400 ' + S + 'px Object, "Helvetica Neue", Arial, sans-serif';
@@ -700,6 +701,8 @@ html:not(.js) .roule .rl{ transform: none; }
     var man = document.getElementById('man'), cs = getComputedStyle(man);
     var lh = parseFloat(cs.lineHeight) / parseFloat(cs.fontSize);          /* l'interlignage, en em */
     var haut = (fa && cap) ? (((lh * S - (fa + fd)) / 2 + fa) - cap) / S : .27;   /* le haut des capitales, depuis le haut de la ligne, en em */
+    var rgb = /(\d+)[, ]+(\d+)[, ]+(\d+)/.exec(cs.color);
+    couleurTexte = rgb ? rgb[1] + ',' + rgb[2] + ',' + rgb[3] : '255,255,255';
     var cap_em = cap / S;
     paras.forEach(function(pa){ pa.mots.forEach(function(w){ w._lt.forEach(function(lt){
       var air = lt._acc ? .26 : .035;                                      /* la place laissée au-dessus des capitales */
@@ -799,11 +802,7 @@ html:not(.js) .roule .rl{ transform: none; }
               var y = L.centre - pos, e = borne((VH * pa.sortie - y) / (VH * (pa.sortie - SORTIE_FIN)));
               if(e === L._e) return;                                   /* rien n'a bougé pour cette ligne */
               L._e = e;
-              var actif = e > 0 && e < 1, parti = e >= 1;
-              if(actif !== L._actif){                                  /* une couche propre seulement pour les lettres qui bougent */
-                L._actif = actif;
-                L.lettres.forEach(function(lt){ lt.style.willChange = actif ? 'transform, opacity' : ''; });
-              }
+              var parti = e >= 1;
               if(parti !== L._parti){                                  /* une ligne partie ne coûte plus rien */
                 L._parti = parti;
                 L.mots.forEach(function(w){ w.style.visibility = parti ? 'hidden' : ''; });
@@ -812,8 +811,11 @@ html:not(.js) .roule .rl{ transform: none; }
                 var ew = doux(borne((e - .72 * lt._p) / .28));          /* une bande étroite de la ligne est en mouvement à la fois */
                 if(ew !== lt._ew){
                   lt._ew = ew;
-                  lt.style.transform = ew ? 'translate3d(0,' + (-ew * lt._d).toFixed(2) + '%,0)' : '';
-                  lt.style.opacity = ew ? (1 - .38 * ew).toFixed(3) : '';        /* un très léger voile pendant qu'elle monte */
+                  /* Ni translate3d, ni will-change, ni opacity : tout cela fait de chaque lettre une couche graphique à part
+                     (456 couches, chacune avec son masque), ce qui faisait ramer. Un simple translateY et une couleur
+                     translucide se dessinent dans la couche de la page. */
+                  lt.style.transform = ew ? 'translateY(' + (-ew * lt._d).toFixed(2) + '%)' : '';
+                  lt.style.color = ew ? 'rgba(' + couleurTexte + ',' + (1 - .38 * ew).toFixed(3) + ')' : '';   /* un très léger voile pendant qu'elle monte */
                 }
               });
             });
