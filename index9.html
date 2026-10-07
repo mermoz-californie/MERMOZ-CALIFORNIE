@@ -302,7 +302,7 @@ html:not(.js) .roule .rl{ transform: none; }
   <section class="scene scene--man" id="manifeste" data-nom="Manifeste" aria-label="Manifeste">
     <div class="epingle"><div class="cadre">
       <div class="man" id="man">
-        <p>Mermoz Californie est un studio indépendant de création d’identité. Nous n’inventons rien : chaque marque porte déjà son histoire, ses convictions, sa singularité. Souvent, elle les regarde juste de trop près. Notre rôle, c’est d’élargir le champ de vision. L’analyse d’abord, pour repérer ce qui est solide. L’intuition ensuite, pour ouvrir l’angle et révéler toute l’étendue de ce qui était déjà là. Stratégie, identité visuelle, campagne : à mesure que le cadre recule, le panorama apparaît. L’audience n’a plus qu’à profiter de la vue.</p>
+        <p>Mermoz Californie est un studio indépendant de création d’identité. Nous n’inventons rien : chaque marque porte déjà son histoire, ses convictions, sa singularité. Souvent, elle les regarde juste de trop près. Notre rôle, c’est d’élargir le champ de vision. L’analyse d’abord, pour repérer ce qui est solide. L’intuition ensuite, pour ouvrir l’angle et révéler toute l’étendue de ce qui était déjà là.</p>
       </div>
     </div></div>
   </section>
@@ -365,6 +365,16 @@ html:not(.js) .roule .rl{ transform: none; }
   function placeLogo(){ marque.style.setProperty('--haut-logo', centreEntete() + 'px'); }
   placeLogo();
   window.addEventListener('resize', placeLogo);
+
+  /* Le contour du logo est proportionnel à sa taille : 2 px sur un écran d'ordinateur (grand M de 230 px), et moins quand
+     l'écran est plus petit (environ 0,5 px sur un téléphone), sinon le nom devient trop gras. */
+  var traitDebut = 2;
+  function reglerTrait(){
+    var f = parseFloat(getComputedStyle(marque).fontSize);
+    traitDebut = Math.max(.5, 2 * Math.min(1, 3.4 * f / 230));
+    marque.style.setProperty('--trait', traitDebut.toFixed(3) + 'px');
+  }
+  reglerTrait();
 
   /* ---------- l'arrivée : en deux temps ----------
      1. toute seule : le nom s'écrit au centre ;
@@ -529,7 +539,7 @@ html:not(.js) .roule .rl{ transform: none; }
   }
 
   /* --- le deuxième temps : des animations en pause, qu'on avance et qu'on recule avec le défilement --- */
-  var TRAIT_DEBUT = 2, TRAIT_HAUT = .5;      /* l'épaisseur du contour du logo, vue à l'écran, en px : à l'arrivée, puis une fois en haut */
+  var TRAIT_HAUT = .5;      /* l'épaisseur du contour du logo une fois en haut, vue à l'écran, en px (à l'arrivée : traitDebut, selon la taille de l'écran) */
   var tl = [], ctPrec = -1, volDebut = 0, volEchelle = 1, traitPrec = -1, TOTAL = 1, deuxPrets = false, traceM = null, enPctM = null, M_DUREE = 850;
   var courbeM = null;
   function construisDeuxiemeTemps(){
@@ -542,7 +552,8 @@ html:not(.js) .roule .rl{ transform: none; }
     /* au tout début du défilement : le grand M et le grand C se dessinent peu à peu.
        Le masque suit le tracé de chaque lettre : le M se dessine comme on l'écrit (montant de gauche, oblique descendante,
        oblique montante, montant de droite) ; le C tourne autour de son centre, de l'extrémité haute à l'extrémité basse. */
-    var demiTrait = 1 / F;                          /* le contour de 2 px dépasse du dessin de 1 px de chaque côté */
+    reglerTrait();
+    var demiTrait = traitDebut / 2 / F;             /* le contour dépasse du dessin de la moitié de son épaisseur, de chaque côté */
     var gM = geomGlyphe('M', demiTrait), gC = geomGlyphe('C', demiTrait);
     /* Le tiret est centré sur l'encre : à mi-chemin entre le bord droit du M et le bord gauche du C (pas entre leurs cadres,
        qui ont des marges différentes), et à mi-hauteur des capitales du M. */
@@ -947,7 +958,7 @@ html:not(.js) .roule .rl{ transform: none; }
         if(ct !== ctPrec){ ctPrec = ct;                      /* l'arrivée ne bouge plus une fois passée : on ne la recalcule pas à chaque image */
         tl.forEach(function(a){ a.currentTime = ct; });
         /* le contour : 2 px à l'écran au début, 1 px à la fin ; le logo rapetisse, donc on règle l'épaisseur dans son propre repère */
-        var Ev = courbeSouple(borne((ct - volDebut) / 1150)), w = (TRAIT_DEBUT - (TRAIT_DEBUT - TRAIT_HAUT) * Ev) / (1 + (volEchelle - 1) * Ev);
+        var Ev = courbeSouple(borne((ct - volDebut) / 1150)), w = (traitDebut - (traitDebut - TRAIT_HAUT) * Ev) / (1 + (volEchelle - 1) * Ev);
         if(Math.abs(w - traitPrec) > .004){ traitPrec = w; marque.style.setProperty('--trait', w.toFixed(3) + 'px'); }
         if(traceM){                                           /* le M se dessine trait après trait */
           var avM = courbeMain(Math.min(1, ct / M_DUREE));
